@@ -188,6 +188,25 @@
     .live-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);border-radius:50px;padding:.2rem .7rem;font-size:.72rem;color:var(--mint);margin-left:.75rem;}
     .live-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);animation:pulseGreen 1.5s infinite;}
 
+    /* ── TEST SCHEDULE ── */
+    .ts-machine{margin-bottom:2rem;}
+    .ts-machine-header{display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:.9rem;padding-bottom:.6rem;border-bottom:1px solid var(--border);}
+    .ts-machine-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:#f0f8ff;display:flex;align-items:center;gap:.5rem;}
+    .ts-machine-meta{font-size:.78rem;color:#7da8c4;}
+    .ts-day-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mint);
+      font-weight:600;margin:.75rem 0 .45rem;}
+    .ts-slots{display:flex;flex-direction:column;gap:.45rem;}
+    .ts-slot{display:grid;grid-template-columns:80px 1fr 1fr auto;align-items:center;gap:1rem;
+      background:rgba(255,255,255,.03);border:1px solid rgba(0,198,167,.12);
+      border-radius:10px;padding:.55rem .9rem;font-size:.82rem;}
+    .ts-time{color:var(--mint);font-weight:600;font-family:'Playfair Display',serif;font-size:.95rem;}
+    .ts-patient{color:#f0f8ff;font-weight:500;}
+    .ts-doctor{color:#7da8c4;}
+    .ts-badge{background:rgba(0,198,167,.12);border:1px solid rgba(0,198,167,.25);
+      color:var(--mint);border-radius:50px;padding:.15rem .6rem;font-size:.72rem;white-space:nowrap;}
+    .ts-empty{color:#4a6a84;font-size:.82rem;font-style:italic;padding:.5rem .9rem;}
+
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
       .sidebar{display:none;}
@@ -224,7 +243,7 @@
     </div>
   </nav>
 
-  <!-- CREDENTIAL MODAL -->
+  <!-- CREDENTIAL MODAL — Doctor -->
   <div class="modal-overlay" id="credModal">
     <div class="modal">
       <div class="modal-title">🩺 Doctor Account Created</div>
@@ -239,6 +258,24 @@
       </div>
       <div class="modal-warn">⚠ This password is shown only once. Copy and share it with the doctor immediately.</div>
       <button class="btn-modal-close" id="credModalClose">Done — I've noted the credentials</button>
+    </div>
+  </div>
+
+  <!-- CREDENTIAL MODAL — Equipment -->
+  <div class="modal-overlay" id="equipCredModal">
+    <div class="modal">
+      <div class="modal-title">🔬 Equipment Login Created</div>
+      <div class="modal-sub">Share these credentials with the equipment operator for the Tests Portal.</div>
+      <div class="cred-box">
+        <div class="cred-label">Tests Portal Login Email</div>
+        <div class="cred-value"><span id="equipCredEmail">—</span><button class="copy-btn" id="copyEquipEmailBtn">Copy</button></div>
+      </div>
+      <div class="cred-box">
+        <div class="cred-label">Temporary Password</div>
+        <div class="cred-value"><span id="equipCredPassword">—</span><button class="copy-btn" id="copyEquipPassBtn">Copy</button></div>
+      </div>
+      <div class="modal-warn">⚠ This password is shown only once. Share it with the operator immediately.</div>
+      <button class="btn-modal-close" id="equipCredModalClose">Done — I've noted the credentials</button>
     </div>
   </div>
 
@@ -263,6 +300,7 @@
         <div class="sidebar-item" data-page="regBed"><span class="icon">🛏</span> Register Bed</div>
         <div class="sidebar-item" data-page="viewBeds"><span class="icon">🏨</span> View Beds</div>
         <div class="sidebar-item" data-page="viewRooms"><span class="icon">🗺</span> Room View</div>
+        <div class="sidebar-item" data-page="testSchedule"><span class="icon">🔬</span> Test Schedule</div>
       </div>
     </div>
 
@@ -403,7 +441,7 @@
 
       <!-- REGISTER EQUIPMENT -->
       <div class="page" id="page-regEquip">
-        <div class="page-header"><h2>Register Equipment</h2><p>Add new medical equipment</p></div>
+        <div class="page-header"><h2>Register Equipment</h2><p>Add new medical equipment — a login will be created for the Tests Portal</p></div>
         <div class="card">
           <div class="card-title"><span class="icon">🔧</span> Equipment Details</div>
           <div class="form-grid">
@@ -434,7 +472,8 @@
               </div>
             </div>
           </div>
-          <button class="btn-submit" id="equipSubmitBtn">🔧 Register Equipment</button>
+          <div class="hint-box">🔐 A login email &amp; temporary password will be auto-generated for the <strong>Tests Portal</strong> and shown once — share it with the equipment operator.</div>
+          <button class="btn-submit" id="equipSubmitBtn">🔧 Register Equipment &amp; Create Login</button>
           <div class="alert alert-success" id="equipAlert">✅ Equipment registered successfully!</div>
           <div class="alert alert-error" id="equipError"></div>
         </div>
@@ -442,12 +481,12 @@
 
       <!-- VIEW EQUIPMENT -->
       <div class="page" id="page-viewEquip">
-        <div class="page-header"><h2>Equipment</h2><p>All registered equipment</p></div>
+        <div class="page-header"><h2>Equipment</h2><p>All registered equipment — each has a Tests Portal login</p></div>
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Serial</th><th>Operator</th><th>Contact</th><th>Room</th><th>Working Hours</th><th></th></tr></thead>
-              <tbody id="equipTable"><tr class="loading-row"><td colspan="7"><span class="spinner"></span> Loading…</td></tr></tbody>
+              <thead><tr><th>Name</th><th>Serial</th><th>Operator</th><th>Contact</th><th>Room</th><th>Working Hours</th><th>Portal Login</th><th></th></tr></thead>
+              <tbody id="equipTable"><tr class="loading-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -496,6 +535,19 @@
           <p>Bed availability updates automatically when a doctor hospitalises a patient</p>
         </div>
         <div id="roomFloors"></div>
+      </div>
+
+      <!-- TEST SCHEDULE — LIVE via onSnapshot -->
+      <div class="page" id="page-testSchedule">
+        <div class="page-header">
+          <h2>Test Schedule <span class="live-badge"><span class="live-dot"></span>Live</span></h2>
+          <p>All equipment-based tests assigned by doctors — grouped by machine and date</p>
+        </div>
+        <div id="testScheduleWrap">
+          <div class="empty" style="padding:3rem;text-align:center;color:#4a6a84">
+            <span class="spinner"></span> Loading test assignments…
+          </div>
+        </div>
       </div>
 
     </div><!-- /main -->
@@ -556,6 +608,10 @@
   makeCopyBtn('copyPassBtn','credPassword');
   $('credModalClose')?.addEventListener('click',()=>$('credModal').classList.remove('open'));
 
+  makeCopyBtn('copyEquipEmailBtn','equipCredEmail');
+  makeCopyBtn('copyEquipPassBtn','equipCredPassword');
+  $('equipCredModalClose')?.addEventListener('click',()=>$('equipCredModal').classList.remove('open'));
+
   // ── Auth state ────────────────────────────────────────────────────────────
   onAuthStateChanged(auth,user=>{
     if(user){
@@ -615,6 +671,7 @@
     loadLiveTable('nurses',   'nursesTable',  renderNurseRow);
     loadLiveTable('equipment','equipTable',   renderEquipRow);
     loadRecentAppointments();
+    loadTestSchedule();
   }
 
   function loadLiveTable(colName,tbodyId,renderFn){
@@ -623,6 +680,91 @@
       if(snap.empty){ tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:2rem;color:#4a6a84">No records found.</td></tr>`; return; }
       tbody.innerHTML='';
       snap.forEach(d=>{ tbody.innerHTML+=renderFn(d.id,d.data()); });
+    });
+  }
+
+  function loadTestSchedule(){
+    // Listen to both collections simultaneously so the view updates when either changes
+    let assignments=[];
+    let equipmentMap={}; // id -> data
+
+    function render(){
+      const wrap=$('testScheduleWrap'); if(!wrap) return;
+      if(assignments.length===0){
+        wrap.innerHTML='<div class="empty" style="padding:3rem;text-align:center;color:#4a6a84">No test assignments yet. Doctors can assign equipment tests from the Doctor Portal.</div>';
+        return;
+      }
+
+      // Group assignments: equipmentId -> date -> sorted slots
+      const grouped={};
+      assignments.forEach(a=>{
+        const eid  = a.equipmentId||'unknown';
+        const date = a.date       ||'Unknown Date';
+        if(!grouped[eid])          grouped[eid]={};
+        if(!grouped[eid][date])    grouped[eid][date]=[];
+        grouped[eid][date].push(a);
+      });
+
+      // Sort each group by slot time
+      Object.values(grouped).forEach(byDate=>{
+        Object.values(byDate).forEach(arr=>arr.sort((x,y)=>(x.slot||'').localeCompare(y.slot||'')));
+      });
+
+      let html='';
+      Object.entries(grouped)
+        .sort(([a],[b])=>(equipmentMap[a]?.name||a).localeCompare(equipmentMap[b]?.name||b))
+        .forEach(([eid, byDate])=>{
+          const eq      = equipmentMap[eid]||{};
+          const eqName  = eq.name  ||'Unknown Equipment';
+          const eqRoom  = eq.room  ?`Room ${eq.room}`:'';
+          const eqOp    = eq.operator||'';
+          const metaParts=[eqRoom,eqOp].filter(Boolean).join(' · ');
+          const totalSlots=Object.values(byDate).reduce((s,arr)=>s+arr.length,0);
+
+          html+=`<div class="ts-machine card">
+            <div class="ts-machine-header">
+              <div class="ts-machine-name">🔬 ${eqName}
+                <span class="ts-badge">${totalSlots} test${totalSlots>1?'s':''} booked</span>
+              </div>
+              <div class="ts-machine-meta">${metaParts}</div>
+            </div>`;
+
+          // Sort dates ascending
+          Object.entries(byDate)
+            .sort(([a],[b])=>a.localeCompare(b))
+            .forEach(([date,slots])=>{
+              const dateLabel = date!=='Unknown Date'
+                ? new Date(date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})
+                : 'Date Unknown';
+              html+=`<div class="ts-day-label">📅 ${dateLabel}</div><div class="ts-slots">`;
+              slots.forEach(s=>{
+                const timeLabel=s.slot?formatTime(s.slot):'—';
+                html+=`<div class="ts-slot">
+                  <span class="ts-time">${timeLabel}</span>
+                  <span class="ts-patient">🧑 ${s.patientName||'—'}</span>
+                  <span class="ts-doctor">👨‍⚕️ ${s.doctorName||'—'}</span>
+                  <span class="ts-badge">Scheduled</span>
+                </div>`;
+              });
+              html+=`</div>`;
+            });
+          html+=`</div>`;
+        });
+
+      wrap.innerHTML=html;
+    }
+
+    // Live listener on equipmentAssignments
+    onSnapshot(collection(db,'equipmentAssignments'),snap=>{
+      assignments=snap.docs.map(d=>({id:d.id,...d.data()}));
+      render();
+    });
+
+    // Live listener on equipment (to get names/rooms)
+    onSnapshot(collection(db,'equipment'),snap=>{
+      equipmentMap={};
+      snap.docs.forEach(d=>{ equipmentMap[d.id]=d.data(); });
+      render();
     });
   }
 
@@ -762,6 +904,7 @@
     return `<tr>
       <td>${d.name||'—'}</td><td>${d.serial||'—'}</td><td>${d.operator||'—'}</td>
       <td>${d.contact||'—'}</td><td>${d.room||'—'}</td><td>${hours}</td>
+      <td style="color:var(--accent);font-size:.82rem">${d.email||'<span style="color:#4a6a84">No login</span>'}</td>
       <td><button class="btn-delete" onclick="deleteRecord('equipment','${id}')">Remove</button></td>
     </tr>`;
   }
@@ -826,19 +969,32 @@
           contact=v('equipContact'),room=v('equipRoom'),from=v('equipFrom'),to=v('equipTo');
     if(!name){ showErr('equipError','Equipment name is required.'); return; }
     if(!from||!to){ showErr('equipError','Please select working hours.'); return; }
-    const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
+
+    // Generate login credentials for the Tests Portal
+    // Email format: mri.machine@medicare, ct.scan@medicare, etc.
+    const emailSlug = name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');
+    const generatedEmail = `${emailSlug}@medicare`;
+    const tempPassword   = generatePassword();
+
+    const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Registering…';
     try{
-      // Store as workingFrom / workingTo — matches doctor portal exactly
+      // Store as workingFrom / workingTo — matches doctor portal and tests portal exactly
       await addDoc(collection(db,'equipment'),{
-        name,serial,operator,contact,room,
-        workingFrom:from, workingTo:to,
-        createdAt:serverTimestamp()
+        name, serial, operator, contact, room,
+        workingFrom: from, workingTo: to,
+        email:    generatedEmail,   // used by Tests Portal to log in
+        password: tempPassword,     // used by Tests Portal to authenticate
+        role:     'equipment',
+        createdAt: serverTimestamp()
       });
       clearFields(['equipName','equipSerial','equipOperator','equipContact','equipRoom']);
       $('equipFrom').value=''; $('equipTo').value='';
-      showAlert('equipAlert');
+      // Show credential modal
+      $('equipCredEmail').textContent    = generatedEmail;
+      $('equipCredPassword').textContent = tempPassword;
+      $('equipCredModal').classList.add('open');
     }catch(e){ showErr('equipError','Error: '+e.message); }
-    btn.disabled=false; btn.textContent='🔧 Register Equipment';
+    btn.disabled=false; btn.textContent='🔧 Register Equipment & Create Login';
   });
 
   // ── Register Bed ──────────────────────────────────────────────────────────

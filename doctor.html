@@ -653,6 +653,11 @@
       const equipSnap=await getDocs(collection(db,'equipment'));
       const assignSnap=await getDocs(collection(db,'equipmentAssignments'));
       const assignments=assignSnap.docs.map(d=>d.data());
+
+      // Use the appointment's date for slot conflict checking.
+      // If the appointment has no date yet, fall back to today.
+      const targetDate = activeAppt.date || new Date().toISOString().split('T')[0];
+
       if(equipSnap.empty){
         $('equipList').innerHTML='<div class="equip-loading" style="color:var(--rose)">No equipment registered. Ask admin to add equipment.</div>';
         return;
@@ -663,22 +668,30 @@
         // ── Use admin's exact field names: workingFrom, workingTo ──
         const from=e.workingFrom||'08:00';
         const to  =e.workingTo  ||'17:00';
-        const allSlots  =generateTimeSlots(from,to,60);
-        const takenSlots=assignments.filter(a=>a.equipmentId===e.id).map(a=>a.slot);
-        const freeSlots =allSlots.filter(s=>!takenSlots.includes(s));
-        const eName =e.name||'Equipment';
+        const allSlots=generateTimeSlots(from,to,60);
+
+        // Only treat a slot as taken if it's on the SAME date as the appointment.
+        // This means the same machine can be used at the same time on different days.
+        const takenSlots=assignments
+          .filter(a=>a.equipmentId===e.id && a.date===targetDate)
+          .map(a=>a.slot);
+        const freeSlots=allSlots.filter(s=>!takenSlots.includes(s));
+
+        const eName  =e.name||'Equipment';
         const roomTxt=e.room?` · Room ${e.room}`:'';
-        const opTxt  =e.operator?` · Operated by ${e.operator}`:'';
+        const opTxt  =e.operator?` · ${e.operator}`:'';
+        const dateLabel=new Date(targetDate+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+
         if(freeSlots.length===0){
           html+=`<div class="equip-item disabled-equip">
             <div><div class="equip-name">${eName}</div>
-            <div class="equip-meta slot-busy">No free slots available${roomTxt}${opTxt}</div></div>
+            <div class="equip-meta slot-busy">Fully booked on ${dateLabel}${roomTxt}${opTxt}</div></div>
             <div class="equip-check"></div></div>`;
         } else {
           const next=freeSlots[0];
           html+=`<div class="equip-item" id="ei-${e.id}" onclick="selectEquip('${e.id}','${next}')">
             <div><div class="equip-name">${eName}</div>
-            <div class="equip-meta slot-free">Next free: ${fmtTime(next)} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}${opTxt}</div></div>
+            <div class="equip-meta slot-free">Next free: ${fmtTime(next)} on ${dateLabel} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}${opTxt}</div></div>
             <div class="equip-check" id="ec-${e.id}">✓</div></div>`;
         }
       });
@@ -713,6 +726,7 @@
         patientName:   activeAppt.patientName||activeAppt.name,
         doctorName:    currentDoctor.name,
         slot:          selectedSlot,
+        date:          activeAppt.date || new Date().toISOString().split('T')[0], // date-aware conflict checking
         assignedAt:    serverTimestamp()
       });
       await updateDoc(doc(db,'appointments',activeAppt.id),{

@@ -163,6 +163,7 @@
   <div class="nav-pills">
     <a href="admin.html" class="nav-pill outline">Admin Panel</a>
     <a href="doctor.html" class="nav-pill outline">Doctor Panel</a>
+    <a href="tests-portal.html" class="nav-pill outline">Tests Portal</a>
     <a href="dashboard.html" class="nav-pill filled">View Dashboard</a>
   </div>
 </nav>
@@ -195,7 +196,7 @@
 
 <p class="section-label">Platform Access</p>
 <h2 class="section-title">Choose Your Portal</h2>
-<div class="panels">
+<div class="panels" style="grid-template-columns:repeat(4,1fr);">
   <a href="admin.html" class="panel-card">
     <div class="panel-icon icon-teal">🛡️</div>
     <div class="panel-title">Admin Panel</div>
@@ -207,6 +208,12 @@
     <div class="panel-title">Doctor Panel</div>
     <p class="panel-desc">View your schedule, manage patient appointments, and update your availability in real-time.</p>
     <div class="panel-arrow">Doctor Login →</div>
+  </a>
+  <a href="tests-portal.html" class="panel-card">
+    <div class="panel-icon" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);">🔬</div>
+    <div class="panel-title">Tests Portal</div>
+    <p class="panel-desc">Equipment operators manage assigned tests, update test status, and record patient results in real-time.</p>
+    <div class="panel-arrow" style="color:#F59E0B;">Tests Login →</div>
   </a>
   <a href="dashboard.html" class="panel-card">
     <div class="panel-icon icon-gold">📊</div>

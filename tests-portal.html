@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tests Portal | MediCare+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --amber:#F59E0B;--amberDark:#D97706;--amberGlow:rgba(245,158,11,.18);
+      --deep:#07111F;--card:#0D1E30;--navy:#112640;
+      --teal:#00C6A7;--rose:#FF6B8A;--lavender:#A78BFA;--emerald:#34D399;
+      --border:rgba(245,158,11,.22);--borderSoft:rgba(0,198,167,.15);
+      --text:#D8EEF8;--muted:#6A93B0;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--deep);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+    .bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;}
+    .bg-grid{position:absolute;inset:0;
+      background-image:linear-gradient(rgba(245,158,11,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(245,158,11,.025) 1px,transparent 1px);
+      background-size:56px 56px;}
+    .bg-orb1{position:absolute;width:700px;height:700px;border-radius:50%;
+      background:radial-gradient(circle,rgba(245,158,11,.07) 0%,transparent 65%);top:-250px;right:-200px;}
+    .bg-orb2{position:absolute;width:500px;height:500px;border-radius:50%;
+      background:radial-gradient(circle,rgba(0,198,167,.04) 0%,transparent 65%);bottom:-150px;left:-150px;}
+
+    /* ── LOGIN ── */
+    #loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--deep);}
+    .login-wrap{position:relative;z-index:5;width:100%;max-width:440px;padding:2.5rem;
+      background:rgba(13,30,48,.95);border:1px solid var(--border);border-radius:28px;
+      box-shadow:0 40px 100px rgba(0,0,0,.6);backdrop-filter:blur(20px);}
+    .login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--amber);text-align:center;line-height:1;}
+    .login-logo span{color:var(--teal);}
+    .login-role{text-align:center;margin:.4rem 0 2rem;font-size:.82rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .role-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block;box-shadow:0 0 6px rgba(245,158,11,.6);}
+    .f-group{margin-bottom:1.1rem;}
+    .f-group label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.45rem;font-weight:500;}
+    .f-group input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;padding:.75rem 1rem;color:var(--text);font-size:.92rem;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;}
+    .f-group input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.12);}
+    .btn-primary{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--amber),var(--amberDark));border:none;border-radius:12px;color:#07111F;font-weight:700;font-size:.95rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .2s;margin-top:.5rem;}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(245,158,11,.4);}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .login-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);border-radius:9px;padding:.6rem .9rem;color:var(--rose);font-size:.82rem;margin-top:.9rem;display:none;text-align:center;}
+    .login-loading{text-align:center;color:var(--muted);font-size:.83rem;margin-top:.75rem;display:none;}
+    .change-pass-link{text-align:center;margin-top:1rem;font-size:.8rem;color:var(--muted);}
+    .change-pass-link a{color:var(--amber);cursor:pointer;text-decoration:none;}
+
+    /* ── APP ── */
+    #appShell{display:none;}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(7,17,31,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--amber);}
+    .nav-logo span{color:var(--teal);}
+    .nav-center{display:flex;gap:.25rem;}
+    .nav-tab{padding:.45rem 1.1rem;border-radius:50px;font-size:.83rem;cursor:pointer;color:var(--muted);background:transparent;border:1px solid transparent;transition:all .2s;font-family:'Outfit',sans-serif;}
+    .nav-tab:hover{color:var(--text);background:rgba(255,255,255,.05);}
+    .nav-tab.active{color:var(--amber);background:var(--amberGlow);border-color:var(--border);}
+    .nav-right{display:flex;align-items:center;gap:.75rem;}
+    .op-chip{display:flex;align-items:center;gap:.5rem;background:var(--amberGlow);border:1px solid var(--border);border-radius:50px;padding:.35rem .85rem;font-size:.78rem;color:var(--amber);}
+    .op-chip .avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--amberDark));display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#07111F;font-weight:700;}
+    .btn-signout{padding:.4rem 1rem;border:1px solid var(--borderSoft);border-radius:50px;background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .btn-signout:hover{border-color:var(--rose);color:var(--rose);}
+
+    .main{position:relative;z-index:5;padding:2.5rem;max-width:1200px;margin:0 auto;}
+    .page{display:none;}
+    .page.active{display:block;animation:fadeUp .3s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+    .pg-header{margin-bottom:2rem;}
+    .pg-header h2{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#f0f8ff;line-height:1.1;}
+    .pg-header p{color:var(--muted);font-size:.88rem;margin-top:.3rem;}
+
+    .card{background:var(--card);border:1px solid var(--borderSoft);border-radius:18px;padding:1.5rem;}
+    .card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#f0f8ff;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
+
+    /* ── STAT GRID ── */
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;}
+    .stat-card{background:var(--card);border:1px solid var(--borderSoft);border-radius:16px;padding:1.25rem 1.5rem;transition:border-color .2s,transform .2s;}
+    .stat-card:hover{border-color:rgba(245,158,11,.45);transform:translateY(-2px);}
+    .stat-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--amber);}
+    .stat-lbl{font-size:.8rem;color:var(--muted);margin-top:.15rem;}
+    .stat-icon{font-size:1.4rem;margin-bottom:.5rem;}
+
+    /* ── TODAY STRIP ── */
+    .today-strip{background:linear-gradient(135deg,var(--amberGlow),rgba(0,198,167,.05));border:1px solid var(--border);border-radius:14px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
+    .today-strip .day{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#f0f8ff;}
+    .today-strip .count{font-size:.82rem;color:var(--muted);}
+    .today-count-num{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--amber);font-weight:700;}
+
+    /* ── TEST CARDS ── */
+    .test-list{display:flex;flex-direction:column;gap:.85rem;}
+    .test-card{background:rgba(255,255,255,.03);border:1px solid var(--borderSoft);border-radius:14px;padding:1rem 1.25rem;transition:border-color .2s,background .2s;}
+    .test-card:hover{background:rgba(245,158,11,.03);border-color:rgba(245,158,11,.3);}
+    .test-card-top{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:1.25rem;}
+    .test-card-bottom{margin-top:.85rem;padding-top:.85rem;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
+
+    .test-time-block{text-align:center;background:var(--amberGlow);border:1px solid var(--border);border-radius:12px;padding:.6rem .9rem;min-width:72px;}
+    .test-time{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--amber);}
+    .test-date{font-size:.7rem;color:var(--muted);margin-top:.1rem;}
+
+    .test-info h4{font-size:.92rem;color:#f0f8ff;font-weight:500;margin-bottom:.2rem;}
+    .test-info .meta{font-size:.8rem;color:var(--muted);}
+    .test-info .meta span{color:var(--amber);}
+
+    .test-status{padding:.25rem .75rem;border-radius:50px;font-size:.73rem;font-weight:600;white-space:nowrap;}
+    .ts-scheduled{background:rgba(245,158,11,.15);color:var(--amber);}
+    .ts-inprogress{background:rgba(0,198,167,.15);color:var(--teal);}
+    .ts-done{background:rgba(167,139,250,.15);color:var(--lavender);}
+    .ts-cancelled{background:rgba(255,107,138,.15);color:var(--rose);}
+
+    .test-actions{display:flex;gap:.5rem;}
+    .btn-sm{padding:.3rem .75rem;border-radius:8px;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;}
+    .btn-start{background:rgba(0,198,167,.1);border-color:rgba(0,198,167,.3);color:var(--teal);}
+    .btn-start:hover{background:rgba(0,198,167,.2);}
+    .btn-done{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:var(--lavender);}
+    .btn-done:hover{background:rgba(167,139,250,.2);}
+    .btn-cancel{background:rgba(255,107,138,.1);border-color:rgba(255,107,138,.3);color:var(--rose);}
+    .btn-cancel:hover{background:rgba(255,107,138,.2);}
+
+    /* result badge */
+    .result-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .7rem;border-radius:50px;font-size:.72rem;font-weight:500;}
+    .rb-doctor{background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.25);color:var(--teal);}
+    .rb-result{background:var(--amberGlow);border:1px solid var(--border);color:var(--amber);}
+
+    /* result input row */
+    .result-row{display:flex;gap:.5rem;width:100%;margin-top:.4rem;}
+    .result-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:.4rem .75rem;color:var(--text);font-size:.82rem;font-family:'Outfit',sans-serif;outline:none;}
+    .result-input:focus{border-color:var(--amber);}
+    .btn-save-result{padding:.4rem .9rem;background:linear-gradient(135deg,var(--amber),var(--amberDark));border:none;border-radius:8px;color:#07111F;font-weight:600;font-size:.78rem;cursor:pointer;white-space:nowrap;}
+
+    /* ── PROFILE ── */
+    .profile-hero{display:flex;align-items:center;gap:2rem;padding:2rem;background:linear-gradient(135deg,var(--amberGlow),rgba(0,198,167,.04));border:1px solid var(--border);border-radius:20px;margin-bottom:1.5rem;}
+    .profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--amberDark));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#07111F;flex-shrink:0;border:3px solid rgba(245,158,11,.35);}
+    .profile-info h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:#f0f8ff;}
+    .profile-info .equip-tag{display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem;background:var(--amberGlow);border:1px solid var(--border);border-radius:50px;padding:.25rem .75rem;font-size:.78rem;color:var(--amber);}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;}
+    .info-row{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:rgba(255,255,255,.03);border:1px solid var(--borderSoft);border-radius:10px;font-size:.85rem;}
+    .info-label{color:var(--muted);}
+    .info-val{color:#f0f8ff;font-weight:500;}
+    .info-val.amber{color:var(--amber);}
+
+    /* ── SETTINGS ── */
+    .pass-form{max-width:420px;}
+    .field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
+    .field label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500;}
+    .field input{background:rgba(255,255,255,.05);border:1px solid var(--borderSoft);border-radius:10px;padding:.65rem .9rem;color:var(--text);font-size:.88rem;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;}
+    .field input:focus{border-color:var(--amber);}
+    .btn-save{padding:.65rem 1.75rem;background:linear-gradient(135deg,var(--amber),var(--amberDark));border:none;border-radius:10px;color:#07111F;font-weight:700;font-size:.88rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s;}
+    .btn-save:hover{transform:translateY(-1px);}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .alert{border-radius:10px;padding:.7rem 1rem;font-size:.83rem;margin-top:.9rem;display:none;}
+    .alert-ok{background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);color:var(--teal);}
+    .alert-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);color:var(--rose);}
+
+    /* ── FILTER BAR ── */
+    .filter-bar{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+    .filter-btn{padding:.4rem 1rem;border-radius:50px;font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid var(--borderSoft);color:var(--muted);background:transparent;}
+    .filter-btn.active{background:var(--amberGlow);color:var(--amber);border-color:var(--border);}
+
+    .empty{text-align:center;padding:3rem;color:#3a5a74;font-size:.88rem;}
+    .empty .e-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4;}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(245,158,11,.25);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── TOAST ── */
+    .toast-wrap{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;gap:.6rem;}
+    .toast{background:var(--card);border:1px solid var(--borderSoft);border-radius:12px;padding:.85rem 1.25rem;font-size:.83rem;min-width:280px;max-width:360px;display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:slideIn .3s ease;}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    .toast.hide{animation:slideOut .3s ease forwards;}
+    @keyframes slideOut{to{opacity:0;transform:translateX(30px)}}
+    .toast-icon{font-size:1.1rem;flex-shrink:0;margin-top:.05rem;}
+    .toast-body strong{display:block;color:#f0f8ff;margin-bottom:.15rem;}
+    .toast-body span{color:var(--muted);font-size:.78rem;line-height:1.4;}
+    .toast.ok{border-color:rgba(0,198,167,.35);}
+    .toast.err{border-color:rgba(255,107,138,.35);}
+    .toast.info{border-color:rgba(245,158,11,.35);}
+
+    @media(max-width:900px){
+      .stat-grid{grid-template-columns:repeat(2,1fr);}
+      .nav-center{display:none;}
+      .test-card-top{grid-template-columns:1fr;}
+      .info-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="bg-wrap"><div class="bg-grid"></div><div class="bg-orb1"></div><div class="bg-orb2"></div></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="bg-wrap" style="position:absolute"><div class="bg-grid"></div></div>
+  <div class="login-wrap">
+    <div class="login-logo">Medi<span>Care+</span></div>
+    <div class="login-role"><span class="role-dot"></span> Testing Operator Portal</div>
+    <div class="f-group"><label>Equipment Login Email</label><input type="email" id="loginEmail" placeholder="mri.machine@medicare" autocomplete="email"/></div>
+    <div class="f-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="btn-primary" id="loginBtn">Sign In to Tests Portal</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-loading" id="loginLoading">⏳ Verifying credentials…</div>
+    <div class="change-pass-link">First login? <a onclick="showResetHint()">Change your temporary password</a> in Settings.</div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell">
+  <nav>
+    <div class="nav-logo">Medi<span>Care+</span></div>
+    <div class="nav-center">
+      <button class="nav-tab active" onclick="showTab('dashboard',this)">Dashboard</button>
+      <button class="nav-tab" onclick="showTab('schedule',this)">My Schedule</button>
+      <button class="nav-tab" onclick="showTab('profile',this)">Equipment Info</button>
+      <button class="nav-tab" onclick="showTab('settings',this)">Settings</button>
+    </div>
+    <div class="nav-right">
+      <div class="op-chip"><div class="avatar" id="opInitial">T</div><span id="opNameNav">Operator</span></div>
+      <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="pg-header">
+        <h2 id="welcomeMsg">Good morning 👋</h2>
+        <p id="welcomeSub">Here's your testing overview for today.</p>
+      </div>
+      <div class="today-strip">
+        <div><div class="day" id="todayDay">—</div><div class="count">Tests scheduled today</div></div>
+        <div style="text-align:right"><div class="today-count-num" id="todayCount">—</div><div class="count">assigned</div></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-icon">🔬</div><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Total Tests</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="statDone">—</div><div class="stat-lbl">Completed</div></div>
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num" id="statPending">—</div><div class="stat-lbl">Scheduled</div></div>
+        <div class="stat-card"><div class="stat-icon">▶️</div><div class="stat-num" id="statInProgress">—</div><div class="stat-lbl">In Progress</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🗓 Today's Tests</div>
+        <div class="test-list" id="todayTests">
+          <div class="empty"><div class="e-icon">📭</div>No tests scheduled for today</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL SCHEDULE -->
+    <div class="page" id="page-schedule">
+      <div class="pg-header"><h2>My Schedule</h2><p>All assigned tests for this equipment</p></div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterTests('all',this)">All</button>
+        <button class="filter-btn" onclick="filterTests('Scheduled',this)">Scheduled</button>
+        <button class="filter-btn" onclick="filterTests('In Progress',this)">In Progress</button>
+        <button class="filter-btn" onclick="filterTests('Completed',this)">Completed</button>
+        <button class="filter-btn" onclick="filterTests('Cancelled',this)">Cancelled</button>
+      </div>
+      <div class="test-list" id="allTests">
+        <div class="empty"><div class="e-icon"><span class="spinner"></span></div>Loading schedule…</div>
+      </div>
+    </div>
+
+    <!-- PROFILE / EQUIPMENT INFO -->
+    <div class="page" id="page-profile">
+      <div class="pg-header"><h2>Equipment Info</h2><p>This machine's details registered by admin</p></div>
+      <div class="profile-hero">
+        <div class="profile-avatar" id="profileAvatar">🔬</div>
+        <div class="profile-info">
+          <h3 id="profileName">—</h3>
+          <div class="equip-tag">🔬 <span id="profileSerial">—</span></div>
+          <div style="font-size:.83rem;color:var(--muted);margin-top:.35rem;" id="profileEmail">—</div>
+        </div>
+      </div>
+      <div class="info-grid">
+        <div class="card">
+          <div class="card-title">🕐 Operating Hours</div>
+          <div class="info-row"><span class="info-label">From</span><span class="info-val amber" id="profileFrom">—</span></div>
+          <div style="height:.5rem"></div>
+          <div class="info-row"><span class="info-label">To</span><span class="info-val amber" id="profileTo">—</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📋 Details</div>
+          <div class="info-row"><span class="info-label">Room</span><span class="info-val" id="profileRoom">—</span></div>
+          <div style="height:.5rem"></div>
+          <div class="info-row"><span class="info-label">Operator</span><span class="info-val" id="profileOperator">—</span></div>
+          <div style="height:.5rem"></div>
+          <div class="info-row"><span class="info-label">Contact</span><span class="info-val" id="profileContact">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="pg-header"><h2>Settings</h2><p>Update your login password</p></div>
+      <div class="card" style="max-width:500px;">
+        <div class="card-title">🔐 Change Password</div>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1.25rem;">If this is your first login, please change your temporary password immediately.</p>
+        <div class="pass-form">
+          <div class="field"><label>Current Password</label><input type="password" id="currPass" placeholder="Your current password"/></div>
+          <div class="field"><label>New Password</label><input type="password" id="newPass" placeholder="At least 8 characters"/></div>
+          <div class="field"><label>Confirm New Password</label><input type="password" id="confirmPass" placeholder="Repeat new password"/></div>
+          <button class="btn-save" id="passBtn">Update Password</button>
+          <div class="alert alert-ok" id="passOk">✅ Password changed successfully!</div>
+          <div class="alert alert-err" id="passErr"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function showTab(name,el){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    const t=document.getElementById('page-'+name);
+    if(t) t.classList.add('active');
+    if(el) el.classList.add('active');
+  }
+  function showResetHint(){ alert('Please log in first, then go to Settings → Change Password.'); }
+  function doSignOut(){
+    localStorage.removeItem('mc_equip_id');
+    document.getElementById('appShell').style.display='none';
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('loginEmail').value='';
+    document.getElementById('loginPassword').value='';
+  }
+  function showToast(title,body,type='ok',dur=4500){
+    const icons={ok:'✅',err:'❌',info:'ℹ️'};
+    const wrap=document.getElementById('toastWrap');
+    const t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<div class="toast-icon">${icons[type]||'💬'}</div><div class="toast-body"><strong>${title}</strong><span>${body}</span></div>`;
+    wrap.appendChild(t);
+    setTimeout(()=>{ t.classList.add('hide'); setTimeout(()=>t.remove(),350); },dur);
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, query, where,
+    onSnapshot, doc, updateDoc, serverTimestamp,
+    getDocs, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAUCZZXpiOfZVgjmIrNAnn_LF0SOm1WwhA",
+    authDomain: "healthcare-scheduler-5b242.firebaseapp.com",
+    projectId: "healthcare-scheduler-5b242",
+    storageBucket: "healthcare-scheduler-5b242.firebasestorage.app",
+    messagingSenderId: "28196196047",
+    appId: "1:28196196047:web:262b5a5020cd37f64b31ba"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  let currentEquip  = null;  // logged-in equipment document
+  let allAssignments = [];   // equipmentAssignments for this machine
+  let currentFilter  = 'all';
+
+  function $(id){ return document.getElementById(id); }
+
+  function fmtTime(t){
+    if(!t) return '—';
+    const [h,m]=t.split(':');
+    const d=new Date(); d.setHours(+h,+m);
+    return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }
+  function fmtDate(ds){
+    if(!ds) return '—';
+    return new Date(ds+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  }
+  function isToday(ds){
+    if(!ds) return false;
+    return new Date().toDateString()===new Date(ds+'T00:00:00').toDateString();
+  }
+  function greeting(){ const h=new Date().getHours(); return h<12?'Good morning':h<17?'Good afternoon':'Good evening'; }
+  function todayStr(){ return new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+  function initials(n){ if(!n) return 'T'; return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
+  function showAlert(id,dur=3500){ const el=$(id); el.style.display='block'; setTimeout(()=>el.style.display='none',dur); }
+  function showPassErr(msg){ const el=$('passErr'); el.textContent='⚠ '+msg; el.style.display='block'; setTimeout(()=>el.style.display='none',4500); }
+
+  function statusClass(s){
+    if(!s) return 'ts-scheduled';
+    const sl=s.toLowerCase();
+    if(sl==='scheduled')   return 'ts-scheduled';
+    if(sl==='in progress') return 'ts-inprogress';
+    if(sl==='completed')   return 'ts-done';
+    if(sl==='cancelled')   return 'ts-cancelled';
+    return 'ts-scheduled';
+  }
+
+  // ── Session ───────────────────────────────────────────────────────────────
+  function saveSession(id){ localStorage.setItem('mc_equip_id',id); }
+  function loadSession(){ return localStorage.getItem('mc_equip_id'); }
+
+  (async()=>{
+    const savedId=loadSession();
+    if(savedId){
+      try{
+        const snap=await getDoc(doc(db,'equipment',savedId));
+        if(snap.exists()){ currentEquip={id:snap.id,...snap.data()}; bootApp(currentEquip); return; }
+      }catch(e){}
+      localStorage.removeItem('mc_equip_id');
+    }
+    $('loginScreen').style.display='flex';
+    $('appShell').style.display='none';
+  })();
+
+  // ── Login ─────────────────────────────────────────────────────────────────
+  async function doLoginFn(){
+    const email=$('loginEmail').value.trim().toLowerCase();
+    const pass=$('loginPassword').value;
+    const errEl=$('loginErr'), loadEl=$('loginLoading');
+    errEl.style.display='none';
+    if(!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
+    loadEl.style.display='block'; $('loginBtn').disabled=true;
+    try{
+      // Equipment logs in via the `equipment` collection (email + password fields)
+      const q=query(collection(db,'equipment'),where('email','==',email));
+      const snap=await getDocs(q);
+      if(snap.empty){ errEl.textContent='No equipment account found with this email.'; errEl.style.display='block'; return; }
+      const data=snap.docs[0].data();
+      if(data.password!==pass){ errEl.textContent='Incorrect password.'; errEl.style.display='block'; return; }
+      currentEquip={id:snap.docs[0].id,...data};
+      saveSession(currentEquip.id);
+      bootApp(currentEquip);
+    }catch(e){ errEl.textContent='Error: '+e.message; errEl.style.display='block'; }
+    finally{ loadEl.style.display='none'; $('loginBtn').disabled=false; }
+  }
+  $('loginBtn').addEventListener('click',doLoginFn);
+  ['loginEmail','loginPassword'].forEach(id=>{ $(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLoginFn(); }); });
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  function bootApp(equip){
+    $('loginScreen').style.display='none';
+    $('appShell').style.display='block';
+    showTab('dashboard',document.querySelector('.nav-tab'));
+
+    const name=equip.name||equip.email||'Equipment';
+    $('opNameNav').textContent   = name.split(' ').slice(0,2).join(' ');
+    $('opInitial').textContent   = initials(name);
+    $('welcomeMsg').textContent  = `${greeting()}, ${name} 👋`;
+    $('welcomeSub').textContent  = `${equip.operator?'Operated by '+equip.operator:''} ${equip.room?'· Room '+equip.room:''}`;
+    $('todayDay').textContent    = todayStr();
+
+    // Profile page
+    $('profileAvatar').textContent = '🔬';
+    $('profileName').textContent   = name;
+    $('profileSerial').textContent = equip.serial||'—';
+    $('profileEmail').textContent  = equip.email||'—';
+    $('profileFrom').textContent   = fmtTime(equip.workingFrom);
+    $('profileTo').textContent     = fmtTime(equip.workingTo);
+    $('profileRoom').textContent   = equip.room||'—';
+    $('profileOperator').textContent = equip.operator||'—';
+    $('profileContact').textContent  = equip.contact||'—';
+
+    loadAssignments(equip.id);
+  }
+
+  // ── Load assignments for this equipment ───────────────────────────────────
+  function loadAssignments(equipId){
+    // Listen live on equipmentAssignments for this machine
+    const q=query(collection(db,'equipmentAssignments'),where('equipmentId','==',equipId));
+    onSnapshot(q,snap=>{
+      allAssignments=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderStats();
+      renderTodayTests();
+      renderAllTests();
+    });
+  }
+
+  function renderStats(){
+    $('statTotal').textContent     = allAssignments.length;
+    $('statDone').textContent      = allAssignments.filter(a=>a.testStatus==='Completed').length;
+    $('statPending').textContent   = allAssignments.filter(a=>!a.testStatus||a.testStatus==='Scheduled').length;
+    $('statInProgress').textContent= allAssignments.filter(a=>a.testStatus==='In Progress').length;
+    $('todayCount').textContent    = allAssignments.filter(a=>isToday(a.date)).length;
+  }
+
+  function renderTodayTests(){
+    const list=allAssignments.filter(a=>isToday(a.date));
+    const el=$('todayTests');
+    if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No tests scheduled for today</div>'; return; }
+    el.innerHTML=list.sort((a,b)=>(a.slot||'').localeCompare(b.slot||'')).map(a=>testCard(a)).join('');
+  }
+
+  function renderAllTests(){
+    const list=currentFilter==='all'
+      ? allAssignments
+      : allAssignments.filter(a=>(a.testStatus||'Scheduled')===currentFilter);
+    const el=$('allTests');
+    if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No tests found.</div>'; return; }
+    el.innerHTML=list
+      .sort((a,b)=>{ const dc=(b.date||'').localeCompare(a.date||''); return dc||((a.slot||'').localeCompare(b.slot||'')); })
+      .map(a=>testCard(a)).join('');
+  }
+
+  function testCard(a){
+    const status  = a.testStatus||'Scheduled';
+    const sc      = statusClass(status);
+    const canStart= status==='Scheduled';
+    const canDone = status==='In Progress';
+    const canCancel= status==='Scheduled'||status==='In Progress';
+
+    const doctorBadge=a.doctorName?`<span class="result-badge rb-doctor">👨‍⚕️ ${a.doctorName}</span>`:'';
+    const resultBadge=a.testResult?`<span class="result-badge rb-result">📋 ${a.testResult}</span>`:'';
+
+    // Show result input only for In Progress tests
+    const resultInput = canDone ? `
+      <div class="result-row">
+        <input class="result-input" id="ri-${a.id}" placeholder="Enter test result / findings…" value="${a.testResult||''}"/>
+        <button class="btn-save-result" onclick="saveResult('${a.id}')">Save Result</button>
+      </div>` : '';
+
+    return `<div class="test-card">
+      <div class="test-card-top">
+        <div class="test-time-block">
+          <div class="test-time">${fmtTime(a.slot)}</div>
+          <div class="test-date">${fmtDate(a.date)}</div>
+        </div>
+        <div class="test-info">
+          <h4>${a.patientName||'Patient'}</h4>
+          <div class="meta">Referred by: <span>${a.doctorName||'—'}</span></div>
+          ${a.testResult?`<div class="meta" style="margin-top:.2rem">Result: <span style="color:#aac8e0">${a.testResult}</span></div>`:''}
+        </div>
+        <span class="test-status ${sc}">${status}</span>
+        <div class="test-actions">
+          ${canStart?`<button class="btn-sm btn-start" onclick="updateTestStatus('${a.id}','In Progress')">▶ Start</button>`:''}
+          ${canDone ?`<button class="btn-sm btn-done"  onclick="markDone('${a.id}')">✓ Done</button>`:''}
+          ${canCancel?`<button class="btn-sm btn-cancel" onclick="updateTestStatus('${a.id}','Cancelled')">✕</button>`:''}
+        </div>
+      </div>
+      <div class="test-card-bottom">
+        ${doctorBadge}${resultBadge}
+        ${resultInput}
+      </div>
+    </div>`;
+  }
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+  window.updateTestStatus=async function(assignId,status){
+    try{
+      await updateDoc(doc(db,'equipmentAssignments',assignId),{
+        testStatus: status,
+        updatedAt:  serverTimestamp()
+      });
+      // Also reflect on the linked appointment
+      const a=allAssignments.find(x=>x.id===assignId);
+      if(a?.appointmentId){
+        await updateDoc(doc(db,'appointments',a.appointmentId),{
+          equipmentTestStatus: status,
+          updatedAt: serverTimestamp()
+        });
+      }
+      showToast('Status Updated',`Test marked as ${status}`,'ok');
+    }catch(e){ showToast('Error',e.message,'err'); }
+  };
+
+  window.saveResult=async function(assignId){
+    const input=document.getElementById('ri-'+assignId);
+    const result=(input?.value||'').trim();
+    if(!result){ showToast('Empty Result','Please enter the test findings first.','err'); return; }
+    try{
+      await updateDoc(doc(db,'equipmentAssignments',assignId),{
+        testResult: result,
+        updatedAt:  serverTimestamp()
+      });
+      // Write result back to the appointment so doctors can see it
+      const a=allAssignments.find(x=>x.id===assignId);
+      if(a?.appointmentId){
+        await updateDoc(doc(db,'appointments',a.appointmentId),{
+          equipmentTestResult: result,
+          updatedAt: serverTimestamp()
+        });
+      }
+      showToast('Result Saved','Test findings saved and visible to referring doctor.','info');
+    }catch(e){ showToast('Error',e.message,'err'); }
+  };
+
+  window.markDone=async function(assignId){
+    const input=document.getElementById('ri-'+assignId);
+    const result=(input?.value||'').trim();
+    try{
+      const updates={ testStatus:'Completed', updatedAt:serverTimestamp() };
+      if(result) updates.testResult=result;
+      await updateDoc(doc(db,'equipmentAssignments',assignId),updates);
+      const a=allAssignments.find(x=>x.id===assignId);
+      if(a?.appointmentId){
+        const apptUpdates={ equipmentTestStatus:'Completed', updatedAt:serverTimestamp() };
+        if(result) apptUpdates.equipmentTestResult=result;
+        await updateDoc(doc(db,'appointments',a.appointmentId),apptUpdates);
+      }
+      showToast('Test Completed','Marked as done. Result sent to referring doctor.','ok');
+    }catch(e){ showToast('Error',e.message,'err'); }
+  };
+
+  window.filterTests=function(filter,btn){
+    currentFilter=filter;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAllTests();
+  };
+
+  // ── Change password ───────────────────────────────────────────────────────
+  $('passBtn').addEventListener('click',async()=>{
+    const curr=$('currPass').value,nw=$('newPass').value,conf=$('confirmPass').value;
+    const btn=$('passBtn');
+    $('passErr').style.display='none';
+    if(!curr||!nw||!conf){ showPassErr('Please fill in all fields.'); return; }
+    if(nw.length<8){ showPassErr('New password must be at least 8 characters.'); return; }
+    if(nw!==conf){ showPassErr('Passwords do not match.'); return; }
+    if(curr!==currentEquip.password){ showPassErr('Current password is incorrect.'); return; }
+    btn.disabled=true; btn.textContent='Updating…';
+    try{
+      await updateDoc(doc(db,'equipment',currentEquip.id),{password:nw});
+      currentEquip.password=nw;
+      $('currPass').value=''; $('newPass').value=''; $('confirmPass').value='';
+      showAlert('passOk');
+    }catch(e){ showPassErr('Failed: '+e.message); }
+    btn.disabled=false; btn.textContent='Update Password';
+  });
+</script>
+</body>
+</html>
