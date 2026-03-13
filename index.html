@@ -536,37 +536,10 @@
         <div style="height:.5rem"></div>
         <button class="chat-send" onclick="submitSymptom()">Continue →</button>
       </div>
-      <!-- Q3 & Q4: Time + Date -->
+      <!-- Q3: Auto-assigned slot confirmation -->
       <div id="q3" class="input-hidden">
-        <div class="chat-time-row">
-          <select class="chat-select" id="inputTime">
-            <option value="" disabled selected>Select a time slot…</option>
-            <option value="08:00">8:00 AM</option>
-            <option value="08:30">8:30 AM</option>
-            <option value="09:00">9:00 AM</option>
-            <option value="09:30">9:30 AM</option>
-            <option value="10:00">10:00 AM</option>
-            <option value="10:30">10:30 AM</option>
-            <option value="11:00">11:00 AM</option>
-            <option value="11:30">11:30 AM</option>
-            <option value="12:00">12:00 PM</option>
-            <option value="12:30">12:30 PM</option>
-            <option value="13:00">1:00 PM</option>
-            <option value="13:30">1:30 PM</option>
-            <option value="14:00">2:00 PM</option>
-            <option value="14:30">2:30 PM</option>
-            <option value="15:00">3:00 PM</option>
-            <option value="15:30">3:30 PM</option>
-            <option value="16:00">4:00 PM</option>
-            <option value="16:30">4:30 PM</option>
-            <option value="17:00">5:00 PM</option>
-            <option value="17:30">5:30 PM</option>
-            <option value="18:00">6:00 PM</option>
-          </select>
-          <input class="chat-input" id="inputDate" type="date" placeholder="Available date"/>
-        </div>
-        <div style="height:.5rem"></div>
-        <button class="chat-send" onclick="submitDateTime()">Confirm Booking →</button>
+        <div id="slotPreview" style="background:rgba(0,198,167,.08);border:1px solid rgba(0,198,167,.2);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:#c8e6f0;line-height:1.6;margin-bottom:.5rem;"></div>
+        <button class="chat-send" id="confirmBtn" onclick="submitDateTime()">✅ Confirm Appointment</button>
       </div>
       <!-- Success -->
       <div class="success-msg input-hidden" id="successMsg">
@@ -669,102 +642,145 @@
     addMsg("Which symptom best describes what you're experiencing?", 'bot', 900);
   };
 
-  window.submitSymptom = function () {
-    const sel = document.getElementById('inputSymptom');
-    const val = sel.value;
-    if (!val) return;
-    patientData.symptom = val;
-    addMsg(val, 'user');
-    sel.selectedIndex = 0;
+  window.submitSymptom = async function () {
+  const sel = document.getElementById('inputSymptom');
+  const val = sel.value;
+  if (!val) return;
+  patientData.symptom = val;
+  addMsg(val, 'user');
+  sel.selectedIndex = 0;
+
+  addMsg(`Got it — ${val}. Let me find the best available doctor for you...`, 'bot', 300);
+
+  // Find matching doctor immediately after symptom is chosen
+  try {
+    const { getDocs } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+    const doctorsSnap = await getDocs(collection(db, 'doctors'));
+    let matchedDoctor = null;
+
+    doctorsSnap.forEach(d => {
+      const data = d.data();
+      const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
+      if (symptoms.includes(val) && !matchedDoctor) {
+        matchedDoctor = { id: d.id, ...data };
+      }
+    });
+
+    if (!matchedDoctor) {
+      // No match — assign tomorrow at 9 AM with fallback
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      patientData.time      = '09:00';
+      patientData.date      = tomorrow.toISOString().split('T')[0];
+      patientData.doctorName = 'Unassigned';
+      patientData.speciality = '—';
+
+      const preview = document.getElementById('slotPreview');
+      preview.innerHTML = `
+        <div>👨‍⚕️ <strong style="color:var(--mint)">Doctor:</strong> Will be assigned shortly</div>
+        <div>📅 <strong style="color:var(--mint)">Date:</strong> ${tomorrow.toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric'})}</div>
+        <div>🕘 <strong style="color:var(--mint)">Time:</strong> 9:00 AM</div>
+      `;
+      show('q3');
+      addMsg("No specialist found right now, but we've reserved a slot for you. Please confirm below.", 'bot', 900);
+      return;
+    }
+
+    // Build next available slot: today if before availableTo, else tomorrow
+    const now        = new Date();
+    const fromParts  = matchedDoctor.availableFrom.split(':');
+    const toParts    = matchedDoctor.availableTo.split(':');
+    const fromMins   = +fromParts[0] * 60 + +fromParts[1];
+    const toMins     = +toParts[0]   * 60 + +toParts[1];
+    const nowMins    = now.getHours() * 60 + now.getMinutes();
+
+    // Pick next 30-min slot after current time within doctor's window
+    let slotMins = fromMins;
+    if (nowMins >= fromMins) {
+      // Round up to next 30-min mark
+      slotMins = Math.ceil((nowMins + 1) / 30) * 30;
+    }
+
+    let slotDate = new Date();
+    if (slotMins >= toMins || slotMins < fromMins) {
+      // No slot today — move to tomorrow at opening time
+      slotDate.setDate(slotDate.getDate() + 1);
+      slotMins = fromMins;
+    }
+
+    const slotHH  = String(Math.floor(slotMins / 60)).padStart(2, '0');
+    const slotMM  = String(slotMins % 60).padStart(2, '0');
+    const slotTime = `${slotHH}:${slotMM}`;
+    const slotDateStr = slotDate.toISOString().split('T')[0];
+
+    patientData.time       = slotTime;
+    patientData.date       = slotDateStr;
+    patientData.doctorName = matchedDoctor.name;
+    patientData.speciality = matchedDoctor.speciality;
+
+    const tObj         = new Date(`1970-01-01T${slotTime}`);
+    const timeFormatted = tObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const dateFormatted = slotDate.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+
+    const preview = document.getElementById('slotPreview');
+    preview.innerHTML = `
+      <div>👨‍⚕️ <strong style="color:var(--mint)">Doctor:</strong> ${matchedDoctor.name}</div>
+      <div>🏥 <strong style="color:var(--mint)">Speciality:</strong> ${matchedDoctor.speciality}</div>
+      <div>📅 <strong style="color:var(--mint)">Date:</strong> ${dateFormatted}</div>
+      <div>🕐 <strong style="color:var(--mint)">Time:</strong> ${timeFormatted}</div>
+    `;
+
     show('q3');
-    addMsg(`Got it — ${val}. We'll match you with the right specialist.`, 'bot', 300);
-    addMsg('When are you available? Please pick a time and date. 📅', 'bot', 900);
-  };
+    addMsg(`Great news! I found ${matchedDoctor.name} (${matchedDoctor.speciality}) for you.`, 'bot', 900);
+    addMsg(`Your next available slot is ${dateFormatted} at ${timeFormatted}. Confirm below! 👇`, 'bot', 1600);
+
+  } catch(e) {
+    addMsg("⚠️ Couldn't find a doctor right now. Please try again.", 'bot', 500);
+    console.error(e);
+  }
+};
 
   // After patientData.symptom is set, we need to find the matching doctor first.
 // Replace the entire submitDateTime function with this:
 
-  window.submitDateTime = async function () {
-    const time = document.getElementById('inputTime').value;
-    const date = document.getElementById('inputDate').value;
-    if (!time || !date) { alert('Please select both time and date.'); return; }
-
-    patientData.time = time;
-    patientData.date = date;
-
-    const dObj = new Date(date);
-    const formatted = dObj.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
-    const tObj = new Date(`1970-01-01T${time}`);
-    const timeFormatted = tObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-    addMsg(`${formatted} at ${timeFormatted}`, 'user');
-
-    const btn = document.querySelector('#q3 .chat-send');
+    window.submitDateTime = async function () {
+    const btn = document.getElementById('confirmBtn');
     btn.disabled = true;
-    btn.textContent = 'Finding doctor…';
+    btn.textContent = 'Booking…';
 
     try {
-      // Step 1: Find a matching doctor by symptom and time slot
-      const { getDocs, query, where } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
-
-      const doctorsSnap = await getDocs(collection(db, 'doctors'));
-      let matchedDoctor = null;
-
-      doctorsSnap.forEach(d => {
-        const data = d.data();
-        const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
-        const from = data.availableFrom; // "HH:MM"
-        const to   = data.availableTo;   // "HH:MM"
-
-        const symptomMatch = symptoms.includes(patientData.symptom);
-        const timeMatch    = time >= from && time <= to;
-
-        if (symptomMatch && timeMatch && !matchedDoctor) {
-          matchedDoctor = data;
-        }
-      });
-
-      const doctorName = matchedDoctor ? matchedDoctor.name : 'Unassigned';
-      const speciality = matchedDoctor ? matchedDoctor.speciality : '—';
-
-      // Step 2: Save appointment with doctor info
-      const docRef = await addDoc(collection(db, 'appointments'), {
+      await addDoc(collection(db, 'appointments'), {
         patientName:  patientData.name,
-        name:         patientData.name,       // legacy compat
+        name:         patientData.name,
         symptom:      patientData.symptom,
         date:         patientData.date,
         time:         patientData.time,
         status:       'Pending',
-        doctorName:   doctorName,
-        speciality:   speciality,
+        doctorName:   patientData.doctorName,
+        speciality:   patientData.speciality,
         createdAt:    serverTimestamp()
       });
 
-      console.log('✅ Appointment saved — ID:', docRef.id);
       show('successMsg');
 
-      if (matchedDoctor) {
-        addMsg(`✅ Great news! We've matched you with ${doctorName} (${speciality}).`, 'bot', 300);
-        addMsg(`Your appointment is set for ${formatted} at ${timeFormatted}. See you then, ${patientData.name}! 🏥`, 'bot', 1000);
-      } else {
-        addMsg(`✅ Appointment saved for ${formatted} at ${timeFormatted}.`, 'bot', 300);
-        addMsg(`A doctor will be assigned shortly, ${patientData.name}. We'll confirm soon!`, 'bot', 1000);
-      }
+      const tObj         = new Date(`1970-01-01T${patientData.time}`);
+      const timeFormatted = tObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const dateFormatted = new Date(patientData.date).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
 
-    } catch (err) {
-      console.error('❌ Firestore error:', err);
+      addMsg(`✅ Booked! See you on ${dateFormatted} at ${timeFormatted}, ${patientData.name}. 🏥`, 'bot', 300);
+
+    } catch(err) {
+      console.error(err);
       addMsg("⚠️ Couldn't save your appointment. Please try again.", 'bot', 300);
       btn.disabled = false;
-      btn.textContent = 'Confirm Booking →';
+      btn.textContent = '✅ Confirm Appointment';
     }
   };
 
   window.resetChat = function () {
     document.getElementById('inputName').value = '';
-    document.getElementById('inputTime').selectedIndex = 0;
-    document.getElementById('inputDate').value = '';
-    const btn = document.querySelector('#q3 .chat-send');
-    if (btn) { btn.disabled = false; btn.textContent = 'Confirm Booking →'; }
+    const btn = document.getElementById('confirmBtn');
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Confirm Appointment'; }
     initChat();
   };
 

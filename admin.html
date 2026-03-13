@@ -163,6 +163,20 @@
       .stats-row{grid-template-columns:repeat(2,1fr);}
       .form-grid{grid-template-columns:1fr;}
     }
+    /* ROOM VIEW */
+    .floor-section{ margin-bottom:2rem; }
+    .floor-title{ font-family:'Playfair Display',serif; font-size:1.2rem; color:#f0f8ff; margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .beds-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; }
+    .bed-tile{ border-radius:14px; padding:1rem; border:1px solid; transition:all .2s; }
+    .bed-tile.available{ background:rgba(0,198,167,.08); border-color:rgba(0,198,167,.3); }
+    .bed-tile.occupied{ background:rgba(255,107,157,.08); border-color:rgba(255,107,157,.3); }
+    .bed-tile-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem; }
+    .bed-id{ font-weight:700; font-size:.95rem; color:#f0f8ff; }
+    .bed-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .bed-dot.green{ background:var(--mint); box-shadow:0 0 6px rgba(0,198,167,.6); }
+    .bed-dot.red{ background:var(--rose); box-shadow:0 0 6px rgba(255,107,157,.6); }
+    .bed-info{ font-size:.78rem; color:#7da8c4; line-height:1.6; }
+    .bed-info strong{ color:#aac8e0; }
   </style>
 </head>
 <body>
@@ -238,6 +252,7 @@
         <div class="sidebar-item" data-page="viewEquip"><span class="icon">📦</span> View Equipment</div>
         <div class="sidebar-item" data-page="regBed"><span class="icon">🛏</span> Register Bed</div>
         <div class="sidebar-item" data-page="viewBeds"><span class="icon">🏨</span> View Beds</div>
+        <div class="sidebar-item" data-page="viewRooms"><span class="icon">🗺</span> View Rooms</div>
       </div>
     </div>
 
@@ -392,30 +407,26 @@
       </div>
 
       <!-- REGISTER NURSE -->
-      <div class="page" id="page-regNurse">
+        <div class="page" id="page-regNurse">
         <div class="page-header"><h2>Register Nurse</h2><p>Add a new nurse to the system</p></div>
         <div class="card">
-          <div class="card-title"><span class="icon">💉</span> Nurse Information</div>
-          <div class="form-grid">
+            <div class="card-title"><span class="icon">💉</span> Nurse Information</div>
+            <div class="form-grid cols-3">
             <div class="field"><label>Full Name</label><input type="text" id="nurseName" placeholder="Sunita Rao"/></div>
-            <div class="field"><label>Ward / Department</label><input type="text" id="nurseWard" placeholder="ICU"/></div>
-            <div class="field"><label>Available From</label><input type="time" id="nurseFrom"/></div>
-            <div class="field"><label>Available Until</label><input type="time" id="nurseTo"/></div>
-            <div class="field"><label>Contact / Phone</label><input type="tel" id="nursePhone" placeholder="+91 98765 43210"/></div>
             <div class="field"><label>Shift</label>
-              <select id="nurseShift">
+                <select id="nurseShift">
                 <option value="">Select Shift</option>
-                <option>Morning (6 AM – 2 PM)</option>
-                <option>Afternoon (2 PM – 10 PM)</option>
-                <option>Night (10 PM – 6 AM)</option>
-              </select>
+                <option value="Shift 1 (Morning)">Shift 1 — Morning (6 AM – 2 PM)</option>
+                <option value="Shift 2 (Night)">Shift 2 — Night (2 PM – 10 PM)</option>
+                </select>
             </div>
-          </div>
-          <button class="btn-submit" id="nurseSubmitBtn">💉 Register Nurse</button>
-          <div class="alert alert-success" id="nurseAlert">✅ Nurse registered successfully!</div>
-          <div class="alert alert-error" id="nurseError"></div>
+            <div class="field"><label>Contact / Phone</label><input type="tel" id="nursePhone" placeholder="+91 98765 43210"/></div>
+            </div>
+            <button class="btn-submit" id="nurseSubmitBtn">💉 Register Nurse</button>
+            <div class="alert alert-success" id="nurseAlert">✅ Nurse registered successfully!</div>
+            <div class="alert alert-error" id="nurseError"></div>
         </div>
-      </div>
+        </div>
 
       <!-- VIEW NURSES -->
       <div class="page" id="page-viewNurses">
@@ -431,34 +442,74 @@
       </div>
 
       <!-- REGISTER EQUIPMENT -->
-      <div class="page" id="page-regEquip">
+        <div class="page" id="page-regEquip">
         <div class="page-header"><h2>Register Equipment</h2><p>Add new medical equipment</p></div>
         <div class="card">
-          <div class="card-title"><span class="icon">🔧</span> Equipment Details</div>
-          <div class="form-grid">
+            <div class="card-title"><span class="icon">🔧</span> Equipment Details</div>
+            <div class="form-grid">
             <div class="field"><label>Equipment Name</label><input type="text" id="equipName" placeholder="MRI Machine"/></div>
-            <div class="field"><label>Category</label>
-              <select id="equipCat">
-                <option value="">Select Category</option>
-                <option>Diagnostic</option><option>Surgical</option><option>Monitoring</option>
-                <option>Life Support</option><option>Laboratory</option><option>Therapeutic</option><option>Other</option>
-              </select>
-            </div>
             <div class="field"><label>Serial / Asset Number</label><input type="text" id="equipSerial" placeholder="MC-2024-001"/></div>
-            <div class="field"><label>Location / Ward</label><input type="text" id="equipLocation" placeholder="Radiology – Floor 2"/></div>
-            <div class="field"><label>Status</label>
-              <select id="equipStatus">
-                <option value="">Select Status</option>
-                <option>Operational</option><option>Under Maintenance</option><option>Out of Service</option>
-              </select>
+            <div class="field"><label>Operating Person Name</label><input type="text" id="equipOperator" placeholder="Dr. Rajan Kumar"/></div>
+            <div class="field"><label>Contact / Phone</label><input type="tel" id="equipContact" placeholder="+91 98765 43210"/></div>
+            <div class="field"><label>Room Number</label><input type="text" id="equipRoom" placeholder="204"/></div>
+            <div class="field"><label>Working Hours</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+                <select id="equipFrom">
+                    <option value="">From</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="08:30">8:30 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="09:30">9:30 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="11:30">11:30 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="12:30">12:30 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="13:30">1:30 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="14:30">2:30 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="15:30">3:30 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="16:30">4:30 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="17:30">5:30 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                </select>
+                <select id="equipTo">
+                    <option value="">To</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="08:30">8:30 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="09:30">9:30 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="11:30">11:30 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="12:30">12:30 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="13:30">1:30 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="14:30">2:30 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="15:30">3:30 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="16:30">4:30 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="17:30">5:30 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                </select>
+                </div>
             </div>
-            <div class="field"><label>Purchase / Last Service Date</label><input type="date" id="equipDate"/></div>
-          </div>
-          <button class="btn-submit" id="equipSubmitBtn">🔧 Register Equipment</button>
-          <div class="alert alert-success" id="equipAlert">✅ Equipment registered successfully!</div>
-          <div class="alert alert-error" id="equipError"></div>
+            </div>
+            <button class="btn-submit" id="equipSubmitBtn">🔧 Register Equipment</button>
+            <div class="alert alert-success" id="equipAlert">✅ Equipment registered successfully!</div>
+            <div class="alert alert-error" id="equipError"></div>
         </div>
-      </div>
+        </div>
 
       <!-- VIEW EQUIPMENT -->
       <div class="page" id="page-viewEquip">
@@ -466,7 +517,7 @@
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Category</th><th>Serial</th><th>Location</th><th>Status</th><th>Date</th><th></th></tr></thead>
+              <thead><tr><th>Name</th><th>Serial</th><th>Operator</th><th>Contact</th><th>Room</th><th>Working Hours</th><th></th></tr></thead>
               <tbody id="equipTable"><tr class="loading-row"><td colspan="7"><span class="spinner"></span> Loading…</td></tr></tbody>
             </table>
           </div>
@@ -474,61 +525,60 @@
       </div>
 
       <!-- REGISTER BED -->
-      <div class="page" id="page-regBed">
-        <div class="page-header"><h2>Register Bed</h2><p>Add a new bed to the system</p></div>
-        <div class="card">
-          <div class="card-title"><span class="icon">🛏</span> Bed Details</div>
-          <div class="form-grid cols-3">
-            <div class="field"><label>Room Number</label><input type="text" id="bedRoom" placeholder="101"/></div>
-            <div class="field"><label>Bed Number</label><input type="text" id="bedNum" placeholder="A"/></div>
-            <div class="field"><label>Ward / Floor</label><input type="text" id="bedWard" placeholder="General – Floor 1"/></div>
-            <div class="field"><label>Bed Type</label>
-              <select id="bedType">
-                <option value="">Select Type</option>
-                <option>General</option><option>ICU</option><option>NICU</option>
-                <option>Pediatric</option><option>Maternity</option><option>Private</option>
-              </select>
-            </div>
-            <div class="field"><label>Status</label>
-              <select id="bedStatus">
-                <option value="Available">Available</option>
-                <option value="Occupied">Occupied</option>
-                <option value="Under Maintenance">Under Maintenance</option>
-              </select>
-            </div>
-          </div>
-          <button class="btn-submit" id="bedSubmitBtn">🛏 Register Bed</button>
-          <div class="alert alert-success" id="bedAlert">✅ Bed registered successfully!</div>
-          <div class="alert alert-error" id="bedError"></div>
+    <div class="page" id="page-regBed">
+    <div class="page-header"><h2>Register Bed</h2><p>Add a new bed to the system</p></div>
+    <div class="card">
+        <div class="card-title"><span class="icon">🛏</span> Bed Details</div>
+        <div class="form-grid cols-3">
+        <div class="field"><label>Room Number</label><input type="text" id="bedRoom" placeholder="101"/></div>
+        <div class="field"><label>Bed Number</label><input type="text" id="bedNum" placeholder="A"/></div>
+        <div class="field"><label>Floor</label>
+            <select id="bedFloor">
+            <option value="">Select Floor</option>
+            <option value="Floor 1">Floor 1</option>
+            <option value="Floor 2">Floor 2</option>
+            <option value="Floor 3">Floor 3</option>
+            </select>
         </div>
-      </div>
+        </div>
+        <button class="btn-submit" id="bedSubmitBtn">🛏 Register Bed</button>
+        <div class="alert alert-success" id="bedAlert">✅ Bed registered successfully!</div>
+        <div class="alert alert-error" id="bedError"></div>
+    </div>
+    </div>
+      
+    <!-- VIEW BEDS -->
+    <div class="page" id="page-viewBeds">
+    <div class="page-header"><h2>Beds</h2><p>All registered beds</p></div>
+    <div class="card">
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Room</th><th>Bed</th><th>Floor</th><th>Status</th><th>Change Status</th><th></th></tr></thead>
+            <tbody id="bedsTable"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr></tbody>
+        </table>
+        </div>
+    </div>
+    </div>
 
-      <!-- VIEW BEDS -->
-      <div class="page" id="page-viewBeds">
-        <div class="page-header"><h2>Beds</h2><p>All registered beds</p></div>
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Room</th><th>Bed</th><th>Ward</th><th>Type</th><th>Status</th><th></th></tr></thead>
-              <tbody id="bedsTable"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+    <!-- VIEW ROOMS -->
+    <div class="page" id="page-viewRooms">
+    <div class="page-header"><h2>Room View</h2><p>Live bed availability by floor</p></div>
+    <div id="roomFloors"></div>
+    </div>
 
     </div><!-- /main -->
   </div><!-- /layout -->
 </div><!-- /appShell -->
 
 <!-- ═══ FIREBASE SDK ═══ -->
-<script type="module">
+<<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import {
     getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore, collection, addDoc, deleteDoc, doc,
-    onSnapshot, serverTimestamp
+    onSnapshot, serverTimestamp, updateDoc
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -544,7 +594,7 @@
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
   function $(id){ return document.getElementById(id); }
 
   function showAlert(id, duration=3500){
@@ -569,7 +619,7 @@
   function formatTime(t){
     if(!t) return '—';
     const [h,m]=t.split(':');
-    const d=new Date(); d.setHours(h,m);
+    const d=new Date(); d.setHours(+h,+m);
     return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   }
 
@@ -587,26 +637,25 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
       const target = $('page-' + page);
-      if(target){ target.classList.add('active'); }
+      if(target) target.classList.add('active');
       item.classList.add('active');
     });
   });
 
   // ── Copy to clipboard ─────────────────────────────────────────────────────
   function makeCopyBtn(btnId, sourceId){
-    const btn = $(btnId);
-    if(!btn) return;
+    const btn=$(btnId); if(!btn) return;
     btn.addEventListener('click', () => {
-      const text = $(sourceId)?.textContent || '';
-      navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy', 2000);
+      const text=$(sourceId)?.textContent||'';
+      navigator.clipboard.writeText(text).then(()=>{
+        btn.textContent='Copied!';
+        setTimeout(()=>btn.textContent='Copy',2000);
       });
     });
   }
-  makeCopyBtn('copyEmailBtn', 'credEmail');
-  makeCopyBtn('copyPassBtn',  'credPassword');
-  $('credModalClose')?.addEventListener('click', () => $('credModal').classList.remove('open'));
+  makeCopyBtn('copyEmailBtn','credEmail');
+  makeCopyBtn('copyPassBtn','credPassword');
+  $('credModalClose')?.addEventListener('click',()=>$('credModal').classList.remove('open'));
 
   // ── Auth state ────────────────────────────────────────────────────────────
   onAuthStateChanged(auth, user => {
@@ -620,6 +669,7 @@
       loadLiveTable('equipment', 'equipTable',   renderEquipRow);
       loadLiveTable('beds',      'bedsTable',    renderBedRow);
       loadRecentAppointments();
+      loadRoomView();
     } else {
       $('loginScreen').style.display = 'flex';
       $('appShell').style.display    = 'none';
@@ -628,15 +678,15 @@
 
   // ── Login / Logout ────────────────────────────────────────────────────────
   async function doLogin(){
-    const email = v('loginEmail'), pass = v('loginPassword');
-    const errEl = $('loginError'), loadEl = $('loginLoading'), btn = $('loginBtn');
-    errEl.style.display = 'none';
-    if(!email || !pass){ errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
+    const email=v('loginEmail'), pass=v('loginPassword');
+    const errEl=$('loginError'), loadEl=$('loginLoading'), btn=$('loginBtn');
+    errEl.style.display='none';
+    if(!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
     loadEl.style.display='block'; btn.disabled=true;
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      await signInWithEmailAndPassword(auth,email,pass);
     } catch(e){
-      let msg = 'Authentication failed.';
+      let msg='Authentication failed.';
       if(['auth/user-not-found','auth/wrong-password','auth/invalid-credential'].includes(e.code)) msg='Invalid email or password.';
       else if(e.code==='auth/too-many-requests') msg='Too many attempts. Try again later.';
       errEl.textContent=msg; errEl.style.display='block';
@@ -646,78 +696,116 @@
   }
 
   $('loginBtn').addEventListener('click', doLogin);
-  ['loginEmail','loginPassword'].forEach(id => {
-    $(id).addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  ['loginEmail','loginPassword'].forEach(id=>{
+    $(id).addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
   });
-  $('logoutBtn').addEventListener('click', () => signOut(auth));
+  $('logoutBtn').addEventListener('click', ()=>signOut(auth));
 
   // ── Dashboard stats ───────────────────────────────────────────────────────
   function loadDashboardStats(){
     [['doctors','statDoctors'],['nurses','statNurses'],['equipment','statEquip'],['beds','statBeds']]
-      .forEach(([col,id]) => onSnapshot(collection(db,col), snap => { $(id).textContent=snap.size; }));
+      .forEach(([col,id])=>onSnapshot(collection(db,col),snap=>{ $(id).textContent=snap.size; }));
   }
 
   // ── Live table loader ─────────────────────────────────────────────────────
   function loadLiveTable(colName, tbodyId, renderFn){
-    onSnapshot(collection(db, colName), snap => {
-      const tbody = $(tbodyId);
-      if(!tbody) return;
+    onSnapshot(collection(db,colName), snap=>{
+      const tbody=$(tbodyId); if(!tbody) return;
       if(snap.empty){
         tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:2rem;color:#4a6a84">No records found.</td></tr>`;
         return;
       }
       tbody.innerHTML='';
-      snap.forEach(d => { tbody.innerHTML += renderFn(d.id, d.data()); });
+      snap.forEach(d=>{ tbody.innerHTML+=renderFn(d.id,d.data()); });
     });
   }
 
-  // Add this function:
-    function loadRecentAppointments(){
-    onSnapshot(collection(db, 'appointments'), snap => {
-        const tbody = $('recentApptsTable');
-        if(!tbody) return;
-        if(snap.empty){
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#4a6a84">No appointments yet.</td></tr>`;
+  // ── Recent appointments ───────────────────────────────────────────────────
+  function loadRecentAppointments(){
+    onSnapshot(collection(db,'appointments'), snap=>{
+      const tbody=$('recentApptsTable'); if(!tbody) return;
+      if(snap.empty){
+        tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#4a6a84">No appointments yet.</td></tr>`;
         return;
-        }
-        const appts = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => {
-            // Sort by createdAt descending, show newest first
-            const ta = a.createdAt?.toMillis?.() || 0;
-            const tb = b.createdAt?.toMillis?.() || 0;
-            return tb - ta;
-        })
-        .slice(0, 10); // show last 10
+      }
+      const appts = snap.docs
+        .map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.createdAt?.toMillis?.()??0)-(a.createdAt?.toMillis?.()??0))
+        .slice(0,10);
 
-        tbody.innerHTML = appts.map(a => {
+      tbody.innerHTML = appts.map(a=>{
         const dateStr = a.date
-            ? new Date(a.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
-            : '—';
+          ? new Date(a.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+          : '—';
         const timeStr = a.time ? formatTime(a.time) : '—';
-        const status  = a.status || 'Pending';
-        const sc = status==='Confirmed'?'badge-confirmed': status==='Cancelled'?'badge-cancelled':'badge-pending';
+        const status  = a.status||'Pending';
+        const sc = status==='Confirmed'?'badge-confirmed':status==='Cancelled'?'badge-cancelled':'badge-pending';
         return `<tr>
-            <td>${a.patientName || a.name || '—'}</td>
-            <td>${a.symptom || '—'}</td>
-            <td>${a.doctorName || 'Unassigned'}</td>
-            <td>${dateStr}</td>
-            <td>${timeStr}</td>
-            <td><span class="badge-status ${sc}">${status}</span></td>
+          <td>${a.patientName||a.name||'—'}</td>
+          <td>${a.symptom||'—'}</td>
+          <td>${a.doctorName||'Unassigned'}</td>
+          <td>${dateStr}</td>
+          <td>${timeStr}</td>
+          <td><span class="badge-status ${sc}">${status}</span></td>
         </tr>`;
-        }).join('');
+      }).join('');
     });
-    }
+  }
 
-    // Inside onAuthStateChanged, after the existing loadLiveTable calls, add:
-    loadRecentAppointments();
+  // ── Room view ─────────────────────────────────────────────────────────────
+  function loadRoomView(){
+    onSnapshot(collection(db,'beds'), snap=>{
+      const container=$('roomFloors'); if(!container) return;
+      if(snap.empty){
+        container.innerHTML='<div class="empty">No beds registered yet.</div>'; return;
+      }
+
+      const floors={'Floor 1':[],'Floor 2':[],'Floor 3':[]};
+      snap.forEach(d=>{
+        const data={id:d.id,...d.data()};
+        const f=data.floor||'Floor 1';
+        if(floors[f]) floors[f].push(data);
+        else floors[f]=[data];
+      });
+
+      container.innerHTML = Object.entries(floors).map(([floor,beds])=>{
+        if(!beds.length) return '';
+        const available = beds.filter(b=>b.status==='Available').length;
+        const tiles = beds
+          .sort((a,b)=>(a.room+a.bedNumber).localeCompare(b.room+b.bedNumber))
+          .map(b=>{
+            const isAvail = b.status==='Available';
+            return `<div class="bed-tile ${isAvail?'available':'occupied'}">
+              <div class="bed-tile-header">
+                <span class="bed-id">Room ${b.room} · Bed ${b.bedNumber}</span>
+                <span class="bed-dot ${isAvail?'green':'red'}"></span>
+              </div>
+              <div class="bed-info">
+                <div><strong>Status:</strong> ${b.status||'Available'}</div>
+                ${!isAvail&&b.patientName?`<div><strong>Patient:</strong> ${b.patientName}</div>`:''}
+                ${!isAvail&&b.nurseAssigned?`<div><strong>Nurse:</strong> ${b.nurseAssigned}</div>`:''}
+              </div>
+            </div>`;
+          }).join('');
+
+        return `<div class="floor-section card">
+          <div class="floor-title">🏢 ${floor}
+            <span style="font-size:.8rem;color:#7da8c4;font-family:'DM Sans',sans-serif;font-weight:400;">
+              (${available} available / ${beds.length} total)
+            </span>
+          </div>
+          <div class="beds-grid">${tiles}</div>
+        </div>`;
+      }).join('');
+    });
+  }
 
   // ── Row renderers ─────────────────────────────────────────────────────────
   function renderDoctorRow(id, d){
-    const symCount = Array.isArray(d.symptoms) ? d.symptoms.length : 0;
-    const symBadge = symCount > 0
-      ? `<span class="badge badge-green" title="${(d.symptoms||[]).join(', ')}" style="cursor:help">${symCount} symptoms</span>`
-      : '<span style="color:#4a6a84;font-size:.78rem">—</span>';
+    const symCount=Array.isArray(d.symptoms)?d.symptoms.length:0;
+    const symBadge=symCount>0
+      ?`<span class="badge badge-green" title="${(d.symptoms||[]).join(', ')}" style="cursor:help">${symCount} symptoms</span>`
+      :'<span style="color:#4a6a84;font-size:.78rem">—</span>';
     return `<tr>
       <td>${d.name||'—'}</td><td>${d.speciality||'—'}</td><td>${d.department||'—'}</td>
       <td>${symBadge}</td>
@@ -726,134 +814,154 @@
       <td><button class="btn-delete" onclick="deleteRecord('doctors','${id}')">Remove</button></td>
     </tr>`;
   }
+
   function renderNurseRow(id, d){
     return `<tr>
-      <td>${d.name||'—'}</td><td>${d.ward||'—'}</td><td>${d.shift||'—'}</td>
-      <td>${formatTime(d.availableFrom)} – ${formatTime(d.availableTo)}</td>
-      <td>${d.phone||'—'}</td>
+      <td>${d.name||'—'}</td>
+      <td>${d.shift||'—'}</td>
+      <td colspan="2">${d.phone||'—'}</td>
+      <td></td>
       <td><button class="btn-delete" onclick="deleteRecord('nurses','${id}')">Remove</button></td>
     </tr>`;
   }
+
   function renderEquipRow(id, d){
-    const sc = d.status==='Operational'?'badge-green':d.status==='Under Maintenance'?'badge-yellow':'badge-rose';
-    return `<tr>
-      <td>${d.name||'—'}</td><td>${d.category||'—'}</td><td>${d.serial||'—'}</td>
-      <td>${d.location||'—'}</td>
-      <td><span class="badge ${sc}">${d.status||'—'}</span></td>
-      <td>${d.date||'—'}</td>
-      <td><button class="btn-delete" onclick="deleteRecord('equipment','${id}')">Remove</button></td>
-    </tr>`;
-  }
+  const hours = (d.workingFrom && d.workingTo)
+    ? `${formatTime(d.workingFrom)} – ${formatTime(d.workingTo)}`
+    : d.date || '—';
+  return `<tr>
+    <td>${d.name||'—'}</td>
+    <td>${d.serial||'—'}</td>
+    <td>${d.operator||'—'}</td>
+    <td>${d.contact||'—'}</td>
+    <td>${d.room||'—'}</td>
+    <td>${hours}</td>
+    <td><button class="btn-delete" onclick="deleteRecord('equipment','${id}')">Remove</button></td>
+  </tr>`;
+}
+
   function renderBedRow(id, d){
-    const sc = d.status==='Available'?'badge-green':d.status==='Occupied'?'badge-rose':'badge-yellow';
+    const isAvail  = d.status==='Available';
+    const sc       = isAvail?'badge-green':'badge-rose';
+    const nextSt   = isAvail?'Occupied':'Available';
+    const btnLabel = isAvail?'Mark Occupied':'Mark Available';
+    const btnStyle = isAvail
+      ? 'background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.3);color:var(--rose)'
+      : 'background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);color:var(--mint)';
     return `<tr>
-      <td>${d.room||'—'}</td><td>${d.bedNumber||'—'}</td><td>${d.ward||'—'}</td>
-      <td>${d.bedType||'—'}</td>
-      <td><span class="badge ${sc}">${d.status||'—'}</span></td>
+      <td>${d.room||'—'}</td>
+      <td>${d.bedNumber||'—'}</td>
+      <td>${d.floor||'—'}</td>
+      <td><span class="badge ${sc}">${d.status||'Available'}</span></td>
+      <td>
+        <button style="padding:.3rem .75rem;border-radius:7px;cursor:pointer;font-size:.78rem;${btnStyle}"
+          onclick="toggleBedStatus('${id}','${nextSt}')">
+          ${btnLabel}
+        </button>
+      </td>
       <td><button class="btn-delete" onclick="deleteRecord('beds','${id}')">Remove</button></td>
     </tr>`;
   }
 
-  // Delete exposed globally for inline onclick in table rows
+  // ── Bed status toggle ─────────────────────────────────────────────────────
+  window.toggleBedStatus = async function(id, newStatus){
+    await updateDoc(doc(db,'beds',id),{ status: newStatus });
+  };
+
+  // ── Delete ────────────────────────────────────────────────────────────────
   window.deleteRecord = async function(colName, id){
     if(!confirm('Remove this record?')) return;
-    await deleteDoc(doc(db, colName, id));
+    await deleteDoc(doc(db,colName,id));
   };
 
   // ── Register Doctor ───────────────────────────────────────────────────────
-  $('docSubmitBtn').addEventListener('click', async () => {
-    const name  = v('docName'),  spec  = v('docSpec'),
-          from  = v('docFrom'),  to    = v('docTo'),
-          phone = v('docPhone'), dept  = v('docDept');
+  $('docSubmitBtn').addEventListener('click', async ()=>{
+    const name=v('docName'), spec=v('docSpec'),
+          from=v('docFrom'), to=v('docTo'),
+          phone=v('docPhone'), dept=v('docDept');
 
-    let symptoms = [];
-    try { symptoms = JSON.parse($('docSymptoms')?.value || '[]'); } catch(e){}
+    let symptoms=[];
+    try{ symptoms=JSON.parse($('docSymptoms')?.value||'[]'); }catch(e){}
 
-    if(!name || !spec || !from || !to){
-      showErr('docError','Please fill Name, Speciality, and Time fields.'); return;
-    }
+    if(!name||!spec||!from||!to){ showErr('docError','Please fill Name, Speciality, and Time fields.'); return; }
 
-    // Auto-generate username from doctor name: dr.firstname.lastname@medicare
-    const usernamePart = name
-      .toLowerCase()
-      .replace(/^dr\.?\s*/i, '')     // strip leading "Dr." or "Dr "
-      .trim()
-      .replace(/\s+/g, '.');         // spaces → dots
-    const generatedEmail = `dr.${usernamePart}@medicare`;
+    const usernamePart=name.toLowerCase().replace(/^dr\.?\s*/i,'').trim().replace(/\s+/g,'.');
+    const generatedEmail=`dr.${usernamePart}@medicare`;
+    const tempPassword=generatePassword();
 
-    const tempPassword = generatePassword();
-
-    const btn = $('docSubmitBtn');
-    btn.disabled = true; btn.textContent = 'Registering…';
+    const btn=$('docSubmitBtn');
+    btn.disabled=true; btn.textContent='Registering…';
 
     try {
-      await addDoc(collection(db, 'doctors'), {
-        name,
-        speciality: spec,
-        email: generatedEmail,
-        password: tempPassword,        // stored in Firestore only, no Firebase Auth
-        availableFrom: from,
-        availableTo: to,
-        phone,
-        department: dept,
-        role: 'doctor',
-        symptoms,
-        createdAt: serverTimestamp()
+      await addDoc(collection(db,'doctors'),{
+        name, speciality:spec, email:generatedEmail, password:tempPassword,
+        availableFrom:from, availableTo:to, phone, department:dept,
+        role:'doctor', symptoms, createdAt:serverTimestamp()
       });
-
       clearFields(['docName','docFrom','docTo','docPhone','docDept']);
-      $('docSpec').value = '';
-      $('symptomPanel').style.display = 'none';
-      const h = $('docSymptoms'); if(h) h.value = '';
-
+      $('docSpec').value='';
+      $('symptomPanel').style.display='none';
+      const h=$('docSymptoms'); if(h) h.value='';
       $('credEmail').textContent    = generatedEmail;
       $('credPassword').textContent = tempPassword;
       $('credModal').classList.add('open');
+    } catch(e){ showErr('docError','Error: '+e.message); }
 
-    } catch(e){
-      showErr('docError', 'Error: ' + e.message);
-    }
-
-    btn.disabled = false; btn.textContent = '🩺 Register Doctor & Create Login';
+    btn.disabled=false; btn.textContent='🩺 Register Doctor & Create Login';
   });
 
   // ── Register Nurse ────────────────────────────────────────────────────────
-  $('nurseSubmitBtn').addEventListener('click', async () => {
-    const name=v('nurseName'), ward=v('nurseWard'), from=v('nurseFrom'),
-          to=v('nurseTo'), phone=v('nursePhone'), shift=v('nurseShift');
-    if(!name || !from || !to){ showErr('nurseError','Please fill Name and Time fields.'); return; }
+  $('nurseSubmitBtn').addEventListener('click', async ()=>{
+    const name=v('nurseName'), shift=v('nurseShift'), phone=v('nursePhone');
+    if(!name||!shift){ showErr('nurseError','Please fill Name and Shift fields.'); return; }
     const btn=$('nurseSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
     try {
-      await addDoc(collection(db,'nurses'),{name,ward,availableFrom:from,availableTo:to,phone,shift,createdAt:serverTimestamp()});
-      clearFields(['nurseName','nurseWard','nurseFrom','nurseTo','nursePhone','nurseShift']);
+      await addDoc(collection(db,'nurses'),{name,shift,phone,createdAt:serverTimestamp()});
+      clearFields(['nurseName','nursePhone']);
+      $('nurseShift').value='';
       showAlert('nurseAlert');
     } catch(e){ showErr('nurseError','Error: '+e.message); }
     btn.disabled=false; btn.textContent='💉 Register Nurse';
   });
 
   // ── Register Equipment ────────────────────────────────────────────────────
-  $('equipSubmitBtn').addEventListener('click', async () => {
-    const name=v('equipName'), cat=v('equipCat'), serial=v('equipSerial'),
-          location=v('equipLocation'), status=v('equipStatus'), date=v('equipDate');
-    if(!name){ showErr('equipError','Equipment name is required.'); return; }
-    const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
-    try {
-      await addDoc(collection(db,'equipment'),{name,category:cat,serial,location,status,date,createdAt:serverTimestamp()});
-      clearFields(['equipName','equipCat','equipSerial','equipLocation','equipStatus','equipDate']);
-      showAlert('equipAlert');
-    } catch(e){ showErr('equipError','Error: '+e.message); }
-    btn.disabled=false; btn.textContent='🔧 Register Equipment';
-  });
+  $('equipSubmitBtn').addEventListener('click', async ()=>{
+  const name     = v('equipName'),   serial   = v('equipSerial'),
+        operator = v('equipOperator'), contact = v('equipContact'),
+        room     = v('equipRoom'),   from     = v('equipFrom'),
+        to       = v('equipTo');
+
+  if(!name){ showErr('equipError','Equipment name is required.'); return; }
+  if(!from||!to){ showErr('equipError','Please select working hours.'); return; }
+
+  const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
+  try {
+    await addDoc(collection(db,'equipment'),{
+      name, serial, operator, contact, room,
+      workingFrom: from, workingTo: to,
+      createdAt: serverTimestamp()
+    });
+    clearFields(['equipName','equipSerial','equipOperator','equipContact','equipRoom']);
+    $('equipFrom').value=''; $('equipTo').value='';
+    showAlert('equipAlert');
+  } catch(e){ showErr('equipError','Error: '+e.message); }
+  btn.disabled=false; btn.textContent='🔧 Register Equipment';
+});
 
   // ── Register Bed ──────────────────────────────────────────────────────────
-  $('bedSubmitBtn').addEventListener('click', async () => {
-    const room=v('bedRoom'), bedNumber=v('bedNum'), ward=v('bedWard'),
-          bedType=v('bedType'), status=v('bedStatus');
-    if(!room || !bedNumber){ showErr('bedError','Room and Bed numbers are required.'); return; }
+  $('bedSubmitBtn').addEventListener('click', async ()=>{
+    const room=v('bedRoom'), bedNumber=v('bedNum'), floor=v('bedFloor');
+    if(!room||!bedNumber||!floor){ showErr('bedError','All fields are required.'); return; }
     const btn=$('bedSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
     try {
-      await addDoc(collection(db,'beds'),{room,bedNumber,ward,bedType,status:status||'Available',createdAt:serverTimestamp()});
-      clearFields(['bedRoom','bedNum','bedWard','bedType','bedStatus']);
+      await addDoc(collection(db,'beds'),{
+        room, bedNumber, floor,
+        status:'Available',
+        patientName:'', nurseAssigned:'',
+        createdAt:serverTimestamp()
+      });
+      clearFields(['bedRoom','bedNum']);
+      $('bedFloor').value='';
       showAlert('bedAlert');
     } catch(e){ showErr('bedError','Error: '+e.message); }
     btn.disabled=false; btn.textContent='🛏 Register Bed';
@@ -861,139 +969,58 @@
 
   // ── Speciality → Dept + Symptoms ─────────────────────────────────────────
   const SPEC_MAP = {
-    "Cardiology": { 
-        dept:"Cardiac Sciences",
-        symptoms:["Chest Pain","Palpitations","Shortness of Breath"]
-        },
-
-        "Neurology": { 
-        dept:"Neurosciences",
-        symptoms:["Headache","Seizures","Loss of Balance"]
-        },
-
-        "Orthopedics": { 
-        dept:"Bone & Joint",
-        symptoms:["Back Pain","Joint Pain","Fracture"]
-        },
-
-        "Gastroenterology": { 
-        dept:"Digestive Health",
-        symptoms:["Abdominal Pain","Nausea","Vomiting"]
-        },
-
-        "Pulmonology": { 
-        dept:"Respiratory Care",
-        symptoms:["Cough","Shortness of Breath","Wheezing"]
-        },
-
-        "Dermatology": { 
-        dept:"Skin & Hair",
-        symptoms:["Rash","Itching","Acne"]
-        },
-
-        "Endocrinology": { 
-        dept:"Endocrine & Metabolism",
-        symptoms:["Excessive Thirst","Frequent Urination","Weight Gain / Loss"]
-        },
-
-        "Nephrology": { 
-        dept:"Kidney Care",
-        symptoms:["Blood in Urine","Foamy Urine","Kidney Pain"]
-        },
-
-        "Ophthalmology": { 
-        dept:"Eye Care",
-        symptoms:["Blurred Vision","Eye Pain","Redness"]
-        },
-
-        "ENT": { 
-        dept:"ENT",
-        symptoms:["Ear Pain","Sore Throat","Nasal Congestion"]
-        },
-
-        "Psychiatry": { 
-        dept:"Mental Health",
-        symptoms:["Anxiety","Depression","Insomnia"]
-        },
-
-        "Gynecology": { 
-        dept:"Women's Health",
-        symptoms:["Irregular Periods","Pelvic Pain","Heavy Bleeding"]
-        },
-
-        "Pediatrics": { 
-        dept:"Child Health",
-        symptoms:["Fever in Children","Cough & Cold","Growth Concerns"]
-        },
-
-        "Oncology": { 
-        dept:"Cancer Care",
-        symptoms:["Unexplained Weight Loss","Lumps / Swellings","Persistent Fatigue"]
-        },
-
-        "Urology": { 
-        dept:"Urology",
-        symptoms:["Painful Urination","Blood in Urine","Kidney Stones"]
-        },
-
-        "Rheumatology": { 
-        dept:"Rheumatology",
-        symptoms:["Joint Pain","Morning Stiffness","Muscle Pain"]
-        },
-
-        "Hematology": { 
-        dept:"Blood Disorders",
-        symptoms:["Anemia","Easy Bruising","Prolonged Bleeding"]
-        },
-
-        "Infectious Disease": { 
-        dept:"Infectious Diseases",
-        symptoms:["High Fever","Chills","Body Aches"]
-        },
-
-        "General Medicine": { 
-        dept:"General Medicine",
-        symptoms:["Fever","Fatigue","Headache"]
-        },
-
-        "Emergency Medicine": { 
-        dept:"Emergency & Trauma",
-        symptoms:["Severe Chest Pain","Stroke Symptoms","Unconsciousness"]
-        }
+    "Cardiology":         { dept:"Cardiac Sciences",       symptoms:["Chest Pain","Palpitations","Shortness of Breath"] },
+    "Neurology":          { dept:"Neurosciences",          symptoms:["Headache","Seizures","Loss of Balance"] },
+    "Orthopedics":        { dept:"Bone & Joint",           symptoms:["Back Pain","Joint Pain","Fracture"] },
+    "Gastroenterology":   { dept:"Digestive Health",       symptoms:["Abdominal Pain","Nausea","Vomiting"] },
+    "Pulmonology":        { dept:"Respiratory Care",       symptoms:["Cough","Shortness of Breath","Wheezing"] },
+    "Dermatology":        { dept:"Skin & Hair",            symptoms:["Rash","Itching","Acne"] },
+    "Endocrinology":      { dept:"Endocrine & Metabolism", symptoms:["Excessive Thirst","Frequent Urination","Weight Gain / Loss"] },
+    "Nephrology":         { dept:"Kidney Care",            symptoms:["Blood in Urine","Foamy Urine","Kidney Pain"] },
+    "Ophthalmology":      { dept:"Eye Care",               symptoms:["Blurred Vision","Eye Pain","Redness"] },
+    "ENT":                { dept:"ENT",                    symptoms:["Ear Pain","Sore Throat","Nasal Congestion"] },
+    "Psychiatry":         { dept:"Mental Health",          symptoms:["Anxiety","Depression","Insomnia"] },
+    "Gynecology":         { dept:"Women's Health",         symptoms:["Irregular Periods","Pelvic Pain","Heavy Bleeding"] },
+    "Pediatrics":         { dept:"Child Health",           symptoms:["Fever in Children","Cough & Cold","Growth Concerns"] },
+    "Oncology":           { dept:"Cancer Care",            symptoms:["Unexplained Weight Loss","Lumps / Swellings","Persistent Fatigue"] },
+    "Urology":            { dept:"Urology",                symptoms:["Painful Urination","Blood in Urine","Kidney Stones"] },
+    "Rheumatology":       { dept:"Rheumatology",           symptoms:["Joint Pain","Morning Stiffness","Muscle Pain"] },
+    "Hematology":         { dept:"Blood Disorders",        symptoms:["Anemia","Easy Bruising","Prolonged Bleeding"] },
+    "Infectious Disease": { dept:"Infectious Diseases",    symptoms:["High Fever","Chills","Body Aches"] },
+    "General Medicine":   { dept:"General Medicine",       symptoms:["Fever","Fatigue","Headache"] },
+    "Emergency Medicine": { dept:"Emergency & Trauma",     symptoms:["Severe Chest Pain","Stroke Symptoms","Unconsciousness"] }
   };
 
   $('docSpec').addEventListener('change', function(){
-    const val   = this.value;
-    const panel = $('symptomPanel');
-    const tags  = $('symptomTags');
-    const badge = $('specBadge');
-    const deptEl= $('docDept');
+    const val=this.value;
+    const panel=$('symptomPanel'), tags=$('symptomTags'),
+          badge=$('specBadge'),    deptEl=$('docDept');
 
-    if(!val || !SPEC_MAP[val]){ panel.style.display='none'; deptEl.value=''; return; }
+    if(!val||!SPEC_MAP[val]){ panel.style.display='none'; deptEl.value=''; return; }
 
-    const data = SPEC_MAP[val];
-    deptEl.value = data.dept;
-    badge.textContent = val;
-    tags.innerHTML = data.symptoms.map(s =>
+    const data=SPEC_MAP[val];
+    deptEl.value=data.dept;
+    badge.textContent=val;
+    tags.innerHTML=data.symptoms.map(s=>
       `<span class="sym-tag"><span class="dot"></span>${s}</span>`
     ).join('');
 
     panel.style.display='block';
     panel.style.opacity='0';
     panel.style.transform='translateY(8px)';
-    requestAnimationFrame(() => {
+    requestAnimationFrame(()=>{
       panel.style.transition='opacity .3s ease, transform .3s ease';
       panel.style.opacity='1';
       panel.style.transform='translateY(0)';
     });
 
-    let hidden = $('docSymptoms');
+    let hidden=$('docSymptoms');
     if(!hidden){
-      hidden = document.createElement('input');
+      hidden=document.createElement('input');
       hidden.type='hidden'; hidden.id='docSymptoms';
       $('docSpec').parentElement.appendChild(hidden);
     }
-    hidden.value = JSON.stringify(data.symptoms);
+    hidden.value=JSON.stringify(data.symptoms);
   });
 
 </script>
