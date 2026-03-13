@@ -262,10 +262,7 @@
             <table>
               <thead><tr><th>Patient</th><th>Symptom</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
               <tbody>
-                <tr><td>Priya Sharma</td><td>Fever &amp; Chills</td><td>Dr. Mehta</td><td>Mar 14, 2026</td><td>10:00 AM</td><td><span class="badge-status badge-confirmed">Confirmed</span></td></tr>
-                <tr><td>Rahul Verma</td><td>Back Pain</td><td>Dr. Singh</td><td>Mar 14, 2026</td><td>11:30 AM</td><td><span class="badge-status badge-pending">Pending</span></td></tr>
-                <tr><td>Anjali Gupta</td><td>Headache</td><td>Dr. Patel</td><td>Mar 15, 2026</td><td>9:00 AM</td><td><span class="badge-status badge-confirmed">Confirmed</span></td></tr>
-                <tr><td>Arun Joshi</td><td>Chest Pain</td><td>Dr. Rao</td><td>Mar 15, 2026</td><td>2:00 PM</td><td><span class="badge-status badge-cancelled">Cancelled</span></td></tr>
+                <tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr>
               </tbody>
             </table>
           </div>
@@ -306,8 +303,60 @@
               </select>
             </div>
             <div class="field"><label>Department</label><input type="text" id="docDept" placeholder="Auto-filled from speciality"/></div>
-            <div class="field"><label>Available From</label><input type="time" id="docFrom"/></div>
-            <div class="field"><label>Available Until</label><input type="time" id="docTo"/></div>
+            <div class="field">
+                <label>Available From</label>
+                <select id="docFrom">
+                    <option value="">— Select Time —</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="08:30">8:30 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="09:30">9:30 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="11:30">11:30 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="12:30">12:30 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="13:30">1:30 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="14:30">2:30 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="15:30">3:30 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="16:30">4:30 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="17:30">5:30 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                </select>
+                </div>
+                <div class="field">
+                <label>Available Until</label>
+                <select id="docTo">
+                    <option value="">— Select Time —</option>
+                    <option value="08:00">8:00 AM</option>
+                    <option value="08:30">8:30 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="09:30">9:30 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="10:30">10:30 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="11:30">11:30 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="12:30">12:30 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="13:30">1:30 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="14:30">2:30 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="15:30">3:30 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="16:30">4:30 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="17:30">5:30 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                </select>
+                </div>
             <div class="field"><label>Contact / Phone</label><input type="tel" id="docPhone" placeholder="+91 98765 43210"/></div>
           </div>
 
@@ -620,6 +669,47 @@
       snap.forEach(d => { tbody.innerHTML += renderFn(d.id, d.data()); });
     });
   }
+
+  // Add this function:
+    function loadRecentAppointments(){
+    onSnapshot(collection(db, 'appointments'), snap => {
+        const tbody = $('recentApptsTable');
+        if(!tbody) return;
+        if(snap.empty){
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#4a6a84">No appointments yet.</td></tr>`;
+        return;
+        }
+        const appts = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+            // Sort by createdAt descending, show newest first
+            const ta = a.createdAt?.toMillis?.() || 0;
+            const tb = b.createdAt?.toMillis?.() || 0;
+            return tb - ta;
+        })
+        .slice(0, 10); // show last 10
+
+        tbody.innerHTML = appts.map(a => {
+        const dateStr = a.date
+            ? new Date(a.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+            : '—';
+        const timeStr = a.time ? formatTime(a.time) : '—';
+        const status  = a.status || 'Pending';
+        const sc = status==='Confirmed'?'badge-confirmed': status==='Cancelled'?'badge-cancelled':'badge-pending';
+        return `<tr>
+            <td>${a.patientName || a.name || '—'}</td>
+            <td>${a.symptom || '—'}</td>
+            <td>${a.doctorName || 'Unassigned'}</td>
+            <td>${dateStr}</td>
+            <td>${timeStr}</td>
+            <td><span class="badge-status ${sc}">${status}</span></td>
+        </tr>`;
+        }).join('');
+    });
+    }
+
+    // Inside onAuthStateChanged, after the existing loadLiveTable calls, add:
+    loadRecentAppointments();
 
   // ── Row renderers ─────────────────────────────────────────────────────────
   function renderDoctorRow(id, d){

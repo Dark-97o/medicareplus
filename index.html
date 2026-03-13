@@ -594,12 +594,12 @@
      Firebase Console → Project Settings → Your apps
   ───────────────────────────────────────────── */
   const firebaseConfig = {
-    apiKey:            "YOUR_API_KEY",
-    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId:         "YOUR_PROJECT_ID",
-    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId:             "YOUR_APP_ID"
+    apiKey: "AIzaSyAUCZZXpiOfZVgjmIrNAnn_LF0SOm1WwhA",
+    authDomain: "healthcare-scheduler-5b242.firebaseapp.com",
+    projectId: "healthcare-scheduler-5b242",
+    storageBucket: "healthcare-scheduler-5b242.firebasestorage.app",
+    messagingSenderId: "28196196047",
+    appId: "1:28196196047:web:262b5a5020cd37f64b31ba"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -681,6 +681,9 @@
     addMsg('When are you available? Please pick a time and date. 📅', 'bot', 900);
   };
 
+  // After patientData.symptom is set, we need to find the matching doctor first.
+// Replace the entire submitDateTime function with this:
+
   window.submitDateTime = async function () {
     const time = document.getElementById('inputTime').value;
     const date = document.getElementById('inputDate').value;
@@ -696,26 +699,57 @@
 
     addMsg(`${formatted} at ${timeFormatted}`, 'user');
 
-    /* ── Disable button while saving ── */
     const btn = document.querySelector('#q3 .chat-send');
     btn.disabled = true;
-    btn.textContent = 'Saving…';
+    btn.textContent = 'Finding doctor…';
 
     try {
-      /* ── Save to Firestore ── */
+      // Step 1: Find a matching doctor by symptom and time slot
+      const { getDocs, query, where } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+
+      const doctorsSnap = await getDocs(collection(db, 'doctors'));
+      let matchedDoctor = null;
+
+      doctorsSnap.forEach(d => {
+        const data = d.data();
+        const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
+        const from = data.availableFrom; // "HH:MM"
+        const to   = data.availableTo;   // "HH:MM"
+
+        const symptomMatch = symptoms.includes(patientData.symptom);
+        const timeMatch    = time >= from && time <= to;
+
+        if (symptomMatch && timeMatch && !matchedDoctor) {
+          matchedDoctor = data;
+        }
+      });
+
+      const doctorName = matchedDoctor ? matchedDoctor.name : 'Unassigned';
+      const speciality = matchedDoctor ? matchedDoctor.speciality : '—';
+
+      // Step 2: Save appointment with doctor info
       const docRef = await addDoc(collection(db, 'appointments'), {
-        name:        patientData.name,
-        symptom:     patientData.symptom,
-        date:        patientData.date,        // "YYYY-MM-DD"
-        time:        patientData.time,        // "HH:MM"
-        status:      'pending',
-        createdAt:   serverTimestamp()
+        patientName:  patientData.name,
+        name:         patientData.name,       // legacy compat
+        symptom:      patientData.symptom,
+        date:         patientData.date,
+        time:         patientData.time,
+        status:       'Pending',
+        doctorName:   doctorName,
+        speciality:   speciality,
+        createdAt:    serverTimestamp()
       });
 
       console.log('✅ Appointment saved — ID:', docRef.id);
       show('successMsg');
-      addMsg(`✅ Perfect! Appointment saved for ${formatted} at ${timeFormatted}.`, 'bot', 300);
-      addMsg(`We'll confirm shortly, ${patientData.name}!`, 'bot', 1000);
+
+      if (matchedDoctor) {
+        addMsg(`✅ Great news! We've matched you with ${doctorName} (${speciality}).`, 'bot', 300);
+        addMsg(`Your appointment is set for ${formatted} at ${timeFormatted}. See you then, ${patientData.name}! 🏥`, 'bot', 1000);
+      } else {
+        addMsg(`✅ Appointment saved for ${formatted} at ${timeFormatted}.`, 'bot', 300);
+        addMsg(`A doctor will be assigned shortly, ${patientData.name}. We'll confirm soon!`, 'bot', 1000);
+      }
 
     } catch (err) {
       console.error('❌ Firestore error:', err);
