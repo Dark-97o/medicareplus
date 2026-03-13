@@ -1,8 +1,0 @@
-import { collection, addDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
-
-export const registerDoctor = async (doctor)=>{
-
-await addDoc(collection(db,"doctors"),doctor);
-
-};

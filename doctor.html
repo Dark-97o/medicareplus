@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor Panel | MediCare+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--mint:#00C6A7;--deep:#0A1628;--navy:#112240;--slate:#1E3A5F;--accent:#FFD166;--rose:#FF6B9D;--border:rgba(0,198,167,.25);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--deep);color:#e8f4f8;font-family:'DM Sans',sans-serif;min-height:100vh;}
+    .bg-grid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,198,167,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,198,167,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+    nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:1.5rem 3rem;border-bottom:1px solid var(--border);}
+    .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--mint);}
+    .logo span{color:var(--accent);}
+    .back-btn{padding:.5rem 1.2rem;border:1px solid var(--border);border-radius:50px;color:#aac8e0;background:transparent;cursor:pointer;font-size:.85rem;text-decoration:none;transition:all .2s;}
+    .back-btn:hover{border-color:var(--mint);color:var(--mint);}
+    .container{position:relative;z-index:5;padding:3rem;}
+    .doctor-header{display:flex;align-items:center;gap:1.5rem;margin-bottom:2.5rem;}
+    .doctor-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--mint);}
+    .doctor-info h1{font-family:'Playfair Display',serif;font-size:2rem;color:#f0f8ff;}
+    .doctor-info p{color:#7da8c4;margin-top:.25rem;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+    .card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:#f0f8ff;margin-bottom:1rem;}
+    .appt-item{display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-bottom:1px solid rgba(0,198,167,.1);}
+    .appt-item:last-child{border-bottom:none;}
+    .appt-name{font-weight:600;color:#f0f8ff;font-size:.9rem;}
+    .appt-sym{font-size:.8rem;color:#7da8c4;}
+    .appt-time{font-size:.85rem;color:var(--mint);text-align:right;}
+    .badge-status{padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;}
+    .badge-confirmed{background:rgba(0,198,167,.15);color:var(--mint);}
+    .badge-pending{background:rgba(255,209,102,.15);color:var(--accent);}
+    .avail-toggle{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;}
+    .toggle{width:48px;height:26px;background:var(--mint);border-radius:50px;position:relative;cursor:pointer;}
+    .toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;right:3px;transition:.2s;}
+    .avail-label{color:#aac8e0;font-size:.9rem;}
+    .firebase-note{background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;color:#7da8c4;font-size:.85rem;margin-bottom:2rem;}
+    .firebase-note strong{color:var(--mint);}
+  </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="logo">Medi<span>Care+</span> <span style="font-size:.9rem;color:#7da8c4;font-family:'DM Sans',sans-serif;font-weight:400;">Doctor</span></div>
+  <a href="index.html" class="back-btn">← Back to Home</a>
+</nav>
+<div class="container">
+  <div class="doctor-header">
+    <img class="doctor-avatar" src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=200&q=80" alt="Doctor"/>
+    <div class="doctor-info">
+      <h1>Dr. Arjun Mehta</h1>
+      <p>General Physician · 12 years experience</p>
+    </div>
+  </div>
+  <div class="firebase-note">🔥 <strong>Firebase Integration Point:</strong> Use Firebase Auth for doctor login and Firestore to load assigned appointments via <code>db.collection('appointments').where('doctorId','==',uid)</code></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Today's Appointments</div>
+      <div class="appt-item"><div><div class="appt-name">Priya Sharma</div><div class="appt-sym">Fever & Chills</div></div><div class="appt-time">10:00 AM<br/><span class="badge-status badge-confirmed">Confirmed</span></div></div>
+      <div class="appt-item"><div><div class="appt-name">Rahul Verma</div><div class="appt-sym">Back Pain</div></div><div class="appt-time">12:00 PM<br/><span class="badge-status badge-pending">Pending</span></div></div>
+      <div class="appt-item"><div><div class="appt-name">Neha Kapoor</div><div class="appt-sym">Fatigue</div></div><div class="appt-time">3:00 PM<br/><span class="badge-status badge-confirmed">Confirmed</span></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Availability Settings</div>
+      <div class="avail-toggle"><div class="toggle"></div><span class="avail-label">Available Today</span></div>
+      <p style="font-size:.85rem;color:#7da8c4;line-height:1.6;">Update your schedule or block out time. Changes sync to the booking system in real-time via Firestore.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | MediCare+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--mint:#00C6A7;--deep:#0A1628;--navy:#112240;--slate:#1E3A5F;--accent:#FFD166;--rose:#FF6B9D;--border:rgba(0,198,167,.25);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--deep);color:#e8f4f8;font-family:'DM Sans',sans-serif;min-height:100vh;}
+    .bg-grid{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,198,167,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,198,167,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+    nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:1.5rem 3rem;border-bottom:1px solid var(--border);}
+    .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--mint);}
+    .logo span{color:var(--accent);}
+    .back-btn{padding:.5rem 1.2rem;border:1px solid var(--border);border-radius:50px;color:#aac8e0;background:transparent;cursor:pointer;font-size:.85rem;text-decoration:none;transition:all .2s;}
+    .back-btn:hover{border-color:var(--mint);color:var(--mint);}
+    .container{position:relative;z-index:5;padding:3rem;}
+    h1{font-family:'Playfair Display',serif;font-size:2.5rem;color:#f0f8ff;margin-bottom:.5rem;}
+    .sub{color:#7da8c4;margin-bottom:2.5rem;}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-bottom:2.5rem;}
+    .stat-box{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:relative;overflow:hidden;}
+    .stat-box::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,198,167,.05) 0%,transparent 60%);pointer-events:none;}
+    .stat-box .num{font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--mint);font-weight:700;}
+    .stat-box .lbl{font-size:.83rem;color:#7da8c4;margin-top:.3rem;}
+    .stat-box .trend{font-size:.78rem;color:#5eb994;margin-top:.5rem;}
+    .grid2{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem;margin-bottom:1.5rem;}
+    .card{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:1.5rem;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:#f0f8ff;margin-bottom:1.25rem;}
+    /* Fake bar chart */
+    .bar-chart{display:flex;align-items:flex-end;gap:.75rem;height:160px;}
+    .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:.5rem;}
+    .bar{width:100%;border-radius:6px 6px 0 0;background:linear-gradient(to top,var(--mint),rgba(0,198,167,.3));transition:height .5s ease;}
+    .bar-label{font-size:.72rem;color:#7da8c4;}
+    /* Symptom list */
+    .sym-item{display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid rgba(0,198,167,.08);}
+    .sym-item:last-child{border-bottom:none;}
+    .sym-name{font-size:.88rem;color:#aac8e0;}
+    .sym-bar-wrap{flex:1;margin:0 1rem;background:rgba(255,255,255,.05);border-radius:50px;height:6px;overflow:hidden;}
+    .sym-bar{height:100%;border-radius:50px;background:var(--mint);}
+    .sym-pct{font-size:.8rem;color:var(--mint);font-weight:600;}
+    .firebase-note{background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;color:#7da8c4;font-size:.85rem;margin-bottom:2rem;}
+    .firebase-note strong{color:var(--mint);}
+  </style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<nav>
+  <div class="logo">Medi<span>Care+</span> <span style="font-size:.9rem;color:#7da8c4;font-family:'DM Sans',sans-serif;font-weight:400;">Dashboard</span></div>
+  <a href="index.html" class="back-btn">← Back to Home</a>
+</nav>
+<div class="container">
+  <h1>Analytics Dashboard</h1>
+  <p class="sub">Platform performance overview — updated in real-time</p>
+  <div class="firebase-note">🔥 <strong>Firebase Integration Point:</strong> Connect Firebase Analytics + Firestore to populate these charts with live data. Use <code>db.collection('appointments').get()</code> to aggregate stats.</div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="num">1,204</div><div class="lbl">Total Patients</div><div class="trend">↑ 12% this month</div></div>
+    <div class="stat-box"><div class="num">248</div><div class="lbl">Appointments</div><div class="trend">↑ 8% this week</div></div>
+    <div class="stat-box"><div class="num">34</div><div class="lbl">Active Doctors</div><div class="trend">↑ 2 new this week</div></div>
+    <div class="stat-box"><div class="num">96%</div><div class="lbl">Satisfaction Rate</div><div class="trend">↑ 1.2% vs last month</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Appointments This Week</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Top Symptoms</div>
+      <div class="sym-item"><span class="sym-name">Fever & Chills</span><div class="sym-bar-wrap"><div class="sym-bar" style="width:82%"></div></div><span class="sym-pct">82%</span></div>
+      <div class="sym-item"><span class="sym-name">Headache</span><div class="sym-bar-wrap"><div class="sym-bar" style="width:65%"></div></div><span class="sym-pct">65%</span></div>
+      <div class="sym-item"><span class="sym-name">Back Pain</span><div class="sym-bar-wrap"><div class="sym-bar" style="width:48%"></div></div><span class="sym-pct">48%</span></div>
+      <div class="sym-item"><span class="sym-name">Fatigue</span><div class="sym-bar-wrap"><div class="sym-bar" style="width:37%"></div></div><span class="sym-pct">37%</span></div>
+      <div class="sym-item"><span class="sym-name">Nausea</span><div class="sym-bar-wrap"><div class="sym-bar" style="width:29%"></div></div><span class="sym-pct">29%</span></div>
+    </div>
+  </div>
+</div>
+<script>
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const vals = [28,42,35,55,61,38,48];
+  const max = Math.max(...vals);
+  const chart = document.getElementById('barChart');
+  days.forEach((d,i)=>{
+    const wrap = document.createElement('div'); wrap.className='bar-wrap';
+    const bar = document.createElement('div'); bar.className='bar';
+    bar.style.height='0';
+    const lbl = document.createElement('div'); lbl.className='bar-label'; lbl.textContent=d;
+    wrap.appendChild(bar); wrap.appendChild(lbl);
+    chart.appendChild(wrap);
+    setTimeout(()=>{ bar.style.height=`${(vals[i]/max)*140}px`; }, 100+i*80);
+  });
+</script>
+</body>
+</html>
