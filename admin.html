@@ -22,7 +22,7 @@
       background:radial-gradient(circle,rgba(0,198,167,.07) 0%,transparent 70%);
       top:-200px;right:-200px;pointer-events:none;z-index:0;}
 
-    /* ─── LOGIN ─── */
+    /* LOGIN */
     #loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--deep);}
     .login-card{position:relative;z-index:5;width:100%;max-width:420px;padding:2.5rem;
       background:rgba(17,34,64,.9);border:1px solid var(--border);border-radius:24px;
@@ -41,7 +41,6 @@
     .btn-login{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--mint),#00a88e);
       border:none;border-radius:12px;color:#0A1628;font-weight:700;font-size:.95rem;cursor:pointer;transition:transform .15s,box-shadow .2s;margin-top:.5rem;}
     .btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(0,198,167,.35);}
-    .btn-login:active{transform:translateY(0);}
     .login-error{background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.3);
       border-radius:8px;padding:.6rem .9rem;color:var(--rose);font-size:.82rem;margin-top:1rem;display:none;text-align:center;}
     .login-loading{text-align:center;color:#7da8c4;font-size:.85rem;margin-top:1rem;display:none;}
@@ -57,8 +56,6 @@
     .admin-chip{background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:50px;padding:.35rem .9rem;font-size:.78rem;color:var(--mint);}
     .btn-logout{padding:.4rem 1rem;border:1px solid var(--border);border-radius:50px;color:#aac8e0;background:transparent;cursor:pointer;font-size:.82rem;transition:all .2s;}
     .btn-logout:hover{border-color:var(--rose);color:var(--rose);}
-    .btn-home{padding:.4rem 1rem;border:1px solid var(--border);border-radius:50px;color:#aac8e0;background:transparent;cursor:pointer;font-size:.82rem;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:.35rem;}
-    .btn-home:hover{border-color:var(--mint);color:var(--mint);}
 
     /* CREDENTIAL MODAL */
     .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(5,12,25,.85);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;}
@@ -157,59 +154,72 @@
     .sym-tag:hover{background:rgba(0,198,167,.12);border-color:var(--mint);color:var(--mint);}
     .sym-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--mint);flex-shrink:0;}
 
+    /* ── ROOM / BED VIEW ── */
+    .floor-section{margin-bottom:2rem;}
+    .floor-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#f0f8ff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+    .beds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;}
+
+    /* available = green, occupied = red */
+    .bed-tile{border-radius:14px;padding:1.1rem 1.25rem;border:1px solid;transition:all .3s;}
+    .bed-tile.available{background:rgba(0,198,167,.08);border-color:rgba(0,198,167,.35);}
+    .bed-tile.occupied {background:rgba(255,107,157,.10);border-color:rgba(255,107,157,.45);}
+
+    .bed-tile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
+    .bed-id{font-weight:700;font-size:.95rem;color:#f0f8ff;}
+
+    /* pulsing dot */
+    .bed-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+    .bed-dot.green{background:var(--mint);box-shadow:0 0 0 0 rgba(0,198,167,.5);animation:pulseGreen 2s infinite;}
+    .bed-dot.red  {background:var(--rose);box-shadow:0 0 0 0 rgba(255,107,157,.5);animation:pulseRed   2s infinite;}
+    @keyframes pulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(0,198,167,.4)}50%{box-shadow:0 0 0 6px rgba(0,198,167,0)}}
+    @keyframes pulseRed  {0%,100%{box-shadow:0 0 0 0 rgba(255,107,157,.4)}50%{box-shadow:0 0 0 6px rgba(255,107,157,0)}}
+
+    .bed-status-chip{font-size:.7rem;font-weight:700;padding:.18rem .6rem;border-radius:50px;letter-spacing:.05em;}
+    .chip-available{background:rgba(0,198,167,.18);color:var(--mint);}
+    .chip-occupied {background:rgba(255,107,157,.18);color:var(--rose);}
+
+    .bed-info{font-size:.78rem;color:#7da8c4;line-height:1.8;}
+    .bed-info .bi-row{display:flex;gap:.4rem;}
+    .bed-info .bi-label{color:#4a6a84;min-width:52px;}
+    .bed-info .bi-val{color:#aac8e0;}
+    .bed-info .bi-val.highlight{color:#f0f8ff;font-weight:500;}
+
+    /* live badge on room view header */
+    .live-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);border-radius:50px;padding:.2rem .7rem;font-size:.72rem;color:var(--mint);margin-left:.75rem;}
+    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);animation:pulseGreen 1.5s infinite;}
+
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
       .sidebar{display:none;}
       .stats-row{grid-template-columns:repeat(2,1fr);}
       .form-grid{grid-template-columns:1fr;}
     }
-    /* ROOM VIEW */
-    .floor-section{ margin-bottom:2rem; }
-    .floor-title{ font-family:'Playfair Display',serif; font-size:1.2rem; color:#f0f8ff; margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
-    .beds-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; }
-    .bed-tile{ border-radius:14px; padding:1rem; border:1px solid; transition:all .2s; }
-    .bed-tile.available{ background:rgba(0,198,167,.08); border-color:rgba(0,198,167,.3); }
-    .bed-tile.occupied{ background:rgba(255,107,157,.08); border-color:rgba(255,107,157,.3); }
-    .bed-tile-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem; }
-    .bed-id{ font-weight:700; font-size:.95rem; color:#f0f8ff; }
-    .bed-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .bed-dot.green{ background:var(--mint); box-shadow:0 0 6px rgba(0,198,167,.6); }
-    .bed-dot.red{ background:var(--rose); box-shadow:0 0 6px rgba(255,107,157,.6); }
-    .bed-info{ font-size:.78rem; color:#7da8c4; line-height:1.6; }
-    .bed-info strong{ color:#aac8e0; }
   </style>
 </head>
 <body>
 <div class="bg-grid"></div>
 <div class="bg-orb"></div>
 
-<!-- ═══ LOGIN ═══ -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">Medi<span>Care+</span></div>
     <div class="login-sub">Admin Control Center</div>
     <div class="login-badge">🔒 Restricted Access — Authorized Personnel Only</div>
-    <div class="form-group">
-      <label>Admin Email</label>
-      <input type="email" id="loginEmail" placeholder="admin@medicare.com" autocomplete="email"/>
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
-    </div>
+    <div class="form-group"><label>Admin Email</label><input type="email" id="loginEmail" placeholder="admin@medicare.com" autocomplete="email"/></div>
+    <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
     <button class="btn-login" id="loginBtn">Sign In to Admin Panel</button>
     <div class="login-error" id="loginError"></div>
     <div class="login-loading" id="loginLoading">⏳ Authenticating…</div>
   </div>
 </div>
 
-<!-- ═══ APP SHELL ═══ -->
+<!-- APP SHELL -->
 <div id="appShell">
   <nav>
     <div class="logo">Medi<span>Care+</span> <span style="font-size:.85rem;color:#7da8c4;font-family:'DM Sans',sans-serif;font-weight:400;">Admin</span></div>
     <div class="nav-right">
       <span class="admin-chip" id="adminEmailChip">admin</span>
-      <a href="index.html" class="btn-home">🏠 Home</a>
       <button class="btn-logout" id="logoutBtn">Sign Out</button>
     </div>
   </nav>
@@ -227,7 +237,7 @@
         <div class="cred-label">Temporary Password</div>
         <div class="cred-value"><span id="credPassword">—</span><button class="copy-btn" id="copyPassBtn">Copy</button></div>
       </div>
-      <div class="modal-warn">⚠ This password is shown only once. Please copy and share it with the doctor immediately.</div>
+      <div class="modal-warn">⚠ This password is shown only once. Copy and share it with the doctor immediately.</div>
       <button class="btn-modal-close" id="credModalClose">Done — I've noted the credentials</button>
     </div>
   </div>
@@ -252,7 +262,7 @@
         <div class="sidebar-item" data-page="viewEquip"><span class="icon">📦</span> View Equipment</div>
         <div class="sidebar-item" data-page="regBed"><span class="icon">🛏</span> Register Bed</div>
         <div class="sidebar-item" data-page="viewBeds"><span class="icon">🏨</span> View Beds</div>
-        <div class="sidebar-item" data-page="viewRooms"><span class="icon">🗺</span> View Rooms</div>
+        <div class="sidebar-item" data-page="viewRooms"><span class="icon">🗺</span> Room View</div>
       </div>
     </div>
 
@@ -261,24 +271,23 @@
 
       <!-- OVERVIEW -->
       <div class="page active" id="page-overview">
-        <div class="page-header">
-          <h2>Dashboard Overview</h2>
-          <p>Real-time system summary from Firestore</p>
-        </div>
+        <div class="page-header"><h2>Dashboard Overview</h2><p>Real-time system summary</p></div>
         <div class="stats-row">
           <div class="stat-box"><div class="num" id="statDoctors">—</div><div class="lbl">Registered Doctors</div></div>
           <div class="stat-box"><div class="num" id="statNurses">—</div><div class="lbl">Registered Nurses</div></div>
           <div class="stat-box"><div class="num" id="statEquip">—</div><div class="lbl">Equipment Items</div></div>
           <div class="stat-box"><div class="num" id="statBeds">—</div><div class="lbl">Total Beds</div></div>
         </div>
+        <div class="stats-row" style="grid-template-columns:repeat(2,1fr);">
+          <div class="stat-box"><div class="num" id="statBedsAvail" style="color:var(--mint)">—</div><div class="lbl">🟢 Available Beds</div></div>
+          <div class="stat-box"><div class="num" id="statBedsOccup" style="color:var(--rose)">—</div><div class="lbl">🔴 Occupied Beds</div></div>
+        </div>
         <div class="card">
           <div class="card-title"><span class="icon">📋</span> Recent Appointments</div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Patient</th><th>Symptom</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
-              <tbody id="recentApptsTable">
-                    <tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr>
-              </tbody>
+              <tbody id="recentApptsTable"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -291,102 +300,53 @@
           <div class="card-title"><span class="icon">🩺</span> Doctor Information</div>
           <div class="form-grid">
             <div class="field"><label>Full Name</label><input type="text" id="docName" placeholder="Dr. Aisha Mehta"/></div>
-            <div class="field">
-              <label>Speciality</label>
+            <div class="field"><label>Speciality</label>
               <select id="docSpec">
                 <option value="">— Select Speciality —</option>
-                <option value="Cardiology">Cardiology</option>
-                <option value="Neurology">Neurology</option>
-                <option value="Orthopedics">Orthopedics</option>
-                <option value="Gastroenterology">Gastroenterology</option>
-                <option value="Pulmonology">Pulmonology</option>
-                <option value="Dermatology">Dermatology</option>
-                <option value="Endocrinology">Endocrinology</option>
-                <option value="Nephrology">Nephrology</option>
-                <option value="Ophthalmology">Ophthalmology</option>
-                <option value="ENT">ENT (Ear, Nose &amp; Throat)</option>
-                <option value="Psychiatry">Psychiatry</option>
-                <option value="Gynecology">Gynecology &amp; Obstetrics</option>
-                <option value="Pediatrics">Pediatrics</option>
-                <option value="Oncology">Oncology</option>
-                <option value="Urology">Urology</option>
-                <option value="Rheumatology">Rheumatology</option>
-                <option value="Hematology">Hematology</option>
-                <option value="Infectious Disease">Infectious Disease</option>
-                <option value="General Medicine">General Medicine</option>
-                <option value="Emergency Medicine">Emergency Medicine</option>
+                <option>Cardiology</option><option>Neurology</option><option>Orthopedics</option>
+                <option>Gastroenterology</option><option>Pulmonology</option><option>Dermatology</option>
+                <option>Endocrinology</option><option>Nephrology</option><option>Ophthalmology</option>
+                <option>ENT</option><option>Psychiatry</option><option>Gynecology</option>
+                <option>Pediatrics</option><option>Oncology</option><option>Urology</option>
+                <option>Rheumatology</option><option>Hematology</option><option>Infectious Disease</option>
+                <option>General Medicine</option><option>Emergency Medicine</option>
               </select>
             </div>
             <div class="field"><label>Department</label><input type="text" id="docDept" placeholder="Auto-filled from speciality"/></div>
-            <div class="field">
-                <label>Available From</label>
-                <select id="docFrom">
-                    <option value="">— Select Time —</option>
-                    <option value="08:00">8:00 AM</option>
-                    <option value="08:30">8:30 AM</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="09:30">9:30 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="10:30">10:30 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="11:30">11:30 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="12:30">12:30 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="13:30">1:30 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="14:30">2:30 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="15:30">3:30 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="16:30">4:30 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="17:30">5:30 PM</option>
-                    <option value="18:00">6:00 PM</option>
-                </select>
-                </div>
-                <div class="field">
-                <label>Available Until</label>
-                <select id="docTo">
-                    <option value="">— Select Time —</option>
-                    <option value="08:00">8:00 AM</option>
-                    <option value="08:30">8:30 AM</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="09:30">9:30 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="10:30">10:30 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="11:30">11:30 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="12:30">12:30 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="13:30">1:30 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="14:30">2:30 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="15:30">3:30 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="16:30">4:30 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="17:30">5:30 PM</option>
-                    <option value="18:00">6:00 PM</option>
-                </select>
-                </div>
+            <div class="field"><label>Available From</label>
+              <select id="docFrom">
+                <option value="">— Select Time —</option>
+                <option value="08:00">8:00 AM</option><option value="08:30">8:30 AM</option>
+                <option value="09:00">9:00 AM</option><option value="09:30">9:30 AM</option>
+                <option value="10:00">10:00 AM</option><option value="10:30">10:30 AM</option>
+                <option value="11:00">11:00 AM</option><option value="12:00">12:00 PM</option>
+                <option value="13:00">1:00 PM</option><option value="14:00">2:00 PM</option>
+                <option value="15:00">3:00 PM</option><option value="16:00">4:00 PM</option>
+                <option value="17:00">5:00 PM</option><option value="18:00">6:00 PM</option>
+              </select>
+            </div>
+            <div class="field"><label>Available Until</label>
+              <select id="docTo">
+                <option value="">— Select Time —</option>
+                <option value="09:00">9:00 AM</option><option value="10:00">10:00 AM</option>
+                <option value="11:00">11:00 AM</option><option value="12:00">12:00 PM</option>
+                <option value="13:00">1:00 PM</option><option value="14:00">2:00 PM</option>
+                <option value="15:00">3:00 PM</option><option value="16:00">4:00 PM</option>
+                <option value="17:00">5:00 PM</option><option value="18:00">6:00 PM</option>
+              </select>
+            </div>
             <div class="field"><label>Contact / Phone</label><input type="tel" id="docPhone" placeholder="+91 98765 43210"/></div>
           </div>
-
-          <!-- SYMPTOM PANEL -->
           <div id="symptomPanel" style="display:none;margin-top:1.25rem;">
             <div style="background:rgba(0,198,167,.06);border:1px solid var(--border);border-radius:14px;padding:1.25rem;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem;">
-                <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mint);font-weight:600;">🗂 Symptoms Handled by this Speciality</div>
+                <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mint);font-weight:600;">🗂 Symptoms for this Speciality</div>
                 <div id="specBadge" style="background:rgba(0,198,167,.15);border:1px solid var(--border);border-radius:50px;padding:.2rem .75rem;font-size:.75rem;color:var(--mint);font-weight:600;"></div>
               </div>
               <div id="symptomTags" style="display:flex;flex-wrap:wrap;gap:.5rem;"></div>
             </div>
           </div>
-
-          <div class="hint-box">🔐 A Firebase Auth account will be created with this email. A secure temporary password will be auto-generated and shown to you once.</div>
+          <div class="hint-box">🔐 A secure temporary password will be auto-generated and shown once.</div>
           <button class="btn-submit" id="docSubmitBtn">🩺 Register Doctor &amp; Create Login</button>
           <div class="alert alert-success" id="docSuccess">✅ Doctor registered successfully!</div>
           <div class="alert alert-error" id="docError"></div>
@@ -407,26 +367,26 @@
       </div>
 
       <!-- REGISTER NURSE -->
-        <div class="page" id="page-regNurse">
+      <div class="page" id="page-regNurse">
         <div class="page-header"><h2>Register Nurse</h2><p>Add a new nurse to the system</p></div>
         <div class="card">
-            <div class="card-title"><span class="icon">💉</span> Nurse Information</div>
-            <div class="form-grid cols-3">
+          <div class="card-title"><span class="icon">💉</span> Nurse Information</div>
+          <div class="form-grid cols-3">
             <div class="field"><label>Full Name</label><input type="text" id="nurseName" placeholder="Sunita Rao"/></div>
             <div class="field"><label>Shift</label>
-                <select id="nurseShift">
+              <select id="nurseShift">
                 <option value="">Select Shift</option>
                 <option value="Shift 1 (Morning)">Shift 1 — Morning (6 AM – 2 PM)</option>
                 <option value="Shift 2 (Night)">Shift 2 — Night (2 PM – 10 PM)</option>
-                </select>
+              </select>
             </div>
             <div class="field"><label>Contact / Phone</label><input type="tel" id="nursePhone" placeholder="+91 98765 43210"/></div>
-            </div>
-            <button class="btn-submit" id="nurseSubmitBtn">💉 Register Nurse</button>
-            <div class="alert alert-success" id="nurseAlert">✅ Nurse registered successfully!</div>
-            <div class="alert alert-error" id="nurseError"></div>
+          </div>
+          <button class="btn-submit" id="nurseSubmitBtn">💉 Register Nurse</button>
+          <div class="alert alert-success" id="nurseAlert">✅ Nurse registered successfully!</div>
+          <div class="alert alert-error" id="nurseError"></div>
         </div>
-        </div>
+      </div>
 
       <!-- VIEW NURSES -->
       <div class="page" id="page-viewNurses">
@@ -434,82 +394,51 @@
         <div class="card">
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Name</th><th>Ward</th><th>Shift</th><th>Available</th><th>Phone</th><th></th></tr></thead>
-              <tbody id="nursesTable"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr></tbody>
+              <thead><tr><th>Name</th><th>Shift</th><th>Phone</th><th></th></tr></thead>
+              <tbody id="nursesTable"><tr class="loading-row"><td colspan="4"><span class="spinner"></span> Loading…</td></tr></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <!-- REGISTER EQUIPMENT -->
-        <div class="page" id="page-regEquip">
+      <div class="page" id="page-regEquip">
         <div class="page-header"><h2>Register Equipment</h2><p>Add new medical equipment</p></div>
         <div class="card">
-            <div class="card-title"><span class="icon">🔧</span> Equipment Details</div>
-            <div class="form-grid">
+          <div class="card-title"><span class="icon">🔧</span> Equipment Details</div>
+          <div class="form-grid">
             <div class="field"><label>Equipment Name</label><input type="text" id="equipName" placeholder="MRI Machine"/></div>
             <div class="field"><label>Serial / Asset Number</label><input type="text" id="equipSerial" placeholder="MC-2024-001"/></div>
-            <div class="field"><label>Operating Person Name</label><input type="text" id="equipOperator" placeholder="Dr. Rajan Kumar"/></div>
+            <div class="field"><label>Operating Person</label><input type="text" id="equipOperator" placeholder="Dr. Rajan Kumar"/></div>
             <div class="field"><label>Contact / Phone</label><input type="tel" id="equipContact" placeholder="+91 98765 43210"/></div>
             <div class="field"><label>Room Number</label><input type="text" id="equipRoom" placeholder="204"/></div>
             <div class="field"><label>Working Hours</label>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
                 <select id="equipFrom">
-                    <option value="">From</option>
-                    <option value="08:00">8:00 AM</option>
-                    <option value="08:30">8:30 AM</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="09:30">9:30 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="10:30">10:30 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="11:30">11:30 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="12:30">12:30 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="13:30">1:30 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="14:30">2:30 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="15:30">3:30 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="16:30">4:30 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="17:30">5:30 PM</option>
-                    <option value="18:00">6:00 PM</option>
+                  <option value="">From</option>
+                  <option value="08:00">8:00 AM</option><option value="08:30">8:30 AM</option>
+                  <option value="09:00">9:00 AM</option><option value="10:00">10:00 AM</option>
+                  <option value="11:00">11:00 AM</option><option value="12:00">12:00 PM</option>
+                  <option value="13:00">1:00 PM</option><option value="14:00">2:00 PM</option>
+                  <option value="15:00">3:00 PM</option><option value="16:00">4:00 PM</option>
+                  <option value="17:00">5:00 PM</option>
                 </select>
                 <select id="equipTo">
-                    <option value="">To</option>
-                    <option value="08:00">8:00 AM</option>
-                    <option value="08:30">8:30 AM</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="09:30">9:30 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="10:30">10:30 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="11:30">11:30 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="12:30">12:30 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="13:30">1:30 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="14:30">2:30 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="15:30">3:30 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="16:30">4:30 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="17:30">5:30 PM</option>
-                    <option value="18:00">6:00 PM</option>
+                  <option value="">To</option>
+                  <option value="09:00">9:00 AM</option><option value="10:00">10:00 AM</option>
+                  <option value="11:00">11:00 AM</option><option value="12:00">12:00 PM</option>
+                  <option value="13:00">1:00 PM</option><option value="14:00">2:00 PM</option>
+                  <option value="15:00">3:00 PM</option><option value="16:00">4:00 PM</option>
+                  <option value="17:00">5:00 PM</option><option value="18:00">6:00 PM</option>
                 </select>
-                </div>
+              </div>
             </div>
-            </div>
-            <button class="btn-submit" id="equipSubmitBtn">🔧 Register Equipment</button>
-            <div class="alert alert-success" id="equipAlert">✅ Equipment registered successfully!</div>
-            <div class="alert alert-error" id="equipError"></div>
+          </div>
+          <button class="btn-submit" id="equipSubmitBtn">🔧 Register Equipment</button>
+          <div class="alert alert-success" id="equipAlert">✅ Equipment registered successfully!</div>
+          <div class="alert alert-error" id="equipError"></div>
         </div>
-        </div>
+      </div>
 
       <!-- VIEW EQUIPMENT -->
       <div class="page" id="page-viewEquip">
@@ -525,60 +454,61 @@
       </div>
 
       <!-- REGISTER BED -->
-    <div class="page" id="page-regBed">
-    <div class="page-header"><h2>Register Bed</h2><p>Add a new bed to the system</p></div>
-    <div class="card">
-        <div class="card-title"><span class="icon">🛏</span> Bed Details</div>
-        <div class="form-grid cols-3">
-        <div class="field"><label>Room Number</label><input type="text" id="bedRoom" placeholder="101"/></div>
-        <div class="field"><label>Bed Number</label><input type="text" id="bedNum" placeholder="A"/></div>
-        <div class="field"><label>Floor</label>
-            <select id="bedFloor">
-            <option value="">Select Floor</option>
-            <option value="Floor 1">Floor 1</option>
-            <option value="Floor 2">Floor 2</option>
-            <option value="Floor 3">Floor 3</option>
-            </select>
+      <div class="page" id="page-regBed">
+        <div class="page-header"><h2>Register Bed</h2><p>Add a new bed to the system</p></div>
+        <div class="card">
+          <div class="card-title"><span class="icon">🛏</span> Bed Details</div>
+          <div class="form-grid cols-3">
+            <div class="field"><label>Room Number</label><input type="text" id="bedRoom" placeholder="101"/></div>
+            <div class="field"><label>Bed Number / Label</label><input type="text" id="bedNum" placeholder="A"/></div>
+            <div class="field"><label>Floor</label>
+              <select id="bedFloor">
+                <option value="">Select Floor</option>
+                <option value="Floor 1">Floor 1</option>
+                <option value="Floor 2">Floor 2</option>
+                <option value="Floor 3">Floor 3</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-submit" id="bedSubmitBtn">🛏 Register Bed</button>
+          <div class="alert alert-success" id="bedAlert">✅ Bed registered successfully!</div>
+          <div class="alert alert-error" id="bedError"></div>
         </div>
-        </div>
-        <button class="btn-submit" id="bedSubmitBtn">🛏 Register Bed</button>
-        <div class="alert alert-success" id="bedAlert">✅ Bed registered successfully!</div>
-        <div class="alert alert-error" id="bedError"></div>
-    </div>
-    </div>
-      
-    <!-- VIEW BEDS -->
-    <div class="page" id="page-viewBeds">
-    <div class="page-header"><h2>Beds</h2><p>All registered beds</p></div>
-    <div class="card">
-        <div class="table-wrap">
-        <table>
-            <thead><tr><th>Room</th><th>Bed</th><th>Floor</th><th>Status</th><th>Change Status</th><th></th></tr></thead>
-            <tbody id="bedsTable"><tr class="loading-row"><td colspan="6"><span class="spinner"></span> Loading…</td></tr></tbody>
-        </table>
-        </div>
-    </div>
-    </div>
+      </div>
 
-    <!-- VIEW ROOMS -->
-    <div class="page" id="page-viewRooms">
-    <div class="page-header"><h2>Room View</h2><p>Live bed availability by floor</p></div>
-    <div id="roomFloors"></div>
-    </div>
+      <!-- VIEW BEDS (table) -->
+      <div class="page" id="page-viewBeds">
+        <div class="page-header"><h2>Beds</h2><p>All registered beds — updates live when doctors hospitalise patients</p></div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Room</th><th>Bed</th><th>Floor</th><th>Status</th><th>Patient</th><th>Nurses Assigned</th><th>Change</th><th></th></tr></thead>
+              <tbody id="bedsTable"><tr class="loading-row"><td colspan="8"><span class="spinner"></span> Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW ROOMS (tile view) — LIVE via onSnapshot -->
+      <div class="page" id="page-viewRooms">
+        <div class="page-header">
+          <h2>Room View <span class="live-badge"><span class="live-dot"></span>Live</span></h2>
+          <p>Bed availability updates automatically when a doctor hospitalises a patient</p>
+        </div>
+        <div id="roomFloors"></div>
+      </div>
 
     </div><!-- /main -->
   </div><!-- /layout -->
 </div><!-- /appShell -->
 
-<!-- ═══ FIREBASE SDK ═══ -->
-<<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+<script type="module">
+  import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore, collection, addDoc, deleteDoc, doc,
-    onSnapshot, serverTimestamp, updateDoc
+    onSnapshot, serverTimestamp, updateDoc, query, orderBy
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -594,62 +524,31 @@
   const auth = getAuth(app);
   const db   = getFirestore(app);
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   function $(id){ return document.getElementById(id); }
-
-  function showAlert(id, duration=3500){
-    const el=$(id); if(!el) return;
-    el.style.display='block';
-    setTimeout(()=>{ el.style.display='none'; }, duration);
-  }
-
-  function showErr(id, msg){
-    const el=$(id); if(!el) return;
-    el.textContent='⚠ '+msg;
-    el.style.display='block';
-    setTimeout(()=>{ el.style.display='none'; }, 6000);
-  }
-
+  function showAlert(id,dur=3500){ const el=$(id); if(!el) return; el.style.display='block'; setTimeout(()=>el.style.display='none',dur); }
+  function showErr(id,msg){ const el=$(id); if(!el) return; el.textContent='⚠ '+msg; el.style.display='block'; setTimeout(()=>el.style.display='none',6000); }
   function v(id){ return ($(id)?.value||'').trim(); }
+  function clearFields(ids){ ids.forEach(id=>{ const el=$(id); if(el) el.value=''; }); }
+  function formatTime(t){ if(!t) return '—'; const [h,m]=t.split(':'); const d=new Date(); d.setHours(+h,+m); return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+  function generatePassword(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$'; let p=''; for(let i=0;i<12;i++) p+=c[Math.floor(Math.random()*c.length)]; return p; }
 
-  function clearFields(ids){
-    ids.forEach(id=>{ const el=$(id); if(el) el.value=''; });
-  }
-
-  function formatTime(t){
-    if(!t) return '—';
-    const [h,m]=t.split(':');
-    const d=new Date(); d.setHours(+h,+m);
-    return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  }
-
-  function generatePassword(){
-    const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
-    let pass='';
-    for(let i=0;i<12;i++) pass+=chars[Math.floor(Math.random()*chars.length)];
-    return pass;
-  }
-
-  // ── Page navigation ───────────────────────────────────────────────────────
-  document.querySelectorAll('.sidebar-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const page = item.dataset.page;
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-      const target = $('page-' + page);
-      if(target) target.classList.add('active');
+  // ── Sidebar navigation ────────────────────────────────────────────────────
+  document.querySelectorAll('.sidebar-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const page=item.dataset.page;
+      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+      const target=$('page-'+page); if(target) target.classList.add('active');
       item.classList.add('active');
     });
   });
 
-  // ── Copy to clipboard ─────────────────────────────────────────────────────
-  function makeCopyBtn(btnId, sourceId){
+  // ── Copy buttons ──────────────────────────────────────────────────────────
+  function makeCopyBtn(btnId,srcId){
     const btn=$(btnId); if(!btn) return;
-    btn.addEventListener('click', () => {
-      const text=$(sourceId)?.textContent||'';
-      navigator.clipboard.writeText(text).then(()=>{
-        btn.textContent='Copied!';
-        setTimeout(()=>btn.textContent='Copy',2000);
+    btn.addEventListener('click',()=>{
+      navigator.clipboard.writeText($(srcId)?.textContent||'').then(()=>{
+        btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy',2000);
       });
     });
   }
@@ -658,150 +557,184 @@
   $('credModalClose')?.addEventListener('click',()=>$('credModal').classList.remove('open'));
 
   // ── Auth state ────────────────────────────────────────────────────────────
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth,user=>{
     if(user){
-      $('loginScreen').style.display = 'none';
-      $('appShell').style.display    = 'block';
-      $('adminEmailChip').textContent = user.email;
-      loadDashboardStats();
-      loadLiveTable('doctors',   'doctorsTable', renderDoctorRow);
-      loadLiveTable('nurses',    'nursesTable',  renderNurseRow);
-      loadLiveTable('equipment', 'equipTable',   renderEquipRow);
-      loadLiveTable('beds',      'bedsTable',    renderBedRow);
-      loadRecentAppointments();
-      loadRoomView();
+      $('loginScreen').style.display='none';
+      $('appShell').style.display='block';
+      $('adminEmailChip').textContent=user.email;
+      startLiveListeners();
     } else {
-      $('loginScreen').style.display = 'flex';
-      $('appShell').style.display    = 'none';
+      $('loginScreen').style.display='flex';
+      $('appShell').style.display='none';
     }
   });
 
   // ── Login / Logout ────────────────────────────────────────────────────────
   async function doLogin(){
-    const email=v('loginEmail'), pass=v('loginPassword');
-    const errEl=$('loginError'), loadEl=$('loginLoading'), btn=$('loginBtn');
+    const email=v('loginEmail'),pass=v('loginPassword');
+    const errEl=$('loginError'),loadEl=$('loginLoading'),btn=$('loginBtn');
     errEl.style.display='none';
     if(!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
     loadEl.style.display='block'; btn.disabled=true;
-    try {
+    try{
       await signInWithEmailAndPassword(auth,email,pass);
-    } catch(e){
+    }catch(e){
       let msg='Authentication failed.';
       if(['auth/user-not-found','auth/wrong-password','auth/invalid-credential'].includes(e.code)) msg='Invalid email or password.';
       else if(e.code==='auth/too-many-requests') msg='Too many attempts. Try again later.';
       errEl.textContent=msg; errEl.style.display='block';
-    } finally {
-      loadEl.style.display='none'; btn.disabled=false;
-    }
+    }finally{ loadEl.style.display='none'; btn.disabled=false; }
   }
+  $('loginBtn').addEventListener('click',doLogin);
+  ['loginEmail','loginPassword'].forEach(id=>{ $(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); }); });
+  $('logoutBtn').addEventListener('click',()=>signOut(auth));
 
-  $('loginBtn').addEventListener('click', doLogin);
-  ['loginEmail','loginPassword'].forEach(id=>{
-    $(id).addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-  });
-  $('logoutBtn').addEventListener('click', ()=>signOut(auth));
-
-  // ── Dashboard stats ───────────────────────────────────────────────────────
-  function loadDashboardStats(){
-    [['doctors','statDoctors'],['nurses','statNurses'],['equipment','statEquip'],['beds','statBeds']]
+  // ══════════════════════════════════════════════════════════════════════════
+  // LIVE LISTENERS — all use onSnapshot so every change from doctor portal
+  // is reflected instantly without any refresh
+  // ══════════════════════════════════════════════════════════════════════════
+  function startLiveListeners(){
+    // Stats counters
+    [['doctors','statDoctors'],['nurses','statNurses'],['equipment','statEquip']]
       .forEach(([col,id])=>onSnapshot(collection(db,col),snap=>{ $(id).textContent=snap.size; }));
+
+    // Beds — single listener feeds: stat counters + table + room view
+    onSnapshot(collection(db,'beds'),snap=>{
+      const beds=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const total=beds.length;
+      const avail=beds.filter(b=>(b.status||'Available')==='Available').length;
+      const occup=total-avail;
+      $('statBeds').textContent =total;
+      $('statBedsAvail').textContent=avail;
+      $('statBedsOccup').textContent=occup;
+      renderBedsTable(beds);
+      renderRoomView(beds);
+    });
+
+    loadLiveTable('doctors',  'doctorsTable', renderDoctorRow);
+    loadLiveTable('nurses',   'nursesTable',  renderNurseRow);
+    loadLiveTable('equipment','equipTable',   renderEquipRow);
+    loadRecentAppointments();
   }
 
-  // ── Live table loader ─────────────────────────────────────────────────────
-  function loadLiveTable(colName, tbodyId, renderFn){
-    onSnapshot(collection(db,colName), snap=>{
+  function loadLiveTable(colName,tbodyId,renderFn){
+    onSnapshot(collection(db,colName),snap=>{
       const tbody=$(tbodyId); if(!tbody) return;
-      if(snap.empty){
-        tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:2rem;color:#4a6a84">No records found.</td></tr>`;
-        return;
-      }
+      if(snap.empty){ tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:2rem;color:#4a6a84">No records found.</td></tr>`; return; }
       tbody.innerHTML='';
       snap.forEach(d=>{ tbody.innerHTML+=renderFn(d.id,d.data()); });
     });
   }
 
-  // ── Recent appointments ───────────────────────────────────────────────────
   function loadRecentAppointments(){
-    onSnapshot(collection(db,'appointments'), snap=>{
+    onSnapshot(collection(db,'appointments'),snap=>{
       const tbody=$('recentApptsTable'); if(!tbody) return;
-      if(snap.empty){
-        tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#4a6a84">No appointments yet.</td></tr>`;
-        return;
-      }
-      const appts = snap.docs
-        .map(d=>({id:d.id,...d.data()}))
-        .sort((a,b)=>(b.createdAt?.toMillis?.()??0)-(a.createdAt?.toMillis?.()??0))
-        .slice(0,10);
-
-      tbody.innerHTML = appts.map(a=>{
-        const dateStr = a.date
-          ? new Date(a.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
-          : '—';
-        const timeStr = a.time ? formatTime(a.time) : '—';
-        const status  = a.status||'Pending';
-        const sc = status==='Confirmed'?'badge-confirmed':status==='Cancelled'?'badge-cancelled':'badge-pending';
+      if(snap.empty){ tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:2rem;color:#4a6a84">No appointments yet.</td></tr>`; return; }
+      const appts=snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.createdAt?.toMillis?.()??0)-(a.createdAt?.toMillis?.()??0)).slice(0,10);
+      tbody.innerHTML=appts.map(a=>{
+        const dateStr=a.date?new Date(a.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+        const timeStr=a.time?formatTime(a.time):'—';
+        const status=a.status||'Pending';
+        const sc=status==='Confirmed'?'badge-confirmed':status==='Cancelled'?'badge-cancelled':'badge-pending';
         return `<tr>
           <td>${a.patientName||a.name||'—'}</td>
           <td>${a.symptom||'—'}</td>
           <td>${a.doctorName||'Unassigned'}</td>
-          <td>${dateStr}</td>
-          <td>${timeStr}</td>
+          <td>${dateStr}</td><td>${timeStr}</td>
           <td><span class="badge-status ${sc}">${status}</span></td>
         </tr>`;
       }).join('');
     });
   }
 
-  // ── Room view ─────────────────────────────────────────────────────────────
-  function loadRoomView(){
-    onSnapshot(collection(db,'beds'), snap=>{
-      const container=$('roomFloors'); if(!container) return;
-      if(snap.empty){
-        container.innerHTML='<div class="empty">No beds registered yet.</div>'; return;
-      }
+  // ── BEDS TABLE (View Beds page) ───────────────────────────────────────────
+  function renderBedsTable(beds){
+    const tbody=$('bedsTable'); if(!tbody) return;
+    if(!beds.length){ tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;color:#4a6a84">No beds registered.</td></tr>`; return; }
+    tbody.innerHTML=beds
+      .sort((a,b)=>(a.floor+a.room+a.bedNumber).localeCompare(b.floor+b.room+b.bedNumber))
+      .map(b=>{
+        const isAvail=(b.status||'Available')==='Available';
+        const sc     =isAvail?'badge-green':'badge-rose';
+        const nextSt =isAvail?'Occupied':'Available';
+        const btnLabel=isAvail?'Mark Occupied':'Mark Available';
+        const btnStyle=isAvail
+          ?'background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.3);color:var(--rose)'
+          :'background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);color:var(--mint)';
+        return `<tr>
+          <td>${b.room||'—'}</td>
+          <td>${b.bedNumber||'—'}</td>
+          <td>${b.floor||'—'}</td>
+          <td><span class="badge ${sc}">${b.status||'Available'}</span></td>
+          <td style="color:${isAvail?'#4a6a84':'#f0f8ff'}">${b.patientName||'—'}</td>
+          <td style="font-size:.78rem;color:#aac8e0">${b.nurseAssigned||'—'}</td>
+          <td>
+            <button style="padding:.3rem .75rem;border-radius:7px;cursor:pointer;font-size:.78rem;${btnStyle}"
+              onclick="toggleBedStatus('${b.id}','${nextSt}')">
+              ${btnLabel}
+            </button>
+          </td>
+          <td><button class="btn-delete" onclick="deleteRecord('beds','${b.id}')">Remove</button></td>
+        </tr>`;
+      }).join('');
+  }
 
-      const floors={'Floor 1':[],'Floor 2':[],'Floor 3':[]};
-      snap.forEach(d=>{
-        const data={id:d.id,...d.data()};
-        const f=data.floor||'Floor 1';
-        if(floors[f]) floors[f].push(data);
-        else floors[f]=[data];
-      });
+  // ── ROOM VIEW (tile grid) — driven by same beds snapshot ─────────────────
+  function renderRoomView(beds){
+    const container=$('roomFloors'); if(!container) return;
+    if(!beds.length){ container.innerHTML='<div class="empty">No beds registered yet.</div>'; return; }
 
-      container.innerHTML = Object.entries(floors).map(([floor,beds])=>{
-        if(!beds.length) return '';
-        const available = beds.filter(b=>b.status==='Available').length;
-        const tiles = beds
+    // Group by floor
+    const floors={};
+    beds.forEach(b=>{
+      const f=b.floor||'Unassigned';
+      if(!floors[f]) floors[f]=[];
+      floors[f].push(b);
+    });
+
+    container.innerHTML=Object.entries(floors)
+      .sort(([a],[b])=>a.localeCompare(b))
+      .map(([floor,floorBeds])=>{
+        const avail=floorBeds.filter(b=>(b.status||'Available')==='Available').length;
+        const total=floorBeds.length;
+        const tiles=floorBeds
           .sort((a,b)=>(a.room+a.bedNumber).localeCompare(b.room+b.bedNumber))
           .map(b=>{
-            const isAvail = b.status==='Available';
-            return `<div class="bed-tile ${isAvail?'available':'occupied'}">
+            const isAvail=(b.status||'Available')==='Available';
+            const tileClass=isAvail?'available':'occupied';
+            const dotClass =isAvail?'green':'red';
+            const chipClass=isAvail?'chip-available':'chip-occupied';
+            const chipText =isAvail?'AVAILABLE':'OCCUPIED';
+            // Patient & nurse info — only shown when occupied
+            const patRow  =!isAvail&&b.patientName ?`<div class="bi-row"><span class="bi-label">Patient</span><span class="bi-val highlight">${b.patientName}</span></div>`:'' ;
+            const nurseRow=!isAvail&&b.nurseAssigned?`<div class="bi-row"><span class="bi-label">Nurses</span><span class="bi-val">${b.nurseAssigned}</span></div>`:'';
+            const floorRow=`<div class="bi-row"><span class="bi-label">Floor</span><span class="bi-val">${b.floor||'—'}</span></div>`;
+            return `<div class="bed-tile ${tileClass}">
               <div class="bed-tile-header">
-                <span class="bed-id">Room ${b.room} · Bed ${b.bedNumber}</span>
-                <span class="bed-dot ${isAvail?'green':'red'}"></span>
+                <span class="bed-id">Rm ${b.room} · Bed ${b.bedNumber}</span>
+                <span class="bed-dot ${dotClass}"></span>
               </div>
+              <span class="bed-status-chip ${chipClass}" style="display:inline-block;margin-bottom:.6rem">${chipText}</span>
               <div class="bed-info">
-                <div><strong>Status:</strong> ${b.status||'Available'}</div>
-                ${!isAvail&&b.patientName?`<div><strong>Patient:</strong> ${b.patientName}</div>`:''}
-                ${!isAvail&&b.nurseAssigned?`<div><strong>Nurse:</strong> ${b.nurseAssigned}</div>`:''}
+                ${floorRow}${patRow}${nurseRow}
               </div>
             </div>`;
           }).join('');
 
         return `<div class="floor-section card">
           <div class="floor-title">🏢 ${floor}
-            <span style="font-size:.8rem;color:#7da8c4;font-family:'DM Sans',sans-serif;font-weight:400;">
-              (${available} available / ${beds.length} total)
+            <span style="font-size:.82rem;color:#7da8c4;font-weight:400;font-family:'DM Sans',sans-serif;">
+              — ${avail} available / ${total} total
             </span>
           </div>
           <div class="beds-grid">${tiles}</div>
         </div>`;
       }).join('');
-    });
   }
 
-  // ── Row renderers ─────────────────────────────────────────────────────────
-  function renderDoctorRow(id, d){
+  // ── Row renderers (table pages) ───────────────────────────────────────────
+  function renderDoctorRow(id,d){
     const symCount=Array.isArray(d.symptoms)?d.symptoms.length:0;
     const symBadge=symCount>0
       ?`<span class="badge badge-green" title="${(d.symptoms||[]).join(', ')}" style="cursor:help">${symCount} symptoms</span>`
@@ -815,214 +748,156 @@
     </tr>`;
   }
 
-  function renderNurseRow(id, d){
+  function renderNurseRow(id,d){
     return `<tr>
       <td>${d.name||'—'}</td>
       <td>${d.shift||'—'}</td>
-      <td colspan="2">${d.phone||'—'}</td>
-      <td></td>
+      <td>${d.phone||'—'}</td>
       <td><button class="btn-delete" onclick="deleteRecord('nurses','${id}')">Remove</button></td>
     </tr>`;
   }
 
-  function renderEquipRow(id, d){
-  const hours = (d.workingFrom && d.workingTo)
-    ? `${formatTime(d.workingFrom)} – ${formatTime(d.workingTo)}`
-    : d.date || '—';
-  return `<tr>
-    <td>${d.name||'—'}</td>
-    <td>${d.serial||'—'}</td>
-    <td>${d.operator||'—'}</td>
-    <td>${d.contact||'—'}</td>
-    <td>${d.room||'—'}</td>
-    <td>${hours}</td>
-    <td><button class="btn-delete" onclick="deleteRecord('equipment','${id}')">Remove</button></td>
-  </tr>`;
-}
-
-  function renderBedRow(id, d){
-    const isAvail  = d.status==='Available';
-    const sc       = isAvail?'badge-green':'badge-rose';
-    const nextSt   = isAvail?'Occupied':'Available';
-    const btnLabel = isAvail?'Mark Occupied':'Mark Available';
-    const btnStyle = isAvail
-      ? 'background:rgba(255,107,157,.1);border:1px solid rgba(255,107,157,.3);color:var(--rose)'
-      : 'background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);color:var(--mint)';
+  function renderEquipRow(id,d){
+    const hours=(d.workingFrom&&d.workingTo)?`${formatTime(d.workingFrom)} – ${formatTime(d.workingTo)}`:'—';
     return `<tr>
-      <td>${d.room||'—'}</td>
-      <td>${d.bedNumber||'—'}</td>
-      <td>${d.floor||'—'}</td>
-      <td><span class="badge ${sc}">${d.status||'Available'}</span></td>
-      <td>
-        <button style="padding:.3rem .75rem;border-radius:7px;cursor:pointer;font-size:.78rem;${btnStyle}"
-          onclick="toggleBedStatus('${id}','${nextSt}')">
-          ${btnLabel}
-        </button>
-      </td>
-      <td><button class="btn-delete" onclick="deleteRecord('beds','${id}')">Remove</button></td>
+      <td>${d.name||'—'}</td><td>${d.serial||'—'}</td><td>${d.operator||'—'}</td>
+      <td>${d.contact||'—'}</td><td>${d.room||'—'}</td><td>${hours}</td>
+      <td><button class="btn-delete" onclick="deleteRecord('equipment','${id}')">Remove</button></td>
     </tr>`;
   }
 
-  // ── Bed status toggle ─────────────────────────────────────────────────────
-  window.toggleBedStatus = async function(id, newStatus){
-    await updateDoc(doc(db,'beds',id),{ status: newStatus });
+  // ── Bed status toggle (manual override by admin) ──────────────────────────
+  window.toggleBedStatus=async function(id,newStatus){
+    const updates={status:newStatus};
+    // When manually marking available, clear patient/nurse fields
+    if(newStatus==='Available'){ updates.patientName=''; updates.nurseAssigned=''; }
+    await updateDoc(doc(db,'beds',id),updates);
   };
 
   // ── Delete ────────────────────────────────────────────────────────────────
-  window.deleteRecord = async function(colName, id){
+  window.deleteRecord=async function(colName,id){
     if(!confirm('Remove this record?')) return;
     await deleteDoc(doc(db,colName,id));
   };
 
   // ── Register Doctor ───────────────────────────────────────────────────────
-  $('docSubmitBtn').addEventListener('click', async ()=>{
-    const name=v('docName'), spec=v('docSpec'),
-          from=v('docFrom'), to=v('docTo'),
-          phone=v('docPhone'), dept=v('docDept');
-
+  $('docSubmitBtn').addEventListener('click',async()=>{
+    const name=v('docName'),spec=v('docSpec'),from=v('docFrom'),to=v('docTo'),phone=v('docPhone'),dept=v('docDept');
     let symptoms=[];
     try{ symptoms=JSON.parse($('docSymptoms')?.value||'[]'); }catch(e){}
-
     if(!name||!spec||!from||!to){ showErr('docError','Please fill Name, Speciality, and Time fields.'); return; }
-
     const usernamePart=name.toLowerCase().replace(/^dr\.?\s*/i,'').trim().replace(/\s+/g,'.');
     const generatedEmail=`dr.${usernamePart}@medicare`;
     const tempPassword=generatePassword();
-
-    const btn=$('docSubmitBtn');
-    btn.disabled=true; btn.textContent='Registering…';
-
-    try {
+    const btn=$('docSubmitBtn'); btn.disabled=true; btn.textContent='Registering…';
+    try{
       await addDoc(collection(db,'doctors'),{
-        name, speciality:spec, email:generatedEmail, password:tempPassword,
-        availableFrom:from, availableTo:to, phone, department:dept,
-        role:'doctor', symptoms, createdAt:serverTimestamp()
+        name,speciality:spec,email:generatedEmail,password:tempPassword,
+        availableFrom:from,availableTo:to,phone,department:dept,
+        role:'doctor',symptoms,createdAt:serverTimestamp()
       });
-      clearFields(['docName','docFrom','docTo','docPhone','docDept']);
-      $('docSpec').value='';
+      clearFields(['docName','docPhone','docDept']);
+      $('docSpec').value=''; $('docFrom').value=''; $('docTo').value='';
       $('symptomPanel').style.display='none';
       const h=$('docSymptoms'); if(h) h.value='';
-      $('credEmail').textContent    = generatedEmail;
-      $('credPassword').textContent = tempPassword;
+      $('credEmail').textContent=generatedEmail;
+      $('credPassword').textContent=tempPassword;
       $('credModal').classList.add('open');
-    } catch(e){ showErr('docError','Error: '+e.message); }
-
+    }catch(e){ showErr('docError','Error: '+e.message); }
     btn.disabled=false; btn.textContent='🩺 Register Doctor & Create Login';
   });
 
   // ── Register Nurse ────────────────────────────────────────────────────────
-  $('nurseSubmitBtn').addEventListener('click', async ()=>{
-    const name=v('nurseName'), shift=v('nurseShift'), phone=v('nursePhone');
+  $('nurseSubmitBtn').addEventListener('click',async()=>{
+    const name=v('nurseName'),shift=v('nurseShift'),phone=v('nursePhone');
     if(!name||!shift){ showErr('nurseError','Please fill Name and Shift fields.'); return; }
     const btn=$('nurseSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
-    try {
+    try{
       await addDoc(collection(db,'nurses'),{name,shift,phone,createdAt:serverTimestamp()});
-      clearFields(['nurseName','nursePhone']);
-      $('nurseShift').value='';
+      clearFields(['nurseName','nursePhone']); $('nurseShift').value='';
       showAlert('nurseAlert');
-    } catch(e){ showErr('nurseError','Error: '+e.message); }
+    }catch(e){ showErr('nurseError','Error: '+e.message); }
     btn.disabled=false; btn.textContent='💉 Register Nurse';
   });
 
   // ── Register Equipment ────────────────────────────────────────────────────
-  $('equipSubmitBtn').addEventListener('click', async ()=>{
-  const name     = v('equipName'),   serial   = v('equipSerial'),
-        operator = v('equipOperator'), contact = v('equipContact'),
-        room     = v('equipRoom'),   from     = v('equipFrom'),
-        to       = v('equipTo');
-
-  if(!name){ showErr('equipError','Equipment name is required.'); return; }
-  if(!from||!to){ showErr('equipError','Please select working hours.'); return; }
-
-  const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
-  try {
-    await addDoc(collection(db,'equipment'),{
-      name, serial, operator, contact, room,
-      workingFrom: from, workingTo: to,
-      createdAt: serverTimestamp()
-    });
-    clearFields(['equipName','equipSerial','equipOperator','equipContact','equipRoom']);
-    $('equipFrom').value=''; $('equipTo').value='';
-    showAlert('equipAlert');
-  } catch(e){ showErr('equipError','Error: '+e.message); }
-  btn.disabled=false; btn.textContent='🔧 Register Equipment';
-});
-
-  // ── Register Bed ──────────────────────────────────────────────────────────
-  $('bedSubmitBtn').addEventListener('click', async ()=>{
-    const room=v('bedRoom'), bedNumber=v('bedNum'), floor=v('bedFloor');
-    if(!room||!bedNumber||!floor){ showErr('bedError','All fields are required.'); return; }
-    const btn=$('bedSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
-    try {
-      await addDoc(collection(db,'beds'),{
-        room, bedNumber, floor,
-        status:'Available',
-        patientName:'', nurseAssigned:'',
+  $('equipSubmitBtn').addEventListener('click',async()=>{
+    const name=v('equipName'),serial=v('equipSerial'),operator=v('equipOperator'),
+          contact=v('equipContact'),room=v('equipRoom'),from=v('equipFrom'),to=v('equipTo');
+    if(!name){ showErr('equipError','Equipment name is required.'); return; }
+    if(!from||!to){ showErr('equipError','Please select working hours.'); return; }
+    const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
+    try{
+      // Store as workingFrom / workingTo — matches doctor portal exactly
+      await addDoc(collection(db,'equipment'),{
+        name,serial,operator,contact,room,
+        workingFrom:from, workingTo:to,
         createdAt:serverTimestamp()
       });
-      clearFields(['bedRoom','bedNum']);
-      $('bedFloor').value='';
+      clearFields(['equipName','equipSerial','equipOperator','equipContact','equipRoom']);
+      $('equipFrom').value=''; $('equipTo').value='';
+      showAlert('equipAlert');
+    }catch(e){ showErr('equipError','Error: '+e.message); }
+    btn.disabled=false; btn.textContent='🔧 Register Equipment';
+  });
+
+  // ── Register Bed ──────────────────────────────────────────────────────────
+  $('bedSubmitBtn').addEventListener('click',async()=>{
+    const room=v('bedRoom'),bedNumber=v('bedNum'),floor=v('bedFloor');
+    if(!room||!bedNumber||!floor){ showErr('bedError','All fields are required.'); return; }
+    const btn=$('bedSubmitBtn'); btn.disabled=true; btn.textContent='Saving…';
+    try{
+      await addDoc(collection(db,'beds'),{
+        room, bedNumber, floor,
+        status:'Available',   // doctor portal reads this exact value
+        patientName:'',       // doctor portal writes to this field
+        nurseAssigned:'',     // doctor portal writes to this field
+        createdAt:serverTimestamp()
+      });
+      clearFields(['bedRoom','bedNum']); $('bedFloor').value='';
       showAlert('bedAlert');
-    } catch(e){ showErr('bedError','Error: '+e.message); }
+    }catch(e){ showErr('bedError','Error: '+e.message); }
     btn.disabled=false; btn.textContent='🛏 Register Bed';
   });
 
   // ── Speciality → Dept + Symptoms ─────────────────────────────────────────
-  const SPEC_MAP = {
-    "Cardiology":         { dept:"Cardiac Sciences",       symptoms:["Chest Pain","Palpitations","Shortness of Breath"] },
-    "Neurology":          { dept:"Neurosciences",          symptoms:["Headache","Seizures","Loss of Balance"] },
-    "Orthopedics":        { dept:"Bone & Joint",           symptoms:["Back Pain","Joint Pain","Fracture"] },
-    "Gastroenterology":   { dept:"Digestive Health",       symptoms:["Abdominal Pain","Nausea","Vomiting"] },
-    "Pulmonology":        { dept:"Respiratory Care",       symptoms:["Cough","Shortness of Breath","Wheezing"] },
-    "Dermatology":        { dept:"Skin & Hair",            symptoms:["Rash","Itching","Acne"] },
-    "Endocrinology":      { dept:"Endocrine & Metabolism", symptoms:["Excessive Thirst","Frequent Urination","Weight Gain / Loss"] },
-    "Nephrology":         { dept:"Kidney Care",            symptoms:["Blood in Urine","Foamy Urine","Kidney Pain"] },
-    "Ophthalmology":      { dept:"Eye Care",               symptoms:["Blurred Vision","Eye Pain","Redness"] },
-    "ENT":                { dept:"ENT",                    symptoms:["Ear Pain","Sore Throat","Nasal Congestion"] },
-    "Psychiatry":         { dept:"Mental Health",          symptoms:["Anxiety","Depression","Insomnia"] },
-    "Gynecology":         { dept:"Women's Health",         symptoms:["Irregular Periods","Pelvic Pain","Heavy Bleeding"] },
-    "Pediatrics":         { dept:"Child Health",           symptoms:["Fever in Children","Cough & Cold","Growth Concerns"] },
-    "Oncology":           { dept:"Cancer Care",            symptoms:["Unexplained Weight Loss","Lumps / Swellings","Persistent Fatigue"] },
-    "Urology":            { dept:"Urology",                symptoms:["Painful Urination","Blood in Urine","Kidney Stones"] },
-    "Rheumatology":       { dept:"Rheumatology",           symptoms:["Joint Pain","Morning Stiffness","Muscle Pain"] },
-    "Hematology":         { dept:"Blood Disorders",        symptoms:["Anemia","Easy Bruising","Prolonged Bleeding"] },
-    "Infectious Disease": { dept:"Infectious Diseases",    symptoms:["High Fever","Chills","Body Aches"] },
-    "General Medicine":   { dept:"General Medicine",       symptoms:["Fever","Fatigue","Headache"] },
-    "Emergency Medicine": { dept:"Emergency & Trauma",     symptoms:["Severe Chest Pain","Stroke Symptoms","Unconsciousness"] }
+  const SPEC_MAP={
+    "Cardiology":        {dept:"Cardiac Sciences",       symptoms:["Chest Pain","Palpitations","Shortness of Breath"]},
+    "Neurology":         {dept:"Neurosciences",          symptoms:["Headache","Seizures","Loss of Balance"]},
+    "Orthopedics":       {dept:"Bone & Joint",           symptoms:["Back Pain","Joint Pain","Fracture"]},
+    "Gastroenterology":  {dept:"Digestive Health",       symptoms:["Abdominal Pain","Nausea","Vomiting"]},
+    "Pulmonology":       {dept:"Respiratory Care",       symptoms:["Cough","Shortness of Breath","Wheezing"]},
+    "Dermatology":       {dept:"Skin & Hair",            symptoms:["Rash","Itching","Acne"]},
+    "Endocrinology":     {dept:"Endocrine & Metabolism", symptoms:["Excessive Thirst","Frequent Urination","Weight Gain / Loss"]},
+    "Nephrology":        {dept:"Kidney Care",            symptoms:["Blood in Urine","Foamy Urine","Kidney Pain"]},
+    "Ophthalmology":     {dept:"Eye Care",               symptoms:["Blurred Vision","Eye Pain","Redness"]},
+    "ENT":               {dept:"ENT",                    symptoms:["Ear Pain","Sore Throat","Nasal Congestion"]},
+    "Psychiatry":        {dept:"Mental Health",          symptoms:["Anxiety","Depression","Insomnia"]},
+    "Gynecology":        {dept:"Women's Health",         symptoms:["Irregular Periods","Pelvic Pain","Heavy Bleeding"]},
+    "Pediatrics":        {dept:"Child Health",           symptoms:["Fever in Children","Cough & Cold","Growth Concerns"]},
+    "Oncology":          {dept:"Cancer Care",            symptoms:["Unexplained Weight Loss","Lumps / Swellings","Persistent Fatigue"]},
+    "Urology":           {dept:"Urology",                symptoms:["Painful Urination","Blood in Urine","Kidney Stones"]},
+    "Rheumatology":      {dept:"Rheumatology",           symptoms:["Joint Pain","Morning Stiffness","Muscle Pain"]},
+    "Hematology":        {dept:"Blood Disorders",        symptoms:["Anemia","Easy Bruising","Prolonged Bleeding"]},
+    "Infectious Disease":{dept:"Infectious Diseases",    symptoms:["High Fever","Chills","Body Aches"]},
+    "General Medicine":  {dept:"General Medicine",       symptoms:["Fever","Fatigue","Headache"]},
+    "Emergency Medicine":{dept:"Emergency & Trauma",     symptoms:["Severe Chest Pain","Stroke Symptoms","Unconsciousness"]}
   };
 
-  $('docSpec').addEventListener('change', function(){
+  $('docSpec').addEventListener('change',function(){
     const val=this.value;
-    const panel=$('symptomPanel'), tags=$('symptomTags'),
-          badge=$('specBadge'),    deptEl=$('docDept');
-
+    const panel=$('symptomPanel'),tags=$('symptomTags'),badge=$('specBadge'),deptEl=$('docDept');
     if(!val||!SPEC_MAP[val]){ panel.style.display='none'; deptEl.value=''; return; }
-
     const data=SPEC_MAP[val];
-    deptEl.value=data.dept;
-    badge.textContent=val;
-    tags.innerHTML=data.symptoms.map(s=>
-      `<span class="sym-tag"><span class="dot"></span>${s}</span>`
-    ).join('');
-
+    deptEl.value=data.dept; badge.textContent=val;
+    tags.innerHTML=data.symptoms.map(s=>`<span class="sym-tag"><span class="dot"></span>${s}</span>`).join('');
     panel.style.display='block';
-    panel.style.opacity='0';
-    panel.style.transform='translateY(8px)';
-    requestAnimationFrame(()=>{
-      panel.style.transition='opacity .3s ease, transform .3s ease';
-      panel.style.opacity='1';
-      panel.style.transform='translateY(0)';
-    });
-
+    panel.style.opacity='0'; panel.style.transform='translateY(8px)';
+    requestAnimationFrame(()=>{ panel.style.transition='opacity .3s ease,transform .3s ease'; panel.style.opacity='1'; panel.style.transform='translateY(0)'; });
     let hidden=$('docSymptoms');
-    if(!hidden){
-      hidden=document.createElement('input');
-      hidden.type='hidden'; hidden.id='docSymptoms';
-      $('docSpec').parentElement.appendChild(hidden);
-    }
+    if(!hidden){ hidden=document.createElement('input'); hidden.type='hidden'; hidden.id='docSymptoms'; $('docSpec').parentElement.appendChild(hidden); }
     hidden.value=JSON.stringify(data.symptoms);
   });
-
 </script>
 </body>
 </html>

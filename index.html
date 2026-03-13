@@ -7,382 +7,157 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --mint: #00C6A7;
-      --deep: #0A1628;
-      --navy: #112240;
-      --slate: #1E3A5F;
-      --accent: #FFD166;
-      --rose: #FF6B9D;
-      --light: #F0F8FF;
-      --glass: rgba(255,255,255,0.07);
-      --border: rgba(0,198,167,0.25);
+      --mint: #00C6A7; --deep: #0A1628; --navy: #112240;
+      --slate: #1E3A5F; --accent: #FFD166; --rose: #FF6B9D;
+      --glass: rgba(255,255,255,0.07); --border: rgba(0,198,167,0.25);
     }
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--deep); color:#e8f4f8; font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
 
-    body {
-      background: var(--deep);
-      color: #e8f4f8;
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+    .bg-grid { position:fixed; inset:0; z-index:0;
+      background-image: linear-gradient(rgba(0,198,167,.04) 1px,transparent 1px), linear-gradient(90deg,rgba(0,198,167,.04) 1px,transparent 1px);
+      background-size:48px 48px; pointer-events:none; }
+    .bg-glow { position:fixed; inset:0; z-index:0; pointer-events:none;
+      background: radial-gradient(ellipse 80% 60% at 60% 20%,rgba(0,198,167,.12) 0%,transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 10% 80%,rgba(17,34,64,.8) 0%,transparent 60%); }
 
-    /* ── Background ── */
-    .bg-grid {
-      position: fixed; inset: 0; z-index: 0;
-      background-image:
-        linear-gradient(rgba(0,198,167,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,198,167,.04) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-    }
-    .bg-glow {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background: radial-gradient(ellipse 80% 60% at 60% 20%, rgba(0,198,167,.12) 0%, transparent 70%),
-                  radial-gradient(ellipse 50% 40% at 10% 80%, rgba(17,34,64,.8) 0%, transparent 60%);
-    }
+    nav { position:relative; z-index:10; display:flex; align-items:center; justify-content:space-between;
+      padding:1.5rem 4rem; border-bottom:1px solid var(--border); backdrop-filter:blur(10px); }
+    .logo { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:900; color:var(--mint); letter-spacing:-.5px; }
+    .logo span { color:var(--accent); }
+    .nav-pills { display:flex; gap:.75rem; }
+    .nav-pill { padding:.5rem 1.25rem; border-radius:50px; font-size:.85rem; font-weight:500; cursor:pointer; transition:all .25s; text-decoration:none; }
+    .nav-pill.outline { border:1px solid var(--border); color:#aac8e0; background:transparent; }
+    .nav-pill.outline:hover { border-color:var(--mint); color:var(--mint); background:rgba(0,198,167,.08); }
+    .nav-pill.filled { background:var(--mint); color:var(--deep); border:1px solid var(--mint); font-weight:600; }
+    .nav-pill.filled:hover { background:#00e5bf; transform:translateY(-1px); }
 
-    /* ── Nav ── */
-    nav {
-      position: relative; z-index: 10;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.5rem 4rem;
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(10px);
-    }
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem; font-weight: 900;
-      color: var(--mint);
-      letter-spacing: -0.5px;
-    }
-    .logo span { color: var(--accent); }
-    .nav-pills { display: flex; gap: .75rem; }
-    .nav-pill {
-      padding: .5rem 1.25rem;
-      border-radius: 50px;
-      font-size: .85rem; font-weight: 500;
-      cursor: pointer; transition: all .25s;
-      text-decoration: none;
-    }
-    .nav-pill.outline {
-      border: 1px solid var(--border);
-      color: #aac8e0;
-      background: transparent;
-    }
-    .nav-pill.outline:hover {
-      border-color: var(--mint); color: var(--mint);
-      background: rgba(0,198,167,.08);
-    }
-    .nav-pill.filled {
-      background: var(--mint); color: var(--deep);
-      border: 1px solid var(--mint); font-weight: 600;
-    }
-    .nav-pill.filled:hover { background: #00e5bf; transform: translateY(-1px); }
+    .hero { position:relative; z-index:5; display:grid; grid-template-columns:1fr 1fr;
+      align-items:center; gap:3rem; padding:5rem 4rem 4rem; min-height:85vh; }
+    .hero-left { display:flex; flex-direction:column; gap:2rem; }
+    .badge { display:inline-flex; align-items:center; gap:.5rem; background:rgba(0,198,167,.12);
+      border:1px solid var(--border); border-radius:50px; padding:.4rem 1rem; font-size:.8rem; color:var(--mint); width:fit-content; }
+    .badge::before { content:''; width:8px; height:8px; border-radius:50%; background:var(--mint); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+    h1 { font-family:'Playfair Display',serif; font-size:clamp(2.8rem,5vw,4.5rem); line-height:1.1; font-weight:900; color:#f0f8ff; }
+    h1 em { font-style:normal; color:var(--mint); }
+    .hero-desc { font-size:1.1rem; color:#7da8c4; line-height:1.7; max-width:480px; }
+    .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn { display:inline-flex; align-items:center; gap:.6rem; padding:.9rem 2rem; border-radius:12px;
+      font-family:'DM Sans',sans-serif; font-size:.95rem; font-weight:600; cursor:pointer; transition:all .25s; text-decoration:none; border:none; }
+    .btn-primary { background:var(--mint); color:var(--deep); box-shadow:0 0 30px rgba(0,198,167,.3); }
+    .btn-primary:hover { background:#00e5bf; transform:translateY(-2px); box-shadow:0 0 50px rgba(0,198,167,.5); }
+    .btn-ghost { background:var(--glass); color:#aac8e0; border:1px solid var(--border); backdrop-filter:blur(8px); }
+    .btn-ghost:hover { background:rgba(255,255,255,.1); color:#f0f8ff; border-color:rgba(0,198,167,.5); }
+    .btn svg { width:18px; height:18px; }
 
-    /* ── Hero ── */
-    .hero {
-      position: relative; z-index: 5;
-      display: grid; grid-template-columns: 1fr 1fr;
-      align-items: center; gap: 3rem;
-      padding: 5rem 4rem 4rem;
-      min-height: 85vh;
-    }
-    .hero-left { display: flex; flex-direction: column; gap: 2rem; }
-    .badge {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: rgba(0,198,167,.12); border: 1px solid var(--border);
-      border-radius: 50px; padding: .4rem 1rem;
-      font-size: .8rem; color: var(--mint); width: fit-content;
-    }
-    .badge::before {
-      content: ''; width: 8px; height: 8px; border-radius: 50%;
-      background: var(--mint);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)}
-    }
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2.8rem, 5vw, 4.5rem);
-      line-height: 1.1; font-weight: 900;
-      color: #f0f8ff;
-    }
-    h1 em { font-style: normal; color: var(--mint); }
-    .hero-desc {
-      font-size: 1.1rem; color: #7da8c4; line-height: 1.7;
-      max-width: 480px;
-    }
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: .6rem;
-      padding: .9rem 2rem; border-radius: 12px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .95rem; font-weight: 600;
-      cursor: pointer; transition: all .25s;
-      text-decoration: none; border: none;
-    }
-    .btn-primary {
-      background: var(--mint); color: var(--deep);
-      box-shadow: 0 0 30px rgba(0,198,167,.3);
-    }
-    .btn-primary:hover {
-      background: #00e5bf; transform: translateY(-2px);
-      box-shadow: 0 0 50px rgba(0,198,167,.5);
-    }
-    .btn-ghost {
-      background: var(--glass); color: #aac8e0;
-      border: 1px solid var(--border); backdrop-filter: blur(8px);
-    }
-    .btn-ghost:hover {
-      background: rgba(255,255,255,.1); color: #f0f8ff;
-      border-color: rgba(0,198,167,.5);
-    }
-    .btn svg { width: 18px; height: 18px; }
+    .hero-right { position:relative; display:flex; align-items:center; justify-content:center; }
+    .hero-img-wrap { position:relative; width:100%; max-width:560px; border-radius:24px; overflow:hidden;
+      border:1px solid var(--border); box-shadow:0 40px 120px rgba(0,0,0,.5),0 0 60px rgba(0,198,167,.1); }
+    .hero-img-wrap img { width:100%; height:420px; object-fit:cover; display:block; }
+    .hero-img-overlay { position:absolute; inset:0; background:linear-gradient(135deg,rgba(10,22,40,.3) 0%,transparent 60%); }
+    .stat-card { position:absolute; background:rgba(17,34,64,.9); backdrop-filter:blur(16px);
+      border:1px solid var(--border); border-radius:14px; padding:.8rem 1.2rem;
+      display:flex; flex-direction:column; gap:.2rem; animation:floatCard 4s ease-in-out infinite; }
+    .stat-card:nth-child(1) { top:20px; left:-30px; animation-delay:0s; }
+    .stat-card:nth-child(2) { bottom:40px; right:-20px; animation-delay:2s; }
+    .stat-num { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--mint); font-weight:700; }
+    .stat-label { font-size:.75rem; color:#7da8c4; }
+    @keyframes floatCard { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
-    /* ── Hero Image Area ── */
-    .hero-right {
-      position: relative;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .hero-img-wrap {
-      position: relative;
-      width: 100%; max-width: 560px;
-      border-radius: 24px; overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: 0 40px 120px rgba(0,0,0,.5), 0 0 60px rgba(0,198,167,.1);
-    }
-    .hero-img-wrap img {
-      width: 100%; height: 420px; object-fit: cover; display: block;
-    }
-    .hero-img-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(10,22,40,.3) 0%, transparent 60%);
-    }
-    /* Floating stat cards */
-    .stat-card {
-      position: absolute;
-      background: rgba(17,34,64,.9); backdrop-filter: blur(16px);
-      border: 1px solid var(--border); border-radius: 14px;
-      padding: .8rem 1.2rem; display: flex; flex-direction: column; gap: .2rem;
-      animation: floatCard 4s ease-in-out infinite;
-    }
-    .stat-card:nth-child(1) { top: 20px; left: -30px; animation-delay: 0s; }
-    .stat-card:nth-child(2) { bottom: 40px; right: -20px; animation-delay: 2s; }
-    .stat-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--mint); font-weight: 700; }
-    .stat-label { font-size: .75rem; color: #7da8c4; }
-    @keyframes floatCard {
-      0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}
-    }
+    .panels { position:relative; z-index:5; display:grid; grid-template-columns:1fr 1fr 1fr;
+      gap:1.5rem; padding:2rem 4rem 5rem; }
+    .panel-card { background:var(--glass); border:1px solid var(--border); border-radius:20px; padding:2rem;
+      backdrop-filter:blur(12px); cursor:pointer; transition:all .3s; text-decoration:none; color:inherit;
+      display:flex; flex-direction:column; gap:1rem; }
+    .panel-card:hover { transform:translateY(-6px); border-color:var(--mint);
+      box-shadow:0 20px 60px rgba(0,0,0,.3),0 0 30px rgba(0,198,167,.1); }
+    .panel-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; }
+    .icon-teal { background:rgba(0,198,167,.15); border:1px solid rgba(0,198,167,.3); }
+    .icon-blue { background:rgba(99,179,237,.15); border:1px solid rgba(99,179,237,.3); }
+    .icon-gold { background:rgba(255,209,102,.15); border:1px solid rgba(255,209,102,.3); }
+    .panel-title { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; color:#f0f8ff; }
+    .panel-desc { font-size:.9rem; color:#7da8c4; line-height:1.6; }
+    .panel-arrow { margin-top:auto; display:flex; align-items:center; gap:.4rem; font-size:.85rem; font-weight:600; color:var(--mint); }
 
-    /* ── Panel Cards ── */
-    .panels {
-      position: relative; z-index: 5;
-      display: grid; grid-template-columns: 1fr 1fr 1fr;
-      gap: 1.5rem; padding: 2rem 4rem 5rem;
-    }
-    .panel-card {
-      background: var(--glass); border: 1px solid var(--border);
-      border-radius: 20px; padding: 2rem;
-      backdrop-filter: blur(12px);
-      cursor: pointer; transition: all .3s;
-      text-decoration: none; color: inherit;
-      display: flex; flex-direction: column; gap: 1rem;
-    }
-    .panel-card:hover {
-      transform: translateY(-6px);
-      border-color: var(--mint);
-      box-shadow: 0 20px 60px rgba(0,0,0,.3), 0 0 30px rgba(0,198,167,.1);
-    }
-    .panel-icon {
-      width: 52px; height: 52px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem;
-    }
-    .icon-teal { background: rgba(0,198,167,.15); border: 1px solid rgba(0,198,167,.3); }
-    .icon-blue { background: rgba(99,179,237,.15); border: 1px solid rgba(99,179,237,.3); }
-    .icon-gold { background: rgba(255,209,102,.15); border: 1px solid rgba(255,209,102,.3); }
-    .panel-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem; font-weight: 700; color: #f0f8ff;
-    }
-    .panel-desc { font-size: .9rem; color: #7da8c4; line-height: 1.6; }
-    .panel-arrow {
-      margin-top: auto; display: flex; align-items: center; gap: .4rem;
-      font-size: .85rem; font-weight: 600; color: var(--mint);
-    }
-
-    /* ── Chat Character ── */
-    .chat-widget {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
-      display: flex; flex-direction: column; align-items: flex-end; gap: 1rem;
-    }
-    .chat-bubble-wrap {
-      display: none;
-      flex-direction: column;
-      width: 360px;
-      background: var(--navy);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0,0,0,.6);
-    }
-    .chat-bubble-wrap.open {
-      display: flex;
-      animation: slideUp .3s ease;
-    }
-    @keyframes slideUp {
-      from { opacity:0; transform: translateY(20px); }
-      to   { opacity:1; transform: translateY(0); }
-    }
-    .chat-header {
-      display: flex; align-items: center; gap: .75rem;
-      padding: 1rem 1.25rem;
-      background: linear-gradient(135deg, var(--slate), var(--navy));
-      border-bottom: 1px solid var(--border);
-    }
-    .chat-avatar {
-      width: 42px; height: 42px; border-radius: 50%;
-      object-fit: cover; border: 2px solid var(--mint);
-    }
-    .chat-hname { font-weight: 600; font-size: .95rem; color: #f0f8ff; }
-    .chat-status { font-size: .75rem; color: var(--mint); }
-    .chat-close {
-      margin-left: auto; background: transparent; border: none;
-      color: #7da8c4; cursor: pointer; font-size: 1.2rem; line-height: 1;
-    }
-    .chat-close:hover { color: var(--rose); }
-
-    .chat-messages {
-      padding: 1.25rem; display: flex; flex-direction: column; gap: .75rem;
-      max-height: 320px; overflow-y: auto;
-      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
-    }
-    .msg {
-      max-width: 85%; padding: .75rem 1rem;
-      border-radius: 16px; font-size: .88rem; line-height: 1.5;
-      animation: msgIn .25s ease;
-    }
-    @keyframes msgIn {
-      from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)}
-    }
-    .msg.bot {
-      background: rgba(0,198,167,.12); border: 1px solid rgba(0,198,167,.2);
-      color: #c8e6f0; align-self: flex-start; border-bottom-left-radius: 4px;
-    }
-    .msg.user {
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
-      color: #f0f8ff; align-self: flex-end; border-bottom-right-radius: 4px;
-    }
-    .typing-indicator {
-      display: flex; gap: 4px; padding: .75rem 1rem;
-      background: rgba(0,198,167,.12); border: 1px solid rgba(0,198,167,.2);
-      border-radius: 16px; border-bottom-left-radius: 4px;
-      width: fit-content; align-self: flex-start;
-    }
-    .typing-indicator span {
-      width: 6px; height: 6px; border-radius: 50%; background: var(--mint);
-      animation: bounce .9s infinite;
-    }
+    /* ── CHAT ── */
+    .chat-widget { position:fixed; bottom:2rem; right:2rem; z-index:100; display:flex; flex-direction:column; align-items:flex-end; gap:1rem; }
+    .chat-bubble-wrap { display:none; flex-direction:column; width:360px; background:var(--navy);
+      border:1px solid var(--border); border-radius:24px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+    .chat-bubble-wrap.open { display:flex; animation:slideUp .3s ease; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .chat-header { display:flex; align-items:center; gap:.75rem; padding:1rem 1.25rem;
+      background:linear-gradient(135deg,var(--slate),var(--navy)); border-bottom:1px solid var(--border); }
+    .chat-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--mint); }
+    .chat-hname { font-weight:600; font-size:.95rem; color:#f0f8ff; }
+    .chat-status { font-size:.75rem; color:var(--mint); }
+    .chat-close { margin-left:auto; background:transparent; border:none; color:#7da8c4; cursor:pointer; font-size:1.2rem; line-height:1; }
+    .chat-close:hover { color:var(--rose); }
+    .chat-messages { padding:1.25rem; display:flex; flex-direction:column; gap:.75rem;
+      max-height:320px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+    .msg { max-width:85%; padding:.75rem 1rem; border-radius:16px; font-size:.88rem; line-height:1.5; animation:msgIn .25s ease; }
+    @keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+    .msg.bot { background:rgba(0,198,167,.12); border:1px solid rgba(0,198,167,.2); color:#c8e6f0; align-self:flex-start; border-bottom-left-radius:4px; }
+    .msg.user { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); color:#f0f8ff; align-self:flex-end; border-bottom-right-radius:4px; }
+    .typing-indicator { display:flex; gap:4px; padding:.75rem 1rem;
+      background:rgba(0,198,167,.12); border:1px solid rgba(0,198,167,.2);
+      border-radius:16px; border-bottom-left-radius:4px; width:fit-content; align-self:flex-start; }
+    .typing-indicator span { width:6px; height:6px; border-radius:50%; background:var(--mint); animation:bounce .9s infinite; }
     .typing-indicator span:nth-child(2){animation-delay:.2s}
     .typing-indicator span:nth-child(3){animation-delay:.4s}
-    @keyframes bounce {
-      0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)}
-    }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    .chat-input-area { padding:1rem 1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:.75rem; }
+    .chat-input { width:100%; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px;
+      padding:.65rem .9rem; color:#f0f8ff; font-family:'DM Sans',sans-serif; font-size:.88rem; outline:none; }
+    .chat-input:focus { border-color:var(--mint); }
+    .chat-input::placeholder { color:#4a6a84; }
+    .chat-select { width:100%; background:rgba(255,255,255,.06); border:1px solid var(--border); border-radius:10px;
+      padding:.65rem .9rem; color:#f0f8ff; font-family:'DM Sans',sans-serif; font-size:.88rem; outline:none; cursor:pointer;
+      appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300C6A7' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right .8rem center; background-size:12px; }
+    .chat-select option { background:#112240; }
+    .chat-send { background:var(--mint); color:var(--deep); border:none; border-radius:10px; padding:.7rem;
+      font-family:'DM Sans',sans-serif; font-weight:600; font-size:.88rem; cursor:pointer; transition:all .2s; width:100%; }
+    .chat-send:hover { background:#00e5bf; }
+    .chat-send:disabled { opacity:.4; cursor:not-allowed; }
+    .input-hidden { display:none; }
 
-    .chat-input-area {
-      padding: 1rem 1.25rem;
-      border-top: 1px solid var(--border);
-      display: flex; flex-direction: column; gap: .75rem;
-    }
-    .chat-input {
-      width: 100%; background: rgba(255,255,255,.06);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: .65rem .9rem; color: #f0f8ff;
-      font-family: 'DM Sans', sans-serif; font-size: .88rem;
-      outline: none;
-    }
-    .chat-input:focus { border-color: var(--mint); }
-    .chat-input::placeholder { color: #4a6a84; }
-    .chat-select {
-      width: 100%; background: rgba(255,255,255,.06);
-      border: 1px solid var(--border); border-radius: 10px;
-      padding: .65rem .9rem; color: #f0f8ff;
-      font-family: 'DM Sans', sans-serif; font-size: .88rem;
-      outline: none; cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300C6A7' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right .8rem center;
-      background-size: 12px;
-    }
-    .chat-select option { background: #112240; }
-    .chat-time-row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
-    .chat-send {
-      background: var(--mint); color: var(--deep);
-      border: none; border-radius: 10px; padding: .7rem;
-      font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .88rem;
-      cursor: pointer; transition: all .2s; width: 100%;
-    }
-    .chat-send:hover { background: #00e5bf; }
-    .chat-send:disabled { opacity: .4; cursor: not-allowed; }
-    .input-hidden { display: none; }
-    .success-msg {
-      text-align: center; padding: 1rem;
-      color: var(--mint); font-weight: 600;
-      display: flex; flex-direction: column; align-items: center; gap: .5rem;
-    }
-    .success-icon { font-size: 2.5rem; }
+    /* slot preview card */
+    .slot-preview { background:rgba(0,198,167,.08); border:1px solid rgba(0,198,167,.2);
+      border-radius:10px; padding:.75rem 1rem; font-size:.85rem; color:#c8e6f0; line-height:1.8; margin-bottom:.5rem; }
+    .slot-preview .sp-row { display:flex; align-items:center; gap:.4rem; }
+    /* no-slot warning */
+    .no-slot-warn { background:rgba(255,107,157,.08); border:1px solid rgba(255,107,157,.25);
+      border-radius:10px; padding:.65rem .9rem; font-size:.8rem; color:#ff9dbf; margin-bottom:.5rem; }
 
-    /* ── Toggle Button ── */
-    .chat-toggle {
-      width: 64px; height: 64px; border-radius: 50%;
-      background: var(--mint); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 8px 30px rgba(0,198,167,.4);
-      transition: all .25s; overflow: hidden; position: relative;
-    }
-    .chat-toggle:hover { transform: scale(1.08); box-shadow: 0 12px 40px rgba(0,198,167,.6); }
-    .chat-toggle img {
-      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
-    }
-    .chat-toggle-icon {
-      position: absolute; inset: 0; display: flex;
-      align-items: center; justify-content: center;
-      font-size: 1.5rem; background: var(--mint);
-      border-radius: 50%; transition: opacity .2s;
-    }
+    .success-msg { text-align:center; padding:1rem; color:var(--mint); font-weight:600;
+      display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+    .success-icon { font-size:2.5rem; }
 
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      nav { padding: 1.2rem 1.5rem; }
-      .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem 2rem; min-height: auto; }
-      .hero-right { order: -1; }
-      .panels { grid-template-columns: 1fr; padding: 1rem 1.5rem 3rem; }
-      .chat-bubble-wrap { width: calc(100vw - 2rem); right: 0; }
-    }
+    .chat-toggle { width:64px; height:64px; border-radius:50%; background:var(--mint); border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 8px 30px rgba(0,198,167,.4); transition:all .25s; overflow:hidden; }
+    .chat-toggle:hover { transform:scale(1.08); box-shadow:0 12px 40px rgba(0,198,167,.6); }
+    .chat-toggle img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
-    /* ── Sections ── */
-    .section-label {
-      position: relative; z-index: 5;
-      text-align: center; padding: 0 4rem;
-      font-size: .8rem; letter-spacing: .2em; text-transform: uppercase;
-      color: var(--mint); font-weight: 600; margin-bottom: 1rem;
-    }
-    .section-title {
-      position: relative; z-index: 5;
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem; font-weight: 800; color: #f0f8ff;
-      text-align: center; padding: 0 4rem; margin-bottom: 3rem;
+    .section-label { position:relative; z-index:5; text-align:center; padding:0 4rem;
+      font-size:.8rem; letter-spacing:.2em; text-transform:uppercase; color:var(--mint); font-weight:600; margin-bottom:1rem; }
+    .section-title { position:relative; z-index:5; font-family:'Playfair Display',serif;
+      font-size:2.2rem; font-weight:800; color:#f0f8ff; text-align:center; padding:0 4rem; margin-bottom:3rem; }
+
+    @media(max-width:900px){
+      nav { padding:1.2rem 1.5rem; }
+      .hero { grid-template-columns:1fr; padding:3rem 1.5rem 2rem; min-height:auto; }
+      .hero-right { order:-1; }
+      .panels { grid-template-columns:1fr; padding:1rem 1.5rem 3rem; }
+      .chat-bubble-wrap { width:calc(100vw - 2rem); }
     }
   </style>
 </head>
 <body>
-
 <div class="bg-grid"></div>
 <div class="bg-glow"></div>
 
-<!-- NAV -->
 <nav>
   <div class="logo">Medi<span>Care+</span></div>
   <div class="nav-pills">
@@ -392,14 +167,11 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-left">
     <div class="badge">Smart Healthcare Platform — Est. 2026</div>
     <h1>Modern Care,<br/><em>Smarter</em><br/>Appointments</h1>
-    <p class="hero-desc">
-      MediCare+ connects patients to the right doctors, instantly. Book appointments, track your health, and get personalized care — all in one place.
-    </p>
+    <p class="hero-desc">MediCare+ connects patients to the right doctors, instantly. Book appointments, track your health, and get personalized care — all in one place.</p>
     <div class="hero-actions">
       <button class="btn btn-primary" onclick="openChat()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 3H3a2 2 0 00-2 2v16l4-4h16a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>
@@ -411,24 +183,16 @@
       </a>
     </div>
   </div>
-
   <div class="hero-right">
     <div class="hero-img-wrap">
       <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80" alt="Modern Healthcare"/>
       <div class="hero-img-overlay"></div>
     </div>
-    <div class="stat-card">
-      <span class="stat-num">50+</span>
-      <span class="stat-label">Doctors Available</span>
-    </div>
-    <div class="stat-card">
-      <span class="stat-num">98%</span>
-      <span class="stat-label">Patient Satisfaction</span>
-    </div>
+    <div class="stat-card"><span class="stat-num">50+</span><span class="stat-label">Doctors Available</span></div>
+    <div class="stat-card"><span class="stat-num">98%</span><span class="stat-label">Patient Satisfaction</span></div>
   </div>
 </section>
 
-<!-- PANEL CARDS -->
 <p class="section-label">Platform Access</p>
 <h2 class="section-title">Choose Your Portal</h2>
 <div class="panels">
@@ -471,101 +235,60 @@
         <div style="height:.5rem"></div>
         <button class="chat-send" onclick="submitName()">Continue →</button>
       </div>
-      <!-- Q2: Symptoms -->
+      <!-- Q2: Symptom -->
       <div id="q2" class="input-hidden">
         <select class="chat-select" id="inputSymptom">
           <option value="" disabled selected>Select your symptom…</option>
-          <option>Chest Pain</option>
-          <option>Palpitations</option>
-          <option>Shortness of Breath</option>
-          <option>Headache</option>
-          <option>Seizures</option>
-          <option>Loss of Balance</option>
-          <option>Back Pain</option>
-          <option>Joint Pain</option>
-          <option>Fracture</option>
-          <option>Abdominal Pain</option>
-          <option>Nausea</option>
-          <option>Vomiting</option>
-          <option>Cough</option>
-          <option>Wheezing</option>
-          <option>Rash</option>
-          <option>Itching</option>
-          <option>Acne</option>
-          <option>Excessive Thirst</option>
-          <option>Frequent Urination</option>
-          <option>Weight Gain / Loss</option>
-          <option>Blood in Urine</option>
-          <option>Foamy Urine</option>
-          <option>Kidney Pain</option>
-          <option>Blurred Vision</option>
-          <option>Eye Pain</option>
-          <option>Redness</option>
-          <option>Ear Pain</option>
-          <option>Sore Throat</option>
-          <option>Nasal Congestion</option>
-          <option>Anxiety</option>
-          <option>Depression</option>
-          <option>Insomnia</option>
-          <option>Irregular Periods</option>
-          <option>Pelvic Pain</option>
-          <option>Heavy Bleeding</option>
-          <option>Fever in Children</option>
-          <option>Cough & Cold</option>
-          <option>Growth Concerns</option>
-          <option>Unexplained Weight Loss</option>
-          <option>Lumps / Swellings</option>
-          <option>Persistent Fatigue</option>
-          <option>Painful Urination</option>
-          <option>Kidney Stones</option>
-          <option>Morning Stiffness</option>
-          <option>Muscle Pain</option>
-          <option>Anemia</option>
-          <option>Easy Bruising</option>
-          <option>Prolonged Bleeding</option>
-          <option>High Fever</option>
-          <option>Chills</option>
-          <option>Body Aches</option>
-          <option>Fever</option>
-          <option>Fatigue</option>
-          <option>Severe Chest Pain</option>
-          <option>Stroke Symptoms</option>
-          <option>Unconsciousness</option>
+          <option>Chest Pain</option><option>Palpitations</option><option>Shortness of Breath</option>
+          <option>Headache</option><option>Seizures</option><option>Loss of Balance</option>
+          <option>Back Pain</option><option>Joint Pain</option><option>Fracture</option>
+          <option>Abdominal Pain</option><option>Nausea</option><option>Vomiting</option>
+          <option>Cough</option><option>Wheezing</option><option>Rash</option>
+          <option>Itching</option><option>Acne</option><option>Excessive Thirst</option>
+          <option>Frequent Urination</option><option>Weight Gain / Loss</option>
+          <option>Blood in Urine</option><option>Foamy Urine</option><option>Kidney Pain</option>
+          <option>Blurred Vision</option><option>Eye Pain</option><option>Redness</option>
+          <option>Ear Pain</option><option>Sore Throat</option><option>Nasal Congestion</option>
+          <option>Anxiety</option><option>Depression</option><option>Insomnia</option>
+          <option>Irregular Periods</option><option>Pelvic Pain</option><option>Heavy Bleeding</option>
+          <option>Fever in Children</option><option>Cough &amp; Cold</option><option>Growth Concerns</option>
+          <option>Unexplained Weight Loss</option><option>Lumps / Swellings</option><option>Persistent Fatigue</option>
+          <option>Painful Urination</option><option>Kidney Stones</option><option>Morning Stiffness</option>
+          <option>Muscle Pain</option><option>Anemia</option><option>Easy Bruising</option>
+          <option>Prolonged Bleeding</option><option>High Fever</option><option>Chills</option>
+          <option>Body Aches</option><option>Fever</option><option>Fatigue</option>
+          <option>Severe Chest Pain</option><option>Stroke Symptoms</option><option>Unconsciousness</option>
           <option>Other</option>
         </select>
         <div style="height:.5rem"></div>
         <button class="chat-send" onclick="submitSymptom()">Continue →</button>
       </div>
-      <!-- Q3: Auto-assigned slot confirmation -->
+      <!-- Q3: Slot confirmation -->
       <div id="q3" class="input-hidden">
-        <div id="slotPreview" style="background:rgba(0,198,167,.08);border:1px solid rgba(0,198,167,.2);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:#c8e6f0;line-height:1.6;margin-bottom:.5rem;"></div>
-        <button class="chat-send" id="confirmBtn" onclick="submitDateTime()">✅ Confirm Appointment</button>
+        <div id="slotPreview" class="slot-preview"></div>
+        <button class="chat-send" id="confirmBtn" onclick="submitConfirm()">✅ Confirm Appointment</button>
       </div>
       <!-- Success -->
       <div class="success-msg input-hidden" id="successMsg">
         <div class="success-icon">🎉</div>
-        <span>Appointment Requested!</span>
-        <span style="font-size:.8rem;color:#7da8c4;">We'll confirm shortly.</span>
+        <span>Appointment Booked!</span>
+        <span style="font-size:.8rem;color:#7da8c4">We'll confirm shortly.</span>
         <button class="chat-send" style="margin-top:.5rem" onclick="resetChat()">Book Another</button>
       </div>
     </div>
   </div>
-
   <button class="chat-toggle" onclick="toggleChat()" title="Chat with Dr. Aria">
     <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&q=80" alt="Dr. Aria"/>
   </button>
 </div>
 
-<!-- ── Firebase SDK ── -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  import { initializeApp }     from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, getDocs,
+    query, where, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
-  /* ─────────────────────────────────────────────
-     🔥 REPLACE these values with your own project
-     Firebase Console → Project Settings → Your apps
-  ───────────────────────────────────────────── */
   const firebaseConfig = {
     apiKey: "AIzaSyAUCZZXpiOfZVgjmIrNAnn_LF0SOm1WwhA",
     authDomain: "healthcare-scheduler-5b242.firebaseapp.com",
@@ -578,227 +301,271 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  /* ──────────────── State ──────────────── */
-  let chatOpen = false;
-  let patientData = { name: '', symptom: '', time: '', date: '' };
+  // ── State ─────────────────────────────────────────────────────────────────
+  let chatOpen   = false;
+  let patientData = {};
   const msgs = document.getElementById('chatMessages');
 
-  /* ──────────────── Helpers ──────────────── */
-  function addMsg(text, type = 'bot', delay = 0) {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        if (type === 'bot' && delay > 0) {
-          const t = document.createElement('div');
-          t.className = 'typing-indicator';
-          t.innerHTML = '<span></span><span></span><span></span>';
-          msgs.appendChild(t);
-          scrollBottom();
-          setTimeout(() => {
-            msgs.removeChild(t);
-            appendMsg(text, type);
-            resolve();
-          }, 800);
-        } else {
-          appendMsg(text, type);
-          resolve();
-        }
-      }, delay);
+  // ── UI helpers ────────────────────────────────────────────────────────────
+  function show(id){
+    ['q1','q2','q3','successMsg'].forEach(i=>{
+      document.getElementById(i).classList.toggle('input-hidden', i!==id);
     });
   }
 
-  function appendMsg(text, type) {
+  function appendMsg(text, type){
     const d = document.createElement('div');
     d.className = `msg ${type}`;
     d.textContent = text;
     msgs.appendChild(d);
-    scrollBottom();
+    msgs.scrollTop = msgs.scrollHeight;
   }
 
-  function scrollBottom() { msgs.scrollTop = msgs.scrollHeight; }
-
-  function show(id) {
-    ['q1', 'q2', 'q3', 'successMsg'].forEach(i => {
-      document.getElementById(i).classList.toggle('input-hidden', i !== id);
+  function addMsg(text, type='bot', delay=0){
+    return new Promise(resolve=>{
+      setTimeout(()=>{
+        if(type==='bot' && delay>0){
+          const t = document.createElement('div');
+          t.className='typing-indicator';
+          t.innerHTML='<span></span><span></span><span></span>';
+          msgs.appendChild(t); msgs.scrollTop=msgs.scrollHeight;
+          setTimeout(()=>{ msgs.removeChild(t); appendMsg(text,type); resolve(); }, 800);
+        } else { appendMsg(text,type); resolve(); }
+      }, delay);
     });
   }
 
-  /* ──────────────── Chat Flow ──────────────── */
-  function initChat() {
-    msgs.innerHTML = '';
-    patientData = { name: '', symptom: '', time: '', date: '' };
-    addMsg("👋 Hi there! I'm Dr. Aria, your virtual assistant.", 'bot', 100);
-    addMsg("Let's book you an appointment. First — what's your full name?", 'bot', 800);
-    show('q1');
+  // ── Date helpers ──────────────────────────────────────────────────────────
+  // Returns "YYYY-MM-DD" for today or today+offset
+  function dateStr(offsetDays=0){
+    const d = new Date();
+    d.setDate(d.getDate()+offsetDays);
+    return d.toISOString().split('T')[0];
   }
 
-  window.submitName = function () {
-    const val = document.getElementById('inputName').value.trim();
-    if (!val) return;
-    patientData.name = val;
-    addMsg(val, 'user');
-    document.getElementById('inputName').value = '';
-    show('q2');
-    addMsg(`Nice to meet you, ${val}! 😊`, 'bot', 300);
-    addMsg("Which symptom best describes what you're experiencing?", 'bot', 900);
-  };
+  // Returns array of "HH:MM" 30-min slots between fromStr and toStr (e.g. "09:00","17:00")
+  function buildSlots(fromStr, toStr){
+    const slots=[];
+    const [fh,fm]=fromStr.split(':').map(Number);
+    const [th,tm]=toStr.split(':').map(Number);
+    let cur = fh*60+fm;
+    const end = th*60+tm;
+    while(cur+30<=end){
+      slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
+      cur+=30;
+    }
+    return slots;
+  }
 
-  window.submitSymptom = async function () {
-  const sel = document.getElementById('inputSymptom');
-  const val = sel.value;
-  if (!val) return;
-  patientData.symptom = val;
-  addMsg(val, 'user');
-  sel.selectedIndex = 0;
+  function fmtTime(hhmm){
+    const [h,m]=hhmm.split(':');
+    const d=new Date(); d.setHours(+h,+m);
+    return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  }
+  function fmtDate(yyyymmdd){
+    return new Date(yyyymmdd+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric'});
+  }
 
-  addMsg(`Got it — ${val}. Let me find the best available doctor for you...`, 'bot', 300);
-
-  // Find matching doctor immediately after symptom is chosen
-  try {
-    const { getDocs } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
-    const doctorsSnap = await getDocs(collection(db, 'doctors'));
-    let matchedDoctor = null;
-
-    doctorsSnap.forEach(d => {
-      const data = d.data();
-      const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
-      if (symptoms.includes(val) && !matchedDoctor) {
-        matchedDoctor = { id: d.id, ...data };
+  // ── CORE: find the best available doctor + slot ───────────────────────────
+  // Algorithm:
+  //   1. Get all doctors that handle this symptom
+  //   2. For each doctor, look 7 days ahead
+  //   3. Build their full slot list for each day from availableFrom/availableTo
+  //   4. Load all existing appointments for that doctor on that date
+  //   5. Skip slots that are already taken
+  //   6. Also skip slots in the past (if looking at today)
+  //   7. Pick the doctor+date+slot with the EARLIEST available opening
+  //      (ties broken by fewest appointments = least busy doctor)
+  async function findBestSlot(symptom){
+    // Step 1: load all doctors matching symptom
+    const docSnap = await getDocs(collection(db,'doctors'));
+    const candidates = [];
+    docSnap.forEach(d=>{
+      const data=d.data();
+      const syms=Array.isArray(data.symptoms)?data.symptoms:[];
+      if(syms.includes(symptom)){
+        candidates.push({id:d.id,...data});
       }
     });
 
-    if (!matchedDoctor) {
-      // No match — assign tomorrow at 9 AM with fallback
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      patientData.time      = '09:00';
-      patientData.date      = tomorrow.toISOString().split('T')[0];
-      patientData.doctorName = 'Unassigned';
-      patientData.speciality = '—';
+    if(candidates.length===0) return null; // no specialist found
 
-      const preview = document.getElementById('slotPreview');
-      preview.innerHTML = `
-        <div>👨‍⚕️ <strong style="color:var(--mint)">Doctor:</strong> Will be assigned shortly</div>
-        <div>📅 <strong style="color:var(--mint)">Date:</strong> ${tomorrow.toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric'})}</div>
-        <div>🕘 <strong style="color:var(--mint)">Time:</strong> 9:00 AM</div>
-      `;
-      show('q3');
-      addMsg("No specialist found right now, but we've reserved a slot for you. Please confirm below.", 'bot', 900);
-      return;
+    // Step 2: load ALL appointments once (cheaper than per-doctor queries for small datasets)
+    const apptSnap = await getDocs(collection(db,'appointments'));
+    // Build map: doctorName -> date -> Set of taken time strings
+    const takenMap = {}; // takenMap[doctorName][date] = Set<"HH:MM">
+    apptSnap.forEach(d=>{
+      const a=d.data();
+      if(!a.doctorName||!a.date||!a.time) return;
+      if(!takenMap[a.doctorName]) takenMap[a.doctorName]={};
+      if(!takenMap[a.doctorName][a.date]) takenMap[a.doctorName][a.date]=new Set();
+      takenMap[a.doctorName][a.date].add(a.time);
+    });
+
+    const nowMins = new Date().getHours()*60 + new Date().getMinutes();
+    const todayStr= dateStr(0);
+
+    // Step 3: for each candidate doctor, search up to 7 days ahead
+    let bestResult = null; // {doctor, date, time, appointmentCount}
+
+    for(const doctor of candidates){
+      const from = doctor.availableFrom || '09:00';
+      const to   = doctor.availableTo   || '17:00';
+      const allSlots = buildSlots(from, to);
+      if(allSlots.length===0) continue;
+
+      // Count total appointments this doctor has (for load balancing)
+      const docTaken = takenMap[doctor.name] || {};
+      const totalAppts = Object.values(docTaken).reduce((s,set)=>s+set.size, 0);
+
+      for(let day=0; day<7; day++){
+        const checkDate = dateStr(day);
+        const taken = (takenMap[doctor.name]||{})[checkDate] || new Set();
+
+        for(const slot of allSlots){
+          // Skip past slots if checking today
+          if(checkDate===todayStr){
+            const [sh,sm]=slot.split(':').map(Number);
+            const slotMins=sh*60+sm;
+            // Need at least 30 mins buffer from now
+            if(slotMins <= nowMins+30) continue;
+          }
+          // Skip already-booked slots
+          if(taken.has(slot)) continue;
+
+          // This slot is free! Is it better than our current best?
+          if(!bestResult || checkDate < bestResult.date ||
+            (checkDate===bestResult.date && slot < bestResult.time) ||
+            (checkDate===bestResult.date && slot===bestResult.time && totalAppts < bestResult.appointmentCount)){
+            bestResult={
+              doctor,
+              date:     checkDate,
+              time:     slot,
+              appointmentCount: totalAppts
+            };
+          }
+          // Once we find the earliest slot for this doctor, break inner loop
+          break;
+        }
+        // If we already found a slot for today for this doctor, no need to look further
+        if(bestResult && bestResult.date===checkDate && bestResult.doctor.id===doctor.id) break;
+      }
     }
 
-    // Build next available slot: today if before availableTo, else tomorrow
-    const now        = new Date();
-    const fromParts  = matchedDoctor.availableFrom.split(':');
-    const toParts    = matchedDoctor.availableTo.split(':');
-    const fromMins   = +fromParts[0] * 60 + +fromParts[1];
-    const toMins     = +toParts[0]   * 60 + +toParts[1];
-    const nowMins    = now.getHours() * 60 + now.getMinutes();
-
-    // Pick next 30-min slot after current time within doctor's window
-    let slotMins = fromMins;
-    if (nowMins >= fromMins) {
-      // Round up to next 30-min mark
-      slotMins = Math.ceil((nowMins + 1) / 30) * 30;
-    }
-
-    let slotDate = new Date();
-    if (slotMins >= toMins || slotMins < fromMins) {
-      // No slot today — move to tomorrow at opening time
-      slotDate.setDate(slotDate.getDate() + 1);
-      slotMins = fromMins;
-    }
-
-    const slotHH  = String(Math.floor(slotMins / 60)).padStart(2, '0');
-    const slotMM  = String(slotMins % 60).padStart(2, '0');
-    const slotTime = `${slotHH}:${slotMM}`;
-    const slotDateStr = slotDate.toISOString().split('T')[0];
-
-    patientData.time       = slotTime;
-    patientData.date       = slotDateStr;
-    patientData.doctorName = matchedDoctor.name;
-    patientData.speciality = matchedDoctor.speciality;
-
-    const tObj         = new Date(`1970-01-01T${slotTime}`);
-    const timeFormatted = tObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const dateFormatted = slotDate.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
-
-    const preview = document.getElementById('slotPreview');
-    preview.innerHTML = `
-      <div>👨‍⚕️ <strong style="color:var(--mint)">Doctor:</strong> ${matchedDoctor.name}</div>
-      <div>🏥 <strong style="color:var(--mint)">Speciality:</strong> ${matchedDoctor.speciality}</div>
-      <div>📅 <strong style="color:var(--mint)">Date:</strong> ${dateFormatted}</div>
-      <div>🕐 <strong style="color:var(--mint)">Time:</strong> ${timeFormatted}</div>
-    `;
-
-    show('q3');
-    addMsg(`Great news! I found ${matchedDoctor.name} (${matchedDoctor.speciality}) for you.`, 'bot', 900);
-    addMsg(`Your next available slot is ${dateFormatted} at ${timeFormatted}. Confirm below! 👇`, 'bot', 1600);
-
-  } catch(e) {
-    addMsg("⚠️ Couldn't find a doctor right now. Please try again.", 'bot', 500);
-    console.error(e);
+    return bestResult; // null if no slot found in 7 days
   }
-};
 
-  // After patientData.symptom is set, we need to find the matching doctor first.
-// Replace the entire submitDateTime function with this:
+  // ── Chat flow ─────────────────────────────────────────────────────────────
+  function initChat(){
+    msgs.innerHTML='';
+    patientData={};
+    addMsg("👋 Hi there! I'm Dr. Aria, your virtual assistant.",'bot',100);
+    addMsg("Let's book you an appointment. First — what's your full name?",'bot',800);
+    show('q1');
+  }
 
-    window.submitDateTime = async function () {
-    const btn = document.getElementById('confirmBtn');
-    btn.disabled = true;
-    btn.textContent = 'Booking…';
+  window.submitName = function(){
+    const val=document.getElementById('inputName').value.trim();
+    if(!val) return;
+    patientData.name=val;
+    addMsg(val,'user');
+    document.getElementById('inputName').value='';
+    addMsg(`Nice to meet you, ${val}! 😊`,'bot',300);
+    addMsg("Which symptom best describes what you're experiencing?",'bot',900);
+    show('q2');
+  };
 
-    try {
-      await addDoc(collection(db, 'appointments'), {
-        patientName:  patientData.name,
-        name:         patientData.name,
-        symptom:      patientData.symptom,
-        date:         patientData.date,
-        time:         patientData.time,
-        status:       'Pending',
-        doctorName:   patientData.doctorName,
-        speciality:   patientData.speciality,
-        createdAt:    serverTimestamp()
-      });
+  window.submitSymptom = async function(){
+    const sel=document.getElementById('inputSymptom');
+    const val=sel.value;
+    if(!val) return;
+    patientData.symptom=val;
+    addMsg(val,'user');
+    sel.selectedIndex=0;
+    // Disable button while searching
+    const btn=sel.nextElementSibling.nextElementSibling;
+    if(btn) btn.disabled=true;
 
-      show('successMsg');
+    addMsg(`Got it — ${val}. Searching for the best available slot...`,'bot',300);
 
-      const tObj         = new Date(`1970-01-01T${patientData.time}`);
-      const timeFormatted = tObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-      const dateFormatted = new Date(patientData.date).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' });
+    try{
+      const result = await findBestSlot(val);
 
-      addMsg(`✅ Booked! See you on ${dateFormatted} at ${timeFormatted}, ${patientData.name}. 🏥`, 'bot', 300);
+      if(!result){
+        // No matching doctor found — show unassigned fallback
+        const fallbackDate = dateStr(1);
+        const fallbackTime = '09:00';
+        patientData.doctorName = 'Unassigned';
+        patientData.speciality = '—';
+        patientData.date = fallbackDate;
+        patientData.time = fallbackTime;
 
-    } catch(err) {
-      console.error(err);
-      addMsg("⚠️ Couldn't save your appointment. Please try again.", 'bot', 300);
-      btn.disabled = false;
-      btn.textContent = '✅ Confirm Appointment';
+        document.getElementById('slotPreview').innerHTML=`
+          <div class="no-slot-warn">⚠ No specialist found for this symptom right now. We'll assign a doctor and confirm shortly.</div>
+          <div class="sp-row">📅 <strong style="color:var(--mint)">Date:</strong>&nbsp;${fmtDate(fallbackDate)}</div>
+          <div class="sp-row">🕘 <strong style="color:var(--mint)">Time:</strong>&nbsp;${fmtTime(fallbackTime)}</div>`;
+        show('q3');
+        addMsg("No specialist available right now, but we've reserved a slot for you. Confirm below.",'bot',900);
+        return;
+      }
+
+      // ── Great — we have a unique doctor + slot ──
+      patientData.doctorName = result.doctor.name;
+      patientData.speciality = result.doctor.speciality||'—';
+      patientData.date       = result.date;
+      patientData.time       = result.time;
+
+      document.getElementById('slotPreview').innerHTML=`
+        <div class="sp-row">👨‍⚕️ <strong style="color:var(--mint)">Doctor:</strong>&nbsp;${result.doctor.name}</div>
+        <div class="sp-row">🏥 <strong style="color:var(--mint)">Speciality:</strong>&nbsp;${result.doctor.speciality||'—'}</div>
+        <div class="sp-row">📅 <strong style="color:var(--mint)">Date:</strong>&nbsp;${fmtDate(result.date)}</div>
+        <div class="sp-row">🕐 <strong style="color:var(--mint)">Time:</strong>&nbsp;${fmtTime(result.time)}</div>`;
+      show('q3');
+      addMsg(`Great news! I found ${result.doctor.name} (${result.doctor.speciality}) for you.`,'bot',900);
+      addMsg(`Your slot: ${fmtDate(result.date)} at ${fmtTime(result.time)}. Confirm below! 👇`,'bot',1600);
+
+    }catch(e){
+      addMsg("⚠️ Couldn't search for doctors right now. Please try again.",'bot',500);
+      console.error(e);
+    } finally {
+      if(btn) btn.disabled=false;
     }
   };
 
-  window.resetChat = function () {
-    document.getElementById('inputName').value = '';
-    const btn = document.getElementById('confirmBtn');
-    if (btn) { btn.disabled = false; btn.textContent = '✅ Confirm Appointment'; }
+  window.submitConfirm = async function(){
+    const btn=document.getElementById('confirmBtn');
+    btn.disabled=true; btn.textContent='Booking…';
+    try{
+      await addDoc(collection(db,'appointments'),{
+        patientName: patientData.name,
+        name:        patientData.name,
+        symptom:     patientData.symptom,
+        date:        patientData.date,
+        time:        patientData.time,
+        status:      'Pending',
+        doctorName:  patientData.doctorName,
+        speciality:  patientData.speciality,
+        createdAt:   serverTimestamp()
+      });
+      show('successMsg');
+      addMsg(`✅ Booked! See you on ${fmtDate(patientData.date)} at ${fmtTime(patientData.time)}, ${patientData.name}. 🏥`,'bot',300);
+    }catch(err){
+      console.error(err);
+      addMsg("⚠️ Couldn't save your appointment. Please try again.",'bot',300);
+      btn.disabled=false; btn.textContent='✅ Confirm Appointment';
+    }
+  };
+
+  window.resetChat=function(){
+    document.getElementById('inputName').value='';
+    const btn=document.getElementById('confirmBtn');
+    if(btn){ btn.disabled=false; btn.textContent='✅ Confirm Appointment'; }
     initChat();
   };
 
-  /* ──────────────── Widget toggle ──────────────── */
-  window.openChat = function () {
-    chatOpen = true;
-    document.getElementById('chatWidget').classList.add('open');
-    if (msgs.children.length === 0) initChat();
-  };
-
-  window.closeChat = function () {
-    chatOpen = false;
-    document.getElementById('chatWidget').classList.remove('open');
-  };
-
-  window.toggleChat = function () {
-    chatOpen ? window.closeChat() : window.openChat();
-  };
+  window.openChat=function(){ chatOpen=true; document.getElementById('chatWidget').classList.add('open'); if(msgs.children.length===0) initChat(); };
+  window.closeChat=function(){ chatOpen=false; document.getElementById('chatWidget').classList.remove('open'); };
+  window.toggleChat=function(){ chatOpen?window.closeChat():window.openChat(); };
 </script>
 </body>
 </html>

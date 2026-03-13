@@ -8,192 +8,201 @@
   <style>
     :root{
       --teal:#00C6A7;--deep:#07111F;--card:#0D1E30;--navy:#112640;
-      --accent:#F4C542;--rose:#FF6B8A;--lavender:#A78BFA;
+      --accent:#F4C542;--rose:#FF6B8A;--lavender:#A78BFA;--emerald:#34D399;
       --border:rgba(0,198,167,.2);--text:#D8EEF8;--muted:#6A93B0;
     }
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:var(--deep);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-    /* ── BACKGROUND ── */
     .bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;}
     .bg-grid{position:absolute;inset:0;
       background-image:linear-gradient(rgba(0,198,167,.03) 1px,transparent 1px),
       linear-gradient(90deg,rgba(0,198,167,.03) 1px,transparent 1px);
       background-size:56px 56px;}
     .bg-orb1{position:absolute;width:700px;height:700px;border-radius:50%;
-      background:radial-gradient(circle,rgba(0,198,167,.06) 0%,transparent 65%);
-      top:-250px;right:-200px;}
+      background:radial-gradient(circle,rgba(0,198,167,.06) 0%,transparent 65%);top:-250px;right:-200px;}
     .bg-orb2{position:absolute;width:500px;height:500px;border-radius:50%;
-      background:radial-gradient(circle,rgba(167,139,250,.05) 0%,transparent 65%);
-      bottom:-150px;left:-150px;}
+      background:radial-gradient(circle,rgba(167,139,250,.05) 0%,transparent 65%);bottom:-150px;left:-150px;}
 
-    /* ── LOGIN ── */
+    /* LOGIN */
     #loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--deep);}
     .login-wrap{position:relative;z-index:5;width:100%;max-width:440px;padding:2.5rem;
       background:rgba(13,30,48,.95);border:1px solid var(--border);border-radius:28px;
       box-shadow:0 40px 100px rgba(0,0,0,.6);backdrop-filter:blur(20px);}
-    .login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;
-      color:var(--teal);text-align:center;line-height:1;}
+    .login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--teal);text-align:center;line-height:1;}
     .login-logo span{color:var(--accent);}
-    .login-role{text-align:center;margin:.4rem 0 2rem;font-size:.82rem;color:var(--muted);
-      display:flex;align-items:center;justify-content:center;gap:.5rem;}
+    .login-role{text-align:center;margin:.4rem 0 2rem;font-size:.82rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:.5rem;}
     .role-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block;}
     .f-group{margin-bottom:1.1rem;}
-    .f-group label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;
-      color:var(--muted);margin-bottom:.45rem;font-weight:500;}
-    .f-group input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
-      border-radius:11px;padding:.75rem 1rem;color:var(--text);font-size:.92rem;
-      font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;}
+    .f-group label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.45rem;font-weight:500;}
+    .f-group input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;padding:.75rem 1rem;color:var(--text);font-size:.92rem;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;}
     .f-group input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,198,167,.1);}
-    .btn-primary{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--teal),#00a88e);
-      border:none;border-radius:12px;color:#07111F;font-weight:700;font-size:.95rem;
-      font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .2s;margin-top:.5rem;}
+    .btn-primary{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--teal),#00a88e);border:none;border-radius:12px;color:#07111F;font-weight:700;font-size:.95rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .2s;margin-top:.5rem;}
     .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,198,167,.35);}
     .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-    .login-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);border-radius:9px;
-      padding:.6rem .9rem;color:var(--rose);font-size:.82rem;margin-top:.9rem;display:none;text-align:center;}
+    .login-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);border-radius:9px;padding:.6rem .9rem;color:var(--rose);font-size:.82rem;margin-top:.9rem;display:none;text-align:center;}
     .login-loading{text-align:center;color:var(--muted);font-size:.83rem;margin-top:.75rem;display:none;}
     .change-pass-link{text-align:center;margin-top:1rem;font-size:.8rem;color:var(--muted);}
     .change-pass-link a{color:var(--teal);cursor:pointer;text-decoration:none;}
-    .change-pass-link a:hover{text-decoration:underline;}
 
-    /* ── APP SHELL ── */
+    /* APP */
     #appShell{display:none;}
-
-    /* ── NAV ── */
-    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-      padding:1rem 2.5rem;background:rgba(7,17,31,.8);border-bottom:1px solid var(--border);
-      backdrop-filter:blur(16px);}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(7,17,31,.8);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);}
     .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--teal);}
     .nav-logo span{color:var(--accent);}
     .nav-center{display:flex;gap:.25rem;}
-    .nav-tab{padding:.45rem 1.1rem;border-radius:50px;font-size:.83rem;cursor:pointer;
-      color:var(--muted);background:transparent;border:1px solid transparent;transition:all .2s;
-      font-family:'Outfit',sans-serif;}
+    .nav-tab{padding:.45rem 1.1rem;border-radius:50px;font-size:.83rem;cursor:pointer;color:var(--muted);background:transparent;border:1px solid transparent;transition:all .2s;font-family:'Outfit',sans-serif;}
     .nav-tab:hover{color:var(--text);background:rgba(255,255,255,.05);}
     .nav-tab.active{color:var(--teal);background:rgba(0,198,167,.1);border-color:var(--border);}
     .nav-right{display:flex;align-items:center;gap:.75rem;}
-    .doc-chip{display:flex;align-items:center;gap:.5rem;background:rgba(0,198,167,.08);
-      border:1px solid var(--border);border-radius:50px;padding:.35rem .85rem;font-size:.78rem;color:var(--teal);}
-    .doc-chip .avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#00a88e);
-      display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#07111F;font-weight:700;}
-    .btn-signout{padding:.4rem 1rem;border:1px solid var(--border);border-radius:50px;
-      background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;
-      font-family:'Outfit',sans-serif;transition:all .2s;}
+    .doc-chip{display:flex;align-items:center;gap:.5rem;background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:50px;padding:.35rem .85rem;font-size:.78rem;color:var(--teal);}
+    .doc-chip .avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#00a88e);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#07111F;font-weight:700;}
+    .btn-signout{padding:.4rem 1rem;border:1px solid var(--border);border-radius:50px;background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
     .btn-signout:hover{border-color:var(--rose);color:var(--rose);}
 
-    /* ── LAYOUT ── */
     .main{position:relative;z-index:5;padding:2.5rem;max-width:1200px;margin:0 auto;}
     .page{display:none;}
     .page.active{display:block;animation:fadeUp .3s ease;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ── PAGE HEADER ── */
     .pg-header{margin-bottom:2rem;}
     .pg-header h2{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#f0f8ff;line-height:1.1;}
     .pg-header p{color:var(--muted);font-size:.88rem;margin-top:.3rem;}
-
-    /* ── CARDS ── */
     .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem;}
-    .card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;
-      color:#f0f8ff;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
+    .card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#f0f8ff;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
 
-    /* ── STAT GRID ── */
     .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
-      padding:1.25rem 1.5rem;transition:border-color .2s,transform .2s;}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;transition:border-color .2s,transform .2s;}
     .stat-card:hover{border-color:rgba(0,198,167,.45);transform:translateY(-2px);}
     .stat-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--teal);}
     .stat-lbl{font-size:.8rem;color:var(--muted);margin-top:.15rem;}
     .stat-icon{font-size:1.4rem;margin-bottom:.5rem;}
 
-    /* ── APPOINTMENT CARDS ── */
+    /* APPOINTMENT CARDS */
     .appt-list{display:flex;flex-direction:column;gap:.85rem;}
-    .appt-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;
-      padding:1rem 1.25rem;display:grid;grid-template-columns:auto 1fr auto auto;
-      align-items:center;gap:1.25rem;transition:border-color .2s,background .2s;}
+    .appt-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;transition:border-color .2s,background .2s;}
     .appt-card:hover{background:rgba(0,198,167,.04);border-color:rgba(0,198,167,.3);}
-    .appt-time-block{text-align:center;background:rgba(0,198,167,.08);border:1px solid var(--border);
-      border-radius:12px;padding:.6rem .9rem;min-width:72px;}
+    .appt-card-top{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:1.25rem;}
+    .appt-card-bottom{margin-top:.85rem;padding-top:.85rem;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
+    .appt-time-block{text-align:center;background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:12px;padding:.6rem .9rem;min-width:72px;}
     .appt-time{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--teal);}
     .appt-date{font-size:.7rem;color:var(--muted);margin-top:.1rem;}
     .appt-info h4{font-size:.92rem;color:#f0f8ff;font-weight:500;margin-bottom:.2rem;}
     .appt-info .sym{font-size:.8rem;color:var(--muted);}
     .appt-info .sym span{color:var(--accent);}
-    .appt-status{padding:.25rem .75rem;border-radius:50px;font-size:.73rem;font-weight:600;}
+    .appt-status{padding:.25rem .75rem;border-radius:50px;font-size:.73rem;font-weight:600;white-space:nowrap;}
     .s-confirmed{background:rgba(0,198,167,.15);color:var(--teal);}
     .s-pending{background:rgba(244,197,66,.15);color:var(--accent);}
     .s-cancelled{background:rgba(255,107,138,.15);color:var(--rose);}
     .s-completed{background:rgba(167,139,250,.15);color:var(--lavender);}
+    .s-hospitalised{background:rgba(52,211,153,.12);color:var(--emerald);}
     .appt-actions{display:flex;gap:.5rem;}
-    .btn-sm{padding:.3rem .75rem;border-radius:8px;font-size:.75rem;cursor:pointer;
-      font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;}
+    .btn-sm{padding:.3rem .75rem;border-radius:8px;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;}
     .btn-complete{background:rgba(0,198,167,.1);border-color:rgba(0,198,167,.3);color:var(--teal);}
     .btn-complete:hover{background:rgba(0,198,167,.2);}
     .btn-cancel{background:rgba(255,107,138,.1);border-color:rgba(255,107,138,.3);color:var(--rose);}
     .btn-cancel:hover{background:rgba(255,107,138,.2);}
 
-    /* ── PROFILE ── */
-    .profile-hero{display:flex;align-items:center;gap:2rem;padding:2rem;
-      background:linear-gradient(135deg,rgba(0,198,167,.08),rgba(167,139,250,.05));
-      border:1px solid var(--border);border-radius:20px;margin-bottom:1.5rem;}
-    .profile-avatar{width:80px;height:80px;border-radius:50%;
-      background:linear-gradient(135deg,var(--teal),#00a88e);
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;
-      color:#07111F;flex-shrink:0;border:3px solid rgba(0,198,167,.3);}
+    /* ACTION BUTTONS */
+    .btn-equipment{background:rgba(244,197,66,.1);border-color:rgba(244,197,66,.35);color:var(--accent);padding:.35rem 1rem;border-radius:9px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
+    .btn-equipment:hover{background:rgba(244,197,66,.2);transform:translateY(-1px);}
+    .btn-equipment:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-hospitalise{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.35);color:var(--lavender);padding:.35rem 1rem;border-radius:9px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
+    .btn-hospitalise:hover{background:rgba(167,139,250,.2);transform:translateY(-1px);}
+    .btn-hospitalise:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+    /* BADGES */
+    .assign-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .7rem;border-radius:50px;font-size:.72rem;font-weight:500;}
+    .badge-equip{background:rgba(244,197,66,.1);border:1px solid rgba(244,197,66,.25);color:var(--accent);}
+    .badge-bed{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:var(--lavender);}
+    .badge-nurse{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:var(--emerald);}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(7,17,31,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:2rem;width:100%;max-width:520px;box-shadow:0 40px 100px rgba(0,0,0,.7);transform:translateY(20px);transition:transform .25s;}
+    .modal-overlay.open .modal{transform:translateY(0);}
+    .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:#f0f8ff;margin-bottom:.35rem;}
+    .modal-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.5rem;}
+    .modal-patient{background:rgba(0,198,167,.06);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;}
+    .modal-patient strong{color:#f0f8ff;}
+    .modal-patient .sym{color:var(--muted);font-size:.78rem;margin-top:.2rem;}
+
+    .equip-list{display:flex;flex-direction:column;gap:.6rem;max-height:240px;overflow-y:auto;padding-right:.25rem;}
+    .equip-list::-webkit-scrollbar{width:4px;}
+    .equip-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+    .equip-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;cursor:pointer;transition:all .2s;}
+    .equip-item:hover{border-color:rgba(244,197,66,.35);background:rgba(244,197,66,.04);}
+    .equip-item.selected{border-color:rgba(244,197,66,.5);background:rgba(244,197,66,.08);}
+    .equip-item.disabled-equip{opacity:.4;cursor:not-allowed;}
+    .equip-item.disabled-equip:hover{border-color:var(--border);background:rgba(255,255,255,.03);}
+    .equip-name{font-size:.88rem;color:#f0f8ff;font-weight:500;}
+    .equip-meta{font-size:.73rem;color:var(--muted);margin-top:.15rem;}
+    .slot-free{color:var(--emerald);}
+    .slot-busy{color:var(--rose);}
+    .equip-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .2s;flex-shrink:0;}
+    .equip-item.selected .equip-check{background:var(--accent);border-color:var(--accent);color:#07111F;}
+
+    .resource-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin-bottom:.6rem;}
+    .resource-label{font-size:.85rem;color:#f0f8ff;}
+    .resource-val{font-size:.82rem;color:var(--emerald);font-weight:500;}
+    .resource-val.unavail{color:var(--rose);}
+
+    .modal-footer{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end;}
+    .btn-modal-cancel{padding:.6rem 1.25rem;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--muted);font-size:.85rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .btn-modal-cancel:hover{border-color:var(--rose);color:var(--rose);}
+    .btn-modal-confirm{padding:.6rem 1.5rem;border:none;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .btn-equip-confirm{background:linear-gradient(135deg,var(--accent),#e6b730);color:#07111F;}
+    .btn-equip-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(244,197,66,.3);}
+    .btn-hosp-confirm{background:linear-gradient(135deg,var(--lavender),#8b5cf6);color:#fff;}
+    .btn-hosp-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(167,139,250,.3);}
+    .btn-modal-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
+
+    /* TOAST */
+    .toast-wrap{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;gap:.6rem;}
+    .toast{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.25rem;font-size:.83rem;min-width:280px;max-width:360px;display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:slideIn .3s ease;}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    .toast.hide{animation:slideOut .3s ease forwards;}
+    @keyframes slideOut{to{opacity:0;transform:translateX(30px)}}
+    .toast-icon{font-size:1.1rem;flex-shrink:0;margin-top:.05rem;}
+    .toast-body strong{display:block;color:#f0f8ff;margin-bottom:.15rem;}
+    .toast-body span{color:var(--muted);font-size:.78rem;line-height:1.4;}
+    .toast.ok{border-color:rgba(0,198,167,.35);}
+    .toast.err{border-color:rgba(255,107,138,.35);}
+    .toast.info{border-color:rgba(167,139,250,.35);}
+
+    /* PROFILE */
+    .profile-hero{display:flex;align-items:center;gap:2rem;padding:2rem;background:linear-gradient(135deg,rgba(0,198,167,.08),rgba(167,139,250,.05));border:1px solid var(--border);border-radius:20px;margin-bottom:1.5rem;}
+    .profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#00a88e);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#07111F;flex-shrink:0;border:3px solid rgba(0,198,167,.3);}
     .profile-info h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:#f0f8ff;}
-    .profile-info .spec-tag{display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem;
-      background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:50px;
-      padding:.25rem .75rem;font-size:.78rem;color:var(--teal);}
+    .profile-info .spec-tag{display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem;background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:50px;padding:.25rem .75rem;font-size:.78rem;color:var(--teal);}
     .profile-info .dept{font-size:.83rem;color:var(--muted);margin-top:.35rem;}
-
-    /* ── SYMPTOMS GRID ── */
     .sym-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
-    .sym-pill{background:rgba(255,255,255,.05);border:1px solid rgba(0,198,167,.15);
-      border-radius:50px;padding:.3rem .8rem;font-size:.78rem;color:#aac8e0;}
-
-    /* ── AVAILABILITY ── */
-    .avail-bar{background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:14px;
-      padding:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;
-      margin-bottom:1.5rem;}
-    .avail-time{display:flex;align-items:center;gap:.75rem;}
-    .time-pill{background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:10px;
-      padding:.5rem 1rem;font-size:.88rem;color:var(--teal);font-weight:500;}
+    .sym-pill{background:rgba(255,255,255,.05);border:1px solid rgba(0,198,167,.15);border-radius:50px;padding:.3rem .8rem;font-size:.78rem;color:#aac8e0;}
+    .avail-bar{background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:14px;padding:1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+    .time-pill{background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem;font-size:.88rem;color:var(--teal);font-weight:500;}
     .avail-label{font-size:.8rem;color:var(--muted);}
+    .avail-time{display:flex;align-items:center;gap:.75rem;}
 
-    /* ── CHANGE PASSWORD FORM ── */
+    /* SETTINGS */
     .pass-form{max-width:420px;}
     .field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
     .field label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500;}
-    .field input{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;
-      padding:.65rem .9rem;color:var(--text);font-size:.88rem;font-family:'Outfit',sans-serif;
-      outline:none;transition:border-color .2s;}
+    .field input{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;color:var(--text);font-size:.88rem;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;}
     .field input:focus{border-color:var(--teal);}
-    .btn-save{padding:.65rem 1.75rem;background:linear-gradient(135deg,var(--teal),#00a88e);
-      border:none;border-radius:10px;color:#07111F;font-weight:700;font-size:.88rem;
-      font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s;}
+    .btn-save{padding:.65rem 1.75rem;background:linear-gradient(135deg,var(--teal),#00a88e);border:none;border-radius:10px;color:#07111F;font-weight:700;font-size:.88rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s;}
     .btn-save:hover{transform:translateY(-1px);}
     .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-
-    /* ── ALERTS ── */
     .alert{border-radius:10px;padding:.7rem 1rem;font-size:.83rem;margin-top:.9rem;display:none;}
     .alert-ok{background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);color:var(--teal);}
     .alert-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);color:var(--rose);}
 
-    /* ── EMPTY STATE ── */
     .empty{text-align:center;padding:3rem;color:#3a5a74;font-size:.88rem;}
     .empty .e-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4;}
-
-    /* ── SPINNER ── */
-    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,198,167,.25);
-      border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,198,167,.25);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* ── TODAY HIGHLIGHT ── */
-    .today-strip{background:linear-gradient(135deg,rgba(0,198,167,.1),rgba(167,139,250,.07));
-      border:1px solid var(--border);border-radius:14px;padding:1rem 1.5rem;
-      margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
+    .equip-loading{text-align:center;padding:1.5rem;color:var(--muted);font-size:.85rem;}
+    .today-strip{background:linear-gradient(135deg,rgba(0,198,167,.1),rgba(167,139,250,.07));border:1px solid var(--border);border-radius:14px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
     .today-strip .day{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#f0f8ff;}
     .today-strip .count{font-size:.82rem;color:var(--muted);}
     .today-count-num{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--teal);font-weight:700;}
@@ -201,31 +210,22 @@
     @media(max-width:900px){
       .stat-grid{grid-template-columns:repeat(2,1fr);}
       .nav-center{display:none;}
-      .appt-card{grid-template-columns:1fr;}
+      .appt-card-top{grid-template-columns:1fr;}
     }
   </style>
 </head>
 <body>
-<div class="bg-wrap">
-  <div class="bg-grid"></div>
-  <div class="bg-orb1"></div>
-  <div class="bg-orb2"></div>
-</div>
+<div class="bg-wrap"><div class="bg-grid"></div><div class="bg-orb1"></div><div class="bg-orb2"></div></div>
+<div class="toast-wrap" id="toastWrap"></div>
 
-<!-- ═══ LOGIN ═══ -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="bg-wrap" style="position:absolute"><div class="bg-grid"></div></div>
   <div class="login-wrap">
     <div class="login-logo">Medi<span>Care+</span></div>
     <div class="login-role"><span class="role-dot"></span> Doctor Portal</div>
-    <div class="f-group">
-      <label>Your Email</label>
-      <input type="email" id="loginEmail" placeholder="dr.name@medicare" autocomplete="email"/>
-    </div>
-    <div class="f-group">
-      <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
-    </div>
+    <div class="f-group"><label>Your Email</label><input type="email" id="loginEmail" placeholder="dr.name@medicare" autocomplete="email"/></div>
+    <div class="f-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
     <button class="btn-primary" id="loginBtn">Sign In to Doctor Portal</button>
     <div class="login-err" id="loginErr"></div>
     <div class="login-loading" id="loginLoading">⏳ Verifying credentials…</div>
@@ -233,7 +233,7 @@
   </div>
 </div>
 
-<!-- ═══ APP SHELL ═══ -->
+<!-- APP SHELL -->
 <div id="appShell">
   <nav>
     <div class="nav-logo">Medi<span>Care+</span></div>
@@ -251,21 +251,15 @@
 
   <div class="main">
 
-    <!-- ── DASHBOARD ── -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="pg-header">
         <h2 id="welcomeMsg">Good morning, Doctor 👋</h2>
         <p id="welcomeSub">Here's your overview for today.</p>
       </div>
       <div class="today-strip">
-        <div>
-          <div class="day" id="todayDay">—</div>
-          <div class="count">Today's appointments</div>
-        </div>
-        <div style="text-align:right">
-          <div class="today-count-num" id="todayCount">—</div>
-          <div class="count">scheduled</div>
-        </div>
+        <div><div class="day" id="todayDay">—</div><div class="count">Today's appointments</div></div>
+        <div style="text-align:right"><div class="today-count-num" id="todayCount">—</div><div class="count">scheduled</div></div>
       </div>
       <div class="stat-grid">
         <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Total Appointments</div></div>
@@ -275,18 +269,13 @@
       </div>
       <div class="card">
         <div class="card-title">📋 Today's Schedule</div>
-        <div class="appt-list" id="todayAppts">
-          <div class="empty"><div class="e-icon">📭</div>No appointments today</div>
-        </div>
+        <div class="appt-list" id="todayAppts"><div class="empty"><div class="e-icon">📭</div>No appointments today</div></div>
       </div>
     </div>
 
-    <!-- ── APPOINTMENTS ── -->
+    <!-- APPOINTMENTS -->
     <div class="page" id="page-appointments">
-      <div class="pg-header">
-        <h2>All Appointments</h2>
-        <p>Your complete appointment history and upcoming schedule</p>
-      </div>
+      <div class="pg-header"><h2>All Appointments</h2><p>Your complete appointment history and upcoming schedule</p></div>
       <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
         <button class="btn-sm btn-complete" style="border-radius:50px;padding:.4rem 1rem;" onclick="filterAppts('all',this)">All</button>
         <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Confirmed',this)">Confirmed</button>
@@ -294,12 +283,10 @@
         <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Completed',this)">Completed</button>
         <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Cancelled',this)">Cancelled</button>
       </div>
-      <div class="appt-list" id="allAppts">
-        <div class="empty"><div class="e-icon"><span class="spinner"></span></div>Loading appointments…</div>
-      </div>
+      <div class="appt-list" id="allAppts"><div class="empty"><div class="e-icon"><span class="spinner"></span></div>Loading appointments…</div></div>
     </div>
 
-    <!-- ── PROFILE ── -->
+    <!-- PROFILE -->
     <div class="page" id="page-profile">
       <div class="pg-header"><h2>My Profile</h2><p>Your information registered by the admin</p></div>
       <div class="profile-hero">
@@ -333,20 +320,16 @@
       </div>
       <div class="card">
         <div class="card-title">🗂 Symptoms I Handle</div>
-        <div class="sym-grid" id="profileSymptoms">
-          <div style="color:var(--muted);font-size:.85rem;">No symptoms mapped yet.</div>
-        </div>
+        <div class="sym-grid" id="profileSymptoms"><div style="color:var(--muted);font-size:.85rem;">No symptoms mapped yet.</div></div>
       </div>
     </div>
 
-    <!-- ── SETTINGS ── -->
+    <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="pg-header"><h2>Settings</h2><p>Update your account password</p></div>
       <div class="card" style="max-width:500px;">
         <div class="card-title">🔐 Change Password</div>
-        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1.25rem;">
-          If this is your first login, please change your temporary password immediately.
-        </p>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1.25rem;">If this is your first login, please change your temporary password immediately.</p>
         <div class="pass-form">
           <div class="field"><label>Current Password</label><input type="password" id="currPass" placeholder="Your current password"/></div>
           <div class="field"><label>New Password</label><input type="password" id="newPass" placeholder="At least 8 characters"/></div>
@@ -358,39 +341,75 @@
       </div>
     </div>
 
-  </div><!-- /main -->
-</div><!-- /appShell -->
+  </div>
+</div>
 
-<!-- ═══ TAB SWITCHING (plain script, must be before module) ═══ -->
+<!-- EQUIPMENT MODAL -->
+<div class="modal-overlay" id="equipModal">
+  <div class="modal">
+    <div class="modal-title">🔬 Assign Equipment Test</div>
+    <div class="modal-sub">Select a machine — slots auto-calculated from admin's registered working hours</div>
+    <div class="modal-patient" id="equipPatientInfo"></div>
+    <div class="equip-list" id="equipList">
+      <div class="equip-loading"><span class="spinner"></span> Loading available equipment…</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('equipModal')">Cancel</button>
+      <button class="btn-modal-confirm btn-equip-confirm" id="equipConfirmBtn" disabled onclick="confirmEquipAssign()">Assign Test →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOSPITALISE MODAL -->
+<div class="modal-overlay" id="hospModal">
+  <div class="modal">
+    <div class="modal-title">🏥 Hospitalise Patient</div>
+    <div class="modal-sub">First available bed + morning &amp; night nurse will be auto-assigned</div>
+    <div class="modal-patient" id="hospPatientInfo"></div>
+    <div id="hospResourceInfo">
+      <div class="equip-loading"><span class="spinner"></span> Checking available beds &amp; nurses…</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('hospModal')">Cancel</button>
+      <button class="btn-modal-confirm btn-hosp-confirm" id="hospConfirmBtn" disabled onclick="confirmHospitalise()">Confirm Admission →</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  function showTab(name, el){
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    const target = document.getElementById('page-' + name);
+  function showTab(name,el){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    const target=document.getElementById('page-'+name);
     if(target) target.classList.add('active');
     if(el) el.classList.add('active');
   }
-
-  function showResetHint(){
-    alert('Please log in first, then go to Settings → Change Password.');
-  }
-
+  function showResetHint(){ alert('Please log in first, then go to Settings → Change Password.'); }
   function doSignOut(){
     localStorage.removeItem('mc_doctor_id');
-    document.getElementById('appShell').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPassword').value = '';
+    document.getElementById('appShell').style.display='none';
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('loginEmail').value='';
+    document.getElementById('loginPassword').value='';
+  }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  function showToast(title,body,type='ok',dur=4500){
+    const icons={ok:'✅',err:'❌',info:'ℹ️'};
+    const wrap=document.getElementById('toastWrap');
+    const t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<div class="toast-icon">${icons[type]||'💬'}</div><div class="toast-body"><strong>${title}</strong><span>${body}</span></div>`;
+    wrap.appendChild(t);
+    setTimeout(()=>{ t.classList.add('hide'); setTimeout(()=>t.remove(),350); },dur);
   }
 </script>
 
-<!-- ═══ FIREBASE MODULE ═══ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import {
     getFirestore, collection, query, where,
     onSnapshot, doc, updateDoc, serverTimestamp,
-    getDocs, getDoc
+    getDocs, getDoc, addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -408,266 +427,458 @@
   let currentDoctor   = null;
   let allAppointments = [];
   let currentFilter   = 'all';
+  let activeAppt      = null;
+  let selectedEquipId = null;
+  let selectedSlot    = null;
+  let hospResources   = null;
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
   function $(id){ return document.getElementById(id); }
 
   function fmtTime(t){
     if(!t) return '—';
-    const [h,m] = t.split(':');
-    const d = new Date(); d.setHours(+h, +m);
-    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const [h,m]=t.split(':');
+    const d=new Date(); d.setHours(+h,+m);
+    return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   }
-  function fmtDate(dateStr){
-    if(!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  function fmtDate(ds){
+    if(!ds) return '—';
+    return new Date(ds).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
   }
-  function greeting(){
-    const h = new Date().getHours();
-    return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  }
-  function todayStr(){
-    return new Date().toLocaleDateString('en-IN', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-  }
-  function isToday(dateStr){
-    if(!dateStr) return false;
-    return new Date().toDateString() === new Date(dateStr).toDateString();
-  }
-  function initials(name){
-    if(!name) return 'D';
-    return name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
-  }
+  function greeting(){ const h=new Date().getHours(); return h<12?'Good morning':h<17?'Good afternoon':'Good evening'; }
+  function todayStr(){ return new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+  function isToday(ds){ if(!ds) return false; return new Date().toDateString()===new Date(ds).toDateString(); }
+  function initials(n){ if(!n) return 'D'; return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
   function statusClass(s){
-    if(s==='Confirmed') return 's-confirmed';
-    if(s==='Pending')   return 's-pending';
-    if(s==='Cancelled') return 's-cancelled';
-    if(s==='Completed') return 's-completed';
+    if(!s) return 's-pending';
+    const sl=s.toLowerCase();
+    if(sl==='confirmed')    return 's-confirmed';
+    if(sl==='pending')      return 's-pending';
+    if(sl==='cancelled')    return 's-cancelled';
+    if(sl==='completed')    return 's-completed';
+    if(sl==='hospitalised') return 's-hospitalised';
     return 's-pending';
   }
-  function showAlert(id, dur=3500){
-    const el = $(id); el.style.display='block';
-    setTimeout(() => el.style.display='none', dur);
-  }
-  function showLoginError(msg){
-    const el = $('loginErr'); el.textContent = msg; el.style.display = 'block';
-  }
-  function showPassErr(msg){
-    const el = $('passErr'); el.textContent = '⚠ ' + msg; el.style.display = 'block';
-    setTimeout(() => el.style.display='none', 4500);
+  function showAlert(id,dur=3500){ const el=$(id); el.style.display='block'; setTimeout(()=>el.style.display='none',dur); }
+  function showPassErr(msg){ const el=$('passErr'); el.textContent='⚠ '+msg; el.style.display='block'; setTimeout(()=>el.style.display='none',4500); }
+
+  // ── Time slot generator using admin's workingFrom / workingTo fields ──────
+  function generateTimeSlots(from, to, mins=60){
+    if(!from||!to) return [];
+    const [sh,sm]=from.split(':').map(Number);
+    const [eh,em]=to.split(':').map(Number);
+    let cur=sh*60+sm;
+    const endM=eh*60+em;
+    const slots=[];
+    while(cur+mins<=endM){
+      slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
+      cur+=mins;
+    }
+    return slots;
   }
 
-  // ── Session ────────────────────────────────────────────────────────────────
-  function saveSession(id){ localStorage.setItem('mc_doctor_id', id); }
+  // ── Nurse shift helpers matching admin's exact values ─────────────────────
+  // Admin writes: "Shift 1 (Morning)"  or  "Shift 2 (Night)"
+  function isMorningNurse(shift){ return !!(shift && shift.toLowerCase().includes('morning')); }
+  function isNightNurse(shift){   return !!(shift && shift.toLowerCase().includes('night'));   }
+
+  // ── Session ───────────────────────────────────────────────────────────────
+  function saveSession(id){ localStorage.setItem('mc_doctor_id',id); }
   function loadSession(){ return localStorage.getItem('mc_doctor_id'); }
 
-  // ── Init: restore session or show login ────────────────────────────────────
-  (async () => {
-    const savedId = loadSession();
+  (async()=>{
+    const savedId=loadSession();
     if(savedId){
-      try {
-        const snap = await getDoc(doc(db, 'doctors', savedId));
-        if(snap.exists()){
-          currentDoctor = { id: snap.id, ...snap.data() };
-          bootApp(currentDoctor);
-          return;
-        }
-      } catch(e){ /* fall through */ }
+      try{
+        const snap=await getDoc(doc(db,'doctors',savedId));
+        if(snap.exists()){ currentDoctor={id:snap.id,...snap.data()}; bootApp(currentDoctor); return; }
+      }catch(e){}
       localStorage.removeItem('mc_doctor_id');
     }
-    $('loginScreen').style.display = 'flex';
-    $('appShell').style.display    = 'none';
+    $('loginScreen').style.display='flex';
+    $('appShell').style.display='none';
   })();
 
-  // ── Login ──────────────────────────────────────────────────────────────────
+  // ── Login ─────────────────────────────────────────────────────────────────
   async function doLoginFn(){
-    const email = $('loginEmail').value.trim().toLowerCase();
-    const pass  = $('loginPassword').value;
-    const errEl = $('loginErr'), loadEl = $('loginLoading');
-    errEl.style.display = 'none';
-
-    if(!email || !pass){
-      errEl.textContent = 'Please fill in all fields.';
-      errEl.style.display = 'block';
-      return;
-    }
-
-    loadEl.style.display = 'block';
-    $('loginBtn').disabled = true;
-
-    try {
-      const q    = query(collection(db,'doctors'), where('email','==', email));
-      const snap = await getDocs(q);
-
-      if(snap.empty){
-        showLoginError('No account found with this email.'); return;
-      }
-
-      const data = snap.docs[0].data();
-      if(data.password !== pass){
-        showLoginError('Incorrect password. Please try again.'); return;
-      }
-
-      currentDoctor = { id: snap.docs[0].id, ...data };
+    const email=$('loginEmail').value.trim().toLowerCase();
+    const pass=$('loginPassword').value;
+    const errEl=$('loginErr'), loadEl=$('loginLoading');
+    errEl.style.display='none';
+    if(!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
+    loadEl.style.display='block'; $('loginBtn').disabled=true;
+    try{
+      const q=query(collection(db,'doctors'),where('email','==',email));
+      const snap=await getDocs(q);
+      if(snap.empty){ errEl.textContent='No account found with this email.'; errEl.style.display='block'; return; }
+      const data=snap.docs[0].data();
+      if(data.password!==pass){ errEl.textContent='Incorrect password.'; errEl.style.display='block'; return; }
+      currentDoctor={id:snap.docs[0].id,...data};
       saveSession(currentDoctor.id);
       bootApp(currentDoctor);
-
-    } catch(e){
-      showLoginError('Error: ' + e.message);
-    } finally {
-      loadEl.style.display = 'none';
-      $('loginBtn').disabled = false;
-    }
+    }catch(e){ errEl.textContent='Error: '+e.message; errEl.style.display='block'; }
+    finally{ loadEl.style.display='none'; $('loginBtn').disabled=false; }
   }
+  $('loginBtn').addEventListener('click',doLoginFn);
+  ['loginEmail','loginPassword'].forEach(id=>{ $(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLoginFn(); }); });
 
-  // Expose login to the button and wire up Enter key
-  $('loginBtn').addEventListener('click', doLoginFn);
-  ['loginEmail','loginPassword'].forEach(id => {
-    $(id).addEventListener('keydown', e => { if(e.key==='Enter') doLoginFn(); });
-  });
-
-  // ── Boot UI ────────────────────────────────────────────────────────────────
+  // ── Boot ──────────────────────────────────────────────────────────────────
   function bootApp(doctor){
-    $('loginScreen').style.display = 'none';
-    $('appShell').style.display    = 'block';
-
-    // Reset to dashboard tab on every login
-    showTab('dashboard', document.querySelector('.nav-tab'));
-
-    const name = doctor.name || doctor.email;
-    $('docNameNav').textContent    = name.split(' ')[0];
-    $('docInitial').textContent    = initials(name);
-    $('welcomeMsg').textContent    = `${greeting()}, ${name} 👋`;
-    $('welcomeSub').textContent    = `${doctor.speciality||''} · ${doctor.department||''}`;
-    $('todayDay').textContent      = todayStr();
-    $('profileAvatar').textContent = initials(name);
-    $('profileName').textContent   = name;
-    $('profileSpec').textContent   = doctor.speciality || '—';
-    $('profileDept').textContent   = doctor.department || '—';
-    $('profileEmail').textContent  = doctor.email || '—';
-    $('profileFrom').textContent   = fmtTime(doctor.availableFrom);
-    $('profileTo').textContent     = fmtTime(doctor.availableTo);
-    $('profilePhone').textContent  = doctor.phone || '—';
-
-    const symEl = $('profileSymptoms');
-    if(Array.isArray(doctor.symptoms) && doctor.symptoms.length){
-      symEl.innerHTML = doctor.symptoms.map(s => `<span class="sym-pill">${s}</span>`).join('');
+    $('loginScreen').style.display='none';
+    $('appShell').style.display='block';
+    showTab('dashboard',document.querySelector('.nav-tab'));
+    const name=doctor.name||doctor.email;
+    $('docNameNav').textContent   = name.split(' ')[0];
+    $('docInitial').textContent   = initials(name);
+    $('welcomeMsg').textContent   = `${greeting()}, ${name} 👋`;
+    $('welcomeSub').textContent   = `${doctor.speciality||''} · ${doctor.department||''}`;
+    $('todayDay').textContent     = todayStr();
+    $('profileAvatar').textContent= initials(name);
+    $('profileName').textContent  = name;
+    $('profileSpec').textContent  = doctor.speciality||'—';
+    $('profileDept').textContent  = doctor.department||'—';
+    $('profileEmail').textContent = doctor.email||'—';
+    // Admin stores: availableFrom, availableTo
+    $('profileFrom').textContent  = fmtTime(doctor.availableFrom);
+    $('profileTo').textContent    = fmtTime(doctor.availableTo);
+    $('profilePhone').textContent = doctor.phone||'—';
+    const symEl=$('profileSymptoms');
+    if(Array.isArray(doctor.symptoms)&&doctor.symptoms.length){
+      symEl.innerHTML=doctor.symptoms.map(s=>`<span class="sym-pill">${s}</span>`).join('');
     } else {
-      symEl.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">No symptoms mapped yet.</div>';
+      symEl.innerHTML='<div style="color:var(--muted);font-size:.85rem;">No symptoms mapped yet.</div>';
     }
-
     loadAppointments(doctor.name);
   }
 
-  // ── Appointments ───────────────────────────────────────────────────────────
+  // ── Appointments ──────────────────────────────────────────────────────────
   function loadAppointments(doctorName){
-    const q = query(collection(db,'appointments'), where('doctorName','==', doctorName));
-    onSnapshot(q, snap => {
-      allAppointments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderStats();
-      renderTodayAppts();
-      renderAllAppts();
+    const q=query(collection(db,'appointments'),where('doctorName','==',doctorName));
+    onSnapshot(q,snap=>{
+      allAppointments=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderStats(); renderTodayAppts(); renderAllAppts();
     });
   }
-
   function renderStats(){
-    $('statTotal').textContent     = allAppointments.length;
-    $('statCompleted').textContent = allAppointments.filter(a => a.status==='Completed').length;
-    $('statPending').textContent   = allAppointments.filter(a => a.status==='Pending'||a.status==='Confirmed').length;
-    $('statCancelled').textContent = allAppointments.filter(a => a.status==='Cancelled').length;
-    $('todayCount').textContent    = allAppointments.filter(a => isToday(a.date)).length;
+    $('statTotal').textContent    =allAppointments.length;
+    $('statCompleted').textContent=allAppointments.filter(a=>a.status==='Completed').length;
+    $('statPending').textContent  =allAppointments.filter(a=>a.status==='Pending'||a.status==='Confirmed').length;
+    $('statCancelled').textContent=allAppointments.filter(a=>a.status==='Cancelled').length;
+    $('todayCount').textContent   =allAppointments.filter(a=>isToday(a.date)).length;
   }
-
   function renderTodayAppts(){
-    const list = allAppointments.filter(a => isToday(a.date));
-    const el   = $('todayAppts');
-    if(!list.length){
-      el.innerHTML = '<div class="empty"><div class="e-icon">📭</div>No appointments today — enjoy your day!</div>';
-      return;
-    }
-    el.innerHTML = list
-      .sort((a,b) => (a.time||'').localeCompare(b.time||''))
-      .map(a => apptCard(a)).join('');
+    const list=allAppointments.filter(a=>isToday(a.date));
+    const el=$('todayAppts');
+    if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No appointments today — enjoy your day!</div>'; return; }
+    el.innerHTML=list.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(a=>apptCard(a)).join('');
   }
-
   function renderAllAppts(){
-    const list = currentFilter==='all'
-      ? allAppointments
-      : allAppointments.filter(a => a.status===currentFilter);
-    const el = $('allAppts');
-    if(!list.length){
-      el.innerHTML = '<div class="empty"><div class="e-icon">📭</div>No appointments found.</div>';
-      return;
-    }
-    el.innerHTML = list
-      .sort((a,b) => new Date(b.date||0) - new Date(a.date||0))
-      .map(a => apptCard(a)).join('');
+    const list=currentFilter==='all'?allAppointments:allAppointments.filter(a=>a.status===currentFilter);
+    const el=$('allAppts');
+    if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No appointments found.</div>'; return; }
+    el.innerHTML=list.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(a=>apptCard(a)).join('');
   }
 
   function apptCard(a){
-    const sc     = statusClass(a.status);
-    const canAct = a.status==='Confirmed' || a.status==='Pending';
+    const sc=statusClass(a.status);
+    const canAct=a.status==='Confirmed'||a.status==='Pending';
+    const equipped=!!a.equipmentAssigned;
+    const hosp=!!a.bedAssigned;
+    let badges='';
+    if(equipped) badges+=`<span class="assign-badge badge-equip">🔬 ${a.equipmentAssigned}${a.equipmentSlot?' · '+fmtTime(a.equipmentSlot):''}</span>`;
+    if(hosp)     badges+=`<span class="assign-badge badge-bed">🛏 ${a.bedAssigned}</span>`;
+    if(a.morningNurse) badges+=`<span class="assign-badge badge-nurse">🌅 ${a.morningNurse}</span>`;
+    if(a.nightNurse)   badges+=`<span class="assign-badge badge-nurse">🌙 ${a.nightNurse}</span>`;
     return `<div class="appt-card">
-      <div class="appt-time-block">
-        <div class="appt-time">${fmtTime(a.time||a.appointmentTime)}</div>
-        <div class="appt-date">${fmtDate(a.date||a.appointmentDate)}</div>
+      <div class="appt-card-top">
+        <div class="appt-time-block">
+          <div class="appt-time">${fmtTime(a.time||a.appointmentTime)}</div>
+          <div class="appt-date">${fmtDate(a.date||a.appointmentDate)}</div>
+        </div>
+        <div class="appt-info">
+          <h4>${a.patientName||a.name||'Patient'}</h4>
+          <div class="sym">Symptom: <span>${a.symptom||a.symptoms||'—'}</span></div>
+          ${a.notes?`<div class="sym" style="margin-top:.2rem">Notes: <span style="color:#aac8e0">${a.notes}</span></div>`:''}
+        </div>
+        <span class="appt-status ${sc}">${a.status||'Pending'}</span>
+        <div class="appt-actions">
+          ${canAct?`<button class="btn-sm btn-complete" onclick="updateApptStatus('${a.id}','Completed')">✓ Done</button>`:''}
+          ${canAct?`<button class="btn-sm btn-cancel"   onclick="updateApptStatus('${a.id}','Cancelled')">✕</button>`:''}
+        </div>
       </div>
-      <div class="appt-info">
-        <h4>${a.patientName||a.name||'Patient'}</h4>
-        <div class="sym">Symptom: <span>${a.symptom||a.symptoms||'—'}</span></div>
-        ${a.notes ? `<div class="sym" style="margin-top:.2rem">Notes: <span style="color:#aac8e0">${a.notes}</span></div>` : ''}
-      </div>
-      <span class="appt-status ${sc}">${a.status||'Pending'}</span>
-      <div class="appt-actions">
-        ${canAct ? `<button class="btn-sm btn-complete" onclick="updateApptStatus('${a.id}','Completed')">✓ Done</button>` : ''}
-        ${canAct ? `<button class="btn-sm btn-cancel"   onclick="updateApptStatus('${a.id}','Cancelled')">✕</button>` : ''}
+      <div class="appt-card-bottom">
+        ${badges}
+        <div style="display:flex;gap:.6rem;margin-left:auto;">
+          <button class="btn-equipment"
+            ${equipped?'disabled title="Equipment already assigned"':`onclick="openEquipModal('${a.id}')"`}>
+            🔬 ${equipped?'Test Assigned':'Assign Test'}
+          </button>
+          <button class="btn-hospitalise"
+            ${hosp?'disabled title="Already hospitalised"':`onclick="openHospModal('${a.id}')"`}>
+            🏥 ${hosp?'Hospitalised':'Hospitalise'}
+          </button>
+        </div>
       </div>
     </div>`;
   }
 
-  window.updateApptStatus = async function(apptId, status){
-    try {
-      await updateDoc(doc(db,'appointments', apptId), { status, updatedAt: serverTimestamp() });
-    } catch(e){ alert('Error: ' + e.message); }
+  window.updateApptStatus=async function(apptId,status){
+    try{ await updateDoc(doc(db,'appointments',apptId),{status,updatedAt:serverTimestamp()}); }
+    catch(e){ showToast('Error',e.message,'err'); }
   };
-
-  window.filterAppts = function(filter, btn){
-    currentFilter = filter;
-    document.querySelectorAll('#page-appointments .btn-sm').forEach(b => {
-      b.style.background   = 'transparent';
-      b.style.color        = 'var(--muted)';
-      b.style.borderColor  = 'var(--border)';
+  window.filterAppts=function(filter,btn){
+    currentFilter=filter;
+    document.querySelectorAll('#page-appointments .btn-sm').forEach(b=>{
+      b.style.background='transparent'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)';
     });
-    btn.style.background  = 'rgba(0,198,167,.15)';
-    btn.style.color       = 'var(--teal)';
-    btn.style.borderColor = 'rgba(0,198,167,.35)';
+    btn.style.background='rgba(0,198,167,.15)'; btn.style.color='var(--teal)'; btn.style.borderColor='rgba(0,198,167,.35)';
     renderAllAppts();
   };
 
-  // ── Change password ────────────────────────────────────────────────────────
-  $('passBtn').addEventListener('click', async () => {
-    const curr = $('currPass').value;
-    const nw   = $('newPass').value;
-    const conf = $('confirmPass').value;
-    const btn  = $('passBtn');
-    $('passErr').style.display = 'none';
-
-    if(!curr || !nw || !conf){ showPassErr('Please fill in all fields.'); return; }
-    if(nw.length < 8){ showPassErr('New password must be at least 8 characters.'); return; }
-    if(nw !== conf){ showPassErr('Passwords do not match.'); return; }
-    if(curr !== currentDoctor.password){ showPassErr('Current password is incorrect.'); return; }
-
-    btn.disabled = true; btn.textContent = 'Updating…';
-    try {
-      await updateDoc(doc(db,'doctors', currentDoctor.id), { password: nw });
-      currentDoctor.password = nw;
-      $('currPass').value = ''; $('newPass').value = ''; $('confirmPass').value = '';
-      showAlert('passOk');
-    } catch(e){
-      showPassErr('Failed to update: ' + e.message);
+  // ══════════════════════════════════════════════════════════════════════════
+  // EQUIPMENT MODAL
+  // Admin fields: name, serial, operator, contact, room, workingFrom, workingTo
+  // Slots: 60-min intervals between workingFrom → workingTo
+  // ══════════════════════════════════════════════════════════════════════════
+  window.openEquipModal=async function(apptId){
+    activeAppt=allAppointments.find(a=>a.id===apptId);
+    selectedEquipId=null; selectedSlot=null;
+    if(!activeAppt) return;
+    $('equipPatientInfo').innerHTML=`
+      <strong>${activeAppt.patientName||activeAppt.name||'Patient'}</strong>
+      <div class="sym">Symptom: <span style="color:var(--accent)">${activeAppt.symptom||activeAppt.symptoms||'—'}</span></div>`;
+    $('equipConfirmBtn').disabled=true;
+    $('equipList').innerHTML='<div class="equip-loading"><span class="spinner"></span> Loading available equipment…</div>';
+    $('equipModal').classList.add('open');
+    try{
+      const equipSnap=await getDocs(collection(db,'equipment'));
+      const assignSnap=await getDocs(collection(db,'equipmentAssignments'));
+      const assignments=assignSnap.docs.map(d=>d.data());
+      if(equipSnap.empty){
+        $('equipList').innerHTML='<div class="equip-loading" style="color:var(--rose)">No equipment registered. Ask admin to add equipment.</div>';
+        return;
+      }
+      let html='';
+      equipSnap.docs.forEach(edoc=>{
+        const e={id:edoc.id,...edoc.data()};
+        // ── Use admin's exact field names: workingFrom, workingTo ──
+        const from=e.workingFrom||'08:00';
+        const to  =e.workingTo  ||'17:00';
+        const allSlots  =generateTimeSlots(from,to,60);
+        const takenSlots=assignments.filter(a=>a.equipmentId===e.id).map(a=>a.slot);
+        const freeSlots =allSlots.filter(s=>!takenSlots.includes(s));
+        const eName =e.name||'Equipment';
+        const roomTxt=e.room?` · Room ${e.room}`:'';
+        const opTxt  =e.operator?` · Operated by ${e.operator}`:'';
+        if(freeSlots.length===0){
+          html+=`<div class="equip-item disabled-equip">
+            <div><div class="equip-name">${eName}</div>
+            <div class="equip-meta slot-busy">No free slots available${roomTxt}${opTxt}</div></div>
+            <div class="equip-check"></div></div>`;
+        } else {
+          const next=freeSlots[0];
+          html+=`<div class="equip-item" id="ei-${e.id}" onclick="selectEquip('${e.id}','${next}')">
+            <div><div class="equip-name">${eName}</div>
+            <div class="equip-meta slot-free">Next free: ${fmtTime(next)} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}${opTxt}</div></div>
+            <div class="equip-check" id="ec-${e.id}">✓</div></div>`;
+        }
+      });
+      $('equipList').innerHTML=html;
+    }catch(e){
+      $('equipList').innerHTML=`<div class="equip-loading" style="color:var(--rose)">Error: ${e.message}</div>`;
     }
-    btn.disabled = false; btn.textContent = 'Update Password';
+  };
+
+  window.selectEquip=function(equipId,slot){
+    document.querySelectorAll('.equip-item:not(.disabled-equip)').forEach(el=>el.classList.remove('selected'));
+    document.querySelectorAll('[id^="ec-"]').forEach(el=>{ el.style.background='transparent'; el.style.color=''; });
+    selectedEquipId=equipId; selectedSlot=slot;
+    const item=$('ei-'+equipId), chk=$('ec-'+equipId);
+    if(item) item.classList.add('selected');
+    if(chk){ chk.style.background='var(--accent)'; chk.style.color='#07111F'; }
+    $('equipConfirmBtn').disabled=false;
+  };
+
+  window.confirmEquipAssign=async function(){
+    if(!activeAppt||!selectedEquipId||!selectedSlot) return;
+    const btn=$('equipConfirmBtn');
+    btn.disabled=true; btn.textContent='Assigning…';
+    try{
+      const eDoc=await getDoc(doc(db,'equipment',selectedEquipId));
+      // Admin's field name is `name`
+      const eName=eDoc.exists()?(eDoc.data().name||'Equipment'):'Equipment';
+      await addDoc(collection(db,'equipmentAssignments'),{
+        equipmentId:   selectedEquipId,
+        equipmentName: eName,
+        appointmentId: activeAppt.id,
+        patientName:   activeAppt.patientName||activeAppt.name,
+        doctorName:    currentDoctor.name,
+        slot:          selectedSlot,
+        assignedAt:    serverTimestamp()
+      });
+      await updateDoc(doc(db,'appointments',activeAppt.id),{
+        equipmentAssigned: eName,
+        equipmentSlot:     selectedSlot,
+        equipmentId:       selectedEquipId,
+        updatedAt:         serverTimestamp()
+      });
+      closeModal('equipModal');
+      showToast('Test Assigned',`${eName} booked at ${fmtTime(selectedSlot)} for ${activeAppt.patientName||activeAppt.name}`,'ok');
+    }catch(e){ showToast('Assignment Failed',e.message,'err'); }
+    btn.disabled=false; btn.textContent='Assign Test →';
+  };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // HOSPITALISE MODAL
+  //
+  // Admin `beds` fields:  room, bedNumber, floor, status, patientName, nurseAssigned
+  //   status values: 'Available'  /  'Occupied'
+  //
+  // Admin `nurses` fields: name, shift, phone
+  //   shift values: "Shift 1 (Morning)"  /  "Shift 2 (Night)"
+  //
+  // On confirm → update bed with admin's exact field names so Room View shows info
+  // ══════════════════════════════════════════════════════════════════════════
+  window.openHospModal=async function(apptId){
+    activeAppt=allAppointments.find(a=>a.id===apptId);
+    hospResources=null;
+    if(!activeAppt) return;
+    $('hospPatientInfo').innerHTML=`
+      <strong>${activeAppt.patientName||activeAppt.name||'Patient'}</strong>
+      <div class="sym">Symptom: <span style="color:var(--accent)">${activeAppt.symptom||activeAppt.symptoms||'—'}</span></div>`;
+    $('hospConfirmBtn').disabled=true;
+    $('hospResourceInfo').innerHTML='<div class="equip-loading"><span class="spinner"></span> Checking available beds &amp; nurses…</div>';
+    $('hospModal').classList.add('open');
+    try{
+      // ── Find first available bed ──────────────────────────────────────────
+      // Admin sets status = 'Available' (capital A)
+      const bedSnap=await getDocs(collection(db,'beds'));
+      const beds=bedSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const freeBed=beds.find(b=>(b.status||'Available')==='Available')||null;
+
+      // ── Find free nurses separated by shift ───────────────────────────────
+      // Active hospitalisations tell us which nurses are already occupied
+      const hospSnap=await getDocs(query(collection(db,'hospitalisations'),where('discharged','==',false)));
+      const busyNurseIds=new Set(
+        hospSnap.docs.flatMap(d=>[d.data().morningNurseId,d.data().nightNurseId]).filter(Boolean)
+      );
+      const nurseSnap=await getDocs(collection(db,'nurses'));
+      const nurses=nurseSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+      // Match admin shift strings: "Shift 1 (Morning)" / "Shift 2 (Night)"
+      const mNurse=nurses.find(n=>isMorningNurse(n.shift)&&!busyNurseIds.has(n.id))||null;
+      const nNurse=nurses.find(n=>isNightNurse(n.shift)  &&!busyNurseIds.has(n.id))||null;
+
+      hospResources={freeBed,mNurse,nNurse};
+
+      const bedLabel=freeBed?`Room ${freeBed.room} · Bed ${freeBed.bedNumber} (${freeBed.floor||''})`  :null;
+      const mLabel  =mNurse ?(mNurse.name||'—')+` — ${mNurse.shift}`                                   :null;
+      const nLabel  =nNurse ?(nNurse.name||'—')+` — ${nNurse.shift}`                                   :null;
+
+      $('hospResourceInfo').innerHTML=`
+        <div class="resource-row">
+          <div class="resource-label">🛏 Free Bed</div>
+          <div class="resource-val ${freeBed?'':'unavail'}">${bedLabel||'No beds available'}</div>
+        </div>
+        <div class="resource-row">
+          <div class="resource-label">🌅 Morning Shift Nurse</div>
+          <div class="resource-val ${mNurse?'':'unavail'}">${mLabel||'None available'}</div>
+        </div>
+        <div class="resource-row">
+          <div class="resource-label">🌙 Night Shift Nurse</div>
+          <div class="resource-val ${nNurse?'':'unavail'}">${nLabel||'None available'}</div>
+        </div>
+        ${!freeBed?'<div style="margin-top:.75rem;font-size:.78rem;color:var(--rose);text-align:center">⚠ No free beds available. Admission cannot proceed.</div>':''}
+        ${freeBed&&(!mNurse||!nNurse)?'<div style="margin-top:.75rem;font-size:.78rem;color:var(--accent);text-align:center">⚠ One shift has no available nurse — will admit with available staff.</div>':''}`;
+      $('hospConfirmBtn').disabled=!freeBed;
+    }catch(e){
+      $('hospResourceInfo').innerHTML=`<div class="equip-loading" style="color:var(--rose)">Error: ${e.message}</div>`;
+    }
+  };
+
+  window.confirmHospitalise=async function(){
+    if(!activeAppt||!hospResources) return;
+    const btn=$('hospConfirmBtn');
+    btn.disabled=true; btn.textContent='Admitting…';
+    const {freeBed,mNurse,nNurse}=hospResources;
+    try{
+      const patName  =activeAppt.patientName||activeAppt.name||'—';
+      const bedId    =freeBed.id;
+      // Human-readable label stored on appointment
+      const bedLabel =`Room ${freeBed.room} · Bed ${freeBed.bedNumber}`;
+      // Admin's field names for nurses: name
+      const mName    =mNurse?(mNurse.name||'—'):'—';
+      const nName    =nNurse?(nNurse.name||'—'):'—';
+      const mId      =mNurse?mNurse.id:null;
+      const nId      =nNurse?nNurse.id:null;
+
+      // Create hospitalisation record
+      await addDoc(collection(db,'hospitalisations'),{
+        appointmentId: activeAppt.id,
+        patientName:   patName,
+        doctorName:    currentDoctor.name,
+        bedId,
+        bedRoom:       freeBed.room,
+        bedNumber:     freeBed.bedNumber,
+        floor:         freeBed.floor||'',
+        morningNurseId:mId,
+        morningNurse:  mName,
+        nightNurseId:  nId,
+        nightNurse:    nName,
+        admittedAt:    serverTimestamp(),
+        discharged:    false
+      });
+
+      // Update appointment
+      await updateDoc(doc(db,'appointments',activeAppt.id),{
+        hospitalised:  true,
+        bedAssigned:   bedLabel,
+        morningNurse:  mName,
+        nightNurse:    nName,
+        status:        'Hospitalised',
+        updatedAt:     serverTimestamp()
+      });
+
+      // ── Update bed using ADMIN's exact field names ─────────────────────
+      // Admin reads: status, patientName, nurseAssigned
+      // Admin toggles between 'Available' and 'Occupied'
+      const nurseAssigned=[mName,nName].filter(n=>n&&n!=='—').join(', ');
+      if(bedId){
+        await updateDoc(doc(db,'beds',bedId),{
+          status:        'Occupied',      // admin's status value
+          patientName:   patName,         // admin's field: patientName
+          nurseAssigned: nurseAssigned    // admin's field: nurseAssigned
+        });
+      }
+
+      closeModal('hospModal');
+      showToast('Patient Admitted',`${bedLabel} · 🌅 ${mName} · 🌙 ${nName}`,'info',6000);
+    }catch(e){ showToast('Admission Failed',e.message,'err'); }
+    btn.disabled=false; btn.textContent='Confirm Admission →';
+  };
+
+  // ── Change password ───────────────────────────────────────────────────────
+  $('passBtn').addEventListener('click',async()=>{
+    const curr=$('currPass').value,nw=$('newPass').value,conf=$('confirmPass').value;
+    const btn=$('passBtn');
+    $('passErr').style.display='none';
+    if(!curr||!nw||!conf){ showPassErr('Please fill in all fields.'); return; }
+    if(nw.length<8){ showPassErr('New password must be at least 8 characters.'); return; }
+    if(nw!==conf){ showPassErr('Passwords do not match.'); return; }
+    if(curr!==currentDoctor.password){ showPassErr('Current password is incorrect.'); return; }
+    btn.disabled=true; btn.textContent='Updating…';
+    try{
+      await updateDoc(doc(db,'doctors',currentDoctor.id),{password:nw});
+      currentDoctor.password=nw;
+      $('currPass').value=''; $('newPass').value=''; $('confirmPass').value='';
+      showAlert('passOk');
+    }catch(e){ showPassErr('Failed: '+e.message); }
+    btn.disabled=false; btn.textContent='Update Password';
   });
 
+  // Close modals on overlay click
+  ['equipModal','hospModal'].forEach(id=>{
+    $(id).addEventListener('click',e=>{ if(e.target===$(id)) closeModal(id); });
+  });
 </script>
 </body>
 </html>
