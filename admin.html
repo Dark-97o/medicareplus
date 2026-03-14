@@ -6,11 +6,17 @@
   <title>Admin Panel | MediCare+</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    :root{
-      --mint:#00C6A7;--deep:#0A1628;--navy:#112240;--slate:#1E3A5F;
-      --accent:#FFD166;--rose:#FF6B9D;--border:rgba(0,198,167,.25);
-      --glass:rgba(255,255,255,.04);--glass2:rgba(255,255,255,.07);
-    }
+    :root {
+        --mint: #ff7a00;          /* neon orange */
+        --deep: #050505;          /* dark black background */
+        --navy: #041833;          /* dark neon blue */
+        --slate: #07224a;         /* deeper blue panel */
+        --accent: #ff9a1f;        /* glowing orange accent */
+        --rose: #ff4d4d;          /* alert red */
+        --light: #0f1720;         /* dark UI highlight */
+        --glass: rgba(4, 24, 51, 0.55);
+        --border: rgba(255, 122, 0, 0.35); /* neon orange border */
+        }
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:var(--deep);color:#e8f4f8;font-family:'DM Sans',sans-serif;min-height:100vh;}
 
@@ -159,7 +165,6 @@
     .floor-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#f0f8ff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
     .beds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem;}
 
-    /* available = green, occupied = red */
     .bed-tile{border-radius:14px;padding:1.1rem 1.25rem;border:1px solid;transition:all .3s;}
     .bed-tile.available{background:rgba(0,198,167,.08);border-color:rgba(0,198,167,.35);}
     .bed-tile.occupied {background:rgba(255,107,157,.10);border-color:rgba(255,107,157,.45);}
@@ -167,7 +172,6 @@
     .bed-tile-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;}
     .bed-id{font-weight:700;font-size:.95rem;color:#f0f8ff;}
 
-    /* pulsing dot */
     .bed-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
     .bed-dot.green{background:var(--mint);box-shadow:0 0 0 0 rgba(0,198,167,.5);animation:pulseGreen 2s infinite;}
     .bed-dot.red  {background:var(--rose);box-shadow:0 0 0 0 rgba(255,107,157,.5);animation:pulseRed   2s infinite;}
@@ -184,7 +188,6 @@
     .bed-info .bi-val{color:#aac8e0;}
     .bed-info .bi-val.highlight{color:#f0f8ff;font-weight:500;}
 
-    /* live badge on room view header */
     .live-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);border-radius:50px;padding:.2rem .7rem;font-size:.72rem;color:var(--mint);margin-left:.75rem;}
     .live-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);animation:pulseGreen 1.5s infinite;}
 
@@ -197,21 +200,89 @@
     .ts-day-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mint);
       font-weight:600;margin:.75rem 0 .45rem;}
     .ts-slots{display:flex;flex-direction:column;gap:.45rem;}
-    .ts-slot{display:grid;grid-template-columns:80px 1fr 1fr auto;align-items:center;gap:1rem;
-      background:rgba(255,255,255,.03);border:1px solid rgba(0,198,167,.12);
-      border-radius:10px;padding:.55rem .9rem;font-size:.82rem;}
+
+    /* ── UPDATED: wider slot grid to include result columns ── */
+    .ts-slot{
+      display:grid;
+      grid-template-columns: 80px 1fr 1fr 110px 1fr auto;
+      align-items:start;
+      gap:1rem;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(0,198,167,.12);
+      border-radius:10px;
+      padding:.6rem .9rem;
+      font-size:.82rem;
+      transition:border-color .25s, background .25s;
+    }
+    .ts-slot.ts-completed{
+      background:rgba(0,198,167,.05);
+      border-color:rgba(0,198,167,.28);
+    }
+    .ts-slot.ts-pending{
+      background:rgba(255,209,102,.04);
+      border-color:rgba(255,209,102,.18);
+    }
+    .ts-slot.ts-failed{
+      background:rgba(255,107,157,.05);
+      border-color:rgba(255,107,157,.25);
+    }
+
     .ts-time{color:var(--mint);font-weight:600;font-family:'Playfair Display',serif;font-size:.95rem;}
     .ts-patient{color:#f0f8ff;font-weight:500;}
     .ts-doctor{color:#7da8c4;}
+
+    /* status badge */
+    .ts-status-badge{
+      display:inline-flex;align-items:center;gap:.35rem;
+      border-radius:50px;padding:.2rem .7rem;font-size:.72rem;font-weight:700;
+      letter-spacing:.04em;white-space:nowrap;
+    }
+    .ts-status-scheduled {background:rgba(0,198,167,.12);color:var(--mint);border:1px solid rgba(0,198,167,.25);}
+    .ts-status-completed {background:rgba(0,198,167,.2); color:#00ffdd;border:1px solid rgba(0,255,221,.3);}
+    .ts-status-pending   {background:rgba(255,209,102,.15);color:var(--accent);border:1px solid rgba(255,209,102,.3);}
+    .ts-status-failed    {background:rgba(255,107,157,.15);color:var(--rose);  border:1px solid rgba(255,107,157,.3);}
+    .ts-status-inprogress{background:rgba(100,180,255,.15);color:#80cfff;      border:1px solid rgba(100,180,255,.3);}
+
+    /* result block */
+    .ts-result-block{
+      display:flex;flex-direction:column;gap:.2rem;
+    }
+    .ts-result-label{
+      font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:#4a6a84;font-weight:600;
+    }
+    .ts-result-value{
+      font-size:.82rem;color:#c0e8d0;line-height:1.4;
+      background:rgba(0,198,167,.06);
+      border:1px solid rgba(0,198,167,.15);
+      border-radius:7px;padding:.3rem .6rem;
+      word-break:break-word;
+    }
+    .ts-result-value.no-result{
+      color:#4a6a84;background:transparent;border-color:transparent;padding:0;font-style:italic;
+    }
+
     .ts-badge{background:rgba(0,198,167,.12);border:1px solid rgba(0,198,167,.25);
       color:var(--mint);border-radius:50px;padding:.15rem .6rem;font-size:.72rem;white-space:nowrap;}
     .ts-empty{color:#4a6a84;font-size:.82rem;font-style:italic;padding:.5rem .9rem;}
+
+    /* summary pills on machine header */
+    .ts-stat-pill{
+      display:inline-flex;align-items:center;gap:.3rem;
+      border-radius:50px;padding:.18rem .6rem;font-size:.71rem;font-weight:600;
+    }
+    .ts-pill-done{background:rgba(0,255,221,.1);color:#00ffdd;border:1px solid rgba(0,255,221,.2);}
+    .ts-pill-pending{background:rgba(255,209,102,.1);color:var(--accent);border:1px solid rgba(255,209,102,.2);}
+    .ts-pill-total{background:rgba(0,198,167,.1);color:var(--mint);border:1px solid var(--border);}
 
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
       .sidebar{display:none;}
       .stats-row{grid-template-columns:repeat(2,1fr);}
       .form-grid{grid-template-columns:1fr;}
+      .ts-slot{grid-template-columns:70px 1fr 1fr;row-gap:.5rem;}
+      .ts-slot > .ts-status-badge,
+      .ts-slot > .ts-result-block,
+      .ts-slot > :last-child{grid-column:1/-1;}
     }
   </style>
 </head>
@@ -528,7 +599,7 @@
         </div>
       </div>
 
-      <!-- VIEW ROOMS (tile view) — LIVE via onSnapshot -->
+      <!-- VIEW ROOMS (tile view) -->
       <div class="page" id="page-viewRooms">
         <div class="page-header">
           <h2>Room View <span class="live-badge"><span class="live-dot"></span>Live</span></h2>
@@ -541,7 +612,7 @@
       <div class="page" id="page-testSchedule">
         <div class="page-header">
           <h2>Test Schedule <span class="live-badge"><span class="live-dot"></span>Live</span></h2>
-          <p>All equipment-based tests assigned by doctors — grouped by machine and date</p>
+          <p>All equipment-based tests assigned by doctors — includes live status and results after completion</p>
         </div>
         <div id="testScheduleWrap">
           <div class="empty" style="padding:3rem;text-align:center;color:#4a6a84">
@@ -646,15 +717,12 @@
   $('logoutBtn').addEventListener('click',()=>signOut(auth));
 
   // ══════════════════════════════════════════════════════════════════════════
-  // LIVE LISTENERS — all use onSnapshot so every change from doctor portal
-  // is reflected instantly without any refresh
+  // LIVE LISTENERS
   // ══════════════════════════════════════════════════════════════════════════
   function startLiveListeners(){
-    // Stats counters
     [['doctors','statDoctors'],['nurses','statNurses'],['equipment','statEquip']]
       .forEach(([col,id])=>onSnapshot(collection(db,col),snap=>{ $(id).textContent=snap.size; }));
 
-    // Beds — single listener feeds: stat counters + table + room view
     onSnapshot(collection(db,'beds'),snap=>{
       const beds=snap.docs.map(d=>({id:d.id,...d.data()}));
       const total=beds.length;
@@ -683,10 +751,21 @@
     });
   }
 
+  // ── TEST SCHEDULE (with testStatus + testResult) ──────────────────────────
   function loadTestSchedule(){
-    // Listen to both collections simultaneously so the view updates when either changes
     let assignments=[];
-    let equipmentMap={}; // id -> data
+    let equipmentMap={};
+
+    // ── Helper: map a raw testStatus string → CSS class suffix + display label + icon
+    function resolveStatus(raw){
+      if(!raw) return {cls:'scheduled', label:'Scheduled', icon:'🗓'};
+      const r = raw.toLowerCase().trim();
+      if(r==='completed')   return {cls:'completed',   label:'Completed',    icon:'✅'};
+      if(r==='failed')      return {cls:'failed',      label:'Failed',       icon:'❌'};
+      if(r==='in progress'||r==='inprogress') return {cls:'inprogress', label:'In Progress', icon:'⏳'};
+      if(r==='pending')     return {cls:'pending',     label:'Pending',      icon:'🕐'};
+      return {cls:'scheduled', label: raw, icon:'🗓'};
+    }
 
     function render(){
       const wrap=$('testScheduleWrap'); if(!wrap) return;
@@ -695,7 +774,7 @@
         return;
       }
 
-      // Group assignments: equipmentId -> date -> sorted slots
+      // Group: equipmentId → date → slots
       const grouped={};
       assignments.forEach(a=>{
         const eid  = a.equipmentId||'unknown';
@@ -714,58 +793,90 @@
       Object.entries(grouped)
         .sort(([a],[b])=>(equipmentMap[a]?.name||a).localeCompare(equipmentMap[b]?.name||b))
         .forEach(([eid, byDate])=>{
-          const eq      = equipmentMap[eid]||{};
-          const eqName  = eq.name  ||'Unknown Equipment';
-          const eqRoom  = eq.room  ?`Room ${eq.room}`:'';
-          const eqOp    = eq.operator||'';
-          const metaParts=[eqRoom,eqOp].filter(Boolean).join(' · ');
-          const totalSlots=Object.values(byDate).reduce((s,arr)=>s+arr.length,0);
+          const eq       = equipmentMap[eid]||{};
+          const eqName   = eq.name     ||'Unknown Equipment';
+          const eqRoom   = eq.room     ?`Room ${eq.room}`:'';
+          const eqOp     = eq.operator ||'';
+          const metaParts= [eqRoom,eqOp].filter(Boolean).join(' · ');
+
+          const allSlots   = Object.values(byDate).flat();
+          const totalSlots = allSlots.length;
+          const doneCount  = allSlots.filter(s=>(s.testStatus||'').toLowerCase()==='completed').length;
+          const pendCount  = allSlots.filter(s=>{ const st=(s.testStatus||'').toLowerCase(); return !st||st==='scheduled'||st==='pending'; }).length;
 
           html+=`<div class="ts-machine card">
             <div class="ts-machine-header">
               <div class="ts-machine-name">🔬 ${eqName}
-                <span class="ts-badge">${totalSlots} test${totalSlots>1?'s':''} booked</span>
+                <span class="ts-stat-pill ts-pill-total">${totalSlots} test${totalSlots>1?'s':''}</span>
+                ${doneCount>0?`<span class="ts-stat-pill ts-pill-done">✅ ${doneCount} done</span>`:''}
+                ${pendCount>0?`<span class="ts-stat-pill ts-pill-pending">🕐 ${pendCount} pending</span>`:''}
               </div>
               <div class="ts-machine-meta">${metaParts}</div>
             </div>`;
 
-          // Sort dates ascending
           Object.entries(byDate)
             .sort(([a],[b])=>a.localeCompare(b))
             .forEach(([date,slots])=>{
               const dateLabel = date!=='Unknown Date'
                 ? new Date(date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})
                 : 'Date Unknown';
+
               html+=`<div class="ts-day-label">📅 ${dateLabel}</div><div class="ts-slots">`;
+
               slots.forEach(s=>{
-                const timeLabel=s.slot?formatTime(s.slot):'—';
-                html+=`<div class="ts-slot">
+                const timeLabel = s.slot ? formatTime(s.slot) : '—';
+                const {cls, label, icon} = resolveStatus(s.testStatus);
+
+                // Result block — shown regardless of status; renders placeholder if not yet available
+                const hasResult = s.testResult && s.testResult.toString().trim()!=='';
+                const resultHtml = hasResult
+                  ? `<div class="ts-result-block">
+                       <span class="ts-result-label">📋 Result</span>
+                       <span class="ts-result-value">${escapeHtml(s.testResult)}</span>
+                     </div>`
+                  : `<div class="ts-result-block">
+                       <span class="ts-result-label">📋 Result</span>
+                       <span class="ts-result-value no-result">Not yet recorded</span>
+                     </div>`;
+
+                html+=`<div class="ts-slot ts-${cls}">
                   <span class="ts-time">${timeLabel}</span>
-                  <span class="ts-patient">🧑 ${s.patientName||'—'}</span>
-                  <span class="ts-doctor">👨‍⚕️ ${s.doctorName||'—'}</span>
-                  <span class="ts-badge">Scheduled</span>
+                  <span class="ts-patient">🧑 ${escapeHtml(s.patientName||'—')}</span>
+                  <span class="ts-doctor">👨‍⚕️ ${escapeHtml(s.doctorName||'—')}</span>
+                  <span class="ts-status-badge ts-status-${cls}">${icon} ${label}</span>
+                  ${resultHtml}
+                  <span></span>
                 </div>`;
               });
+
               html+=`</div>`;
             });
+
           html+=`</div>`;
         });
 
       wrap.innerHTML=html;
     }
 
-    // Live listener on equipmentAssignments
     onSnapshot(collection(db,'equipmentAssignments'),snap=>{
       assignments=snap.docs.map(d=>({id:d.id,...d.data()}));
       render();
     });
 
-    // Live listener on equipment (to get names/rooms)
     onSnapshot(collection(db,'equipment'),snap=>{
       equipmentMap={};
       snap.docs.forEach(d=>{ equipmentMap[d.id]=d.data(); });
       render();
     });
+  }
+
+  // simple XSS guard for user-supplied content displayed as HTML
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
   }
 
   function loadRecentAppointments(){
@@ -790,7 +901,7 @@
     });
   }
 
-  // ── BEDS TABLE (View Beds page) ───────────────────────────────────────────
+  // ── BEDS TABLE ────────────────────────────────────────────────────────────
   function renderBedsTable(beds){
     const tbody=$('bedsTable'); if(!tbody) return;
     if(!beds.length){ tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;color:#4a6a84">No beds registered.</td></tr>`; return; }
@@ -822,12 +933,11 @@
       }).join('');
   }
 
-  // ── ROOM VIEW (tile grid) — driven by same beds snapshot ─────────────────
+  // ── ROOM VIEW ─────────────────────────────────────────────────────────────
   function renderRoomView(beds){
     const container=$('roomFloors'); if(!container) return;
     if(!beds.length){ container.innerHTML='<div class="empty">No beds registered yet.</div>'; return; }
 
-    // Group by floor
     const floors={};
     beds.forEach(b=>{
       const f=b.floor||'Unassigned';
@@ -848,7 +958,6 @@
             const dotClass =isAvail?'green':'red';
             const chipClass=isAvail?'chip-available':'chip-occupied';
             const chipText =isAvail?'AVAILABLE':'OCCUPIED';
-            // Patient & nurse info — only shown when occupied
             const patRow  =!isAvail&&b.patientName ?`<div class="bi-row"><span class="bi-label">Patient</span><span class="bi-val highlight">${b.patientName}</span></div>`:'' ;
             const nurseRow=!isAvail&&b.nurseAssigned?`<div class="bi-row"><span class="bi-label">Nurses</span><span class="bi-val">${b.nurseAssigned}</span></div>`:'';
             const floorRow=`<div class="bi-row"><span class="bi-label">Floor</span><span class="bi-val">${b.floor||'—'}</span></div>`;
@@ -875,7 +984,7 @@
       }).join('');
   }
 
-  // ── Row renderers (table pages) ───────────────────────────────────────────
+  // ── Row renderers ─────────────────────────────────────────────────────────
   function renderDoctorRow(id,d){
     const symCount=Array.isArray(d.symptoms)?d.symptoms.length:0;
     const symBadge=symCount>0
@@ -909,10 +1018,9 @@
     </tr>`;
   }
 
-  // ── Bed status toggle (manual override by admin) ──────────────────────────
+  // ── Bed status toggle ─────────────────────────────────────────────────────
   window.toggleBedStatus=async function(id,newStatus){
     const updates={status:newStatus};
-    // When manually marking available, clear patient/nurse fields
     if(newStatus==='Available'){ updates.patientName=''; updates.nurseAssigned=''; }
     await updateDoc(doc(db,'beds',id),updates);
   };
@@ -969,27 +1077,21 @@
           contact=v('equipContact'),room=v('equipRoom'),from=v('equipFrom'),to=v('equipTo');
     if(!name){ showErr('equipError','Equipment name is required.'); return; }
     if(!from||!to){ showErr('equipError','Please select working hours.'); return; }
-
-    // Generate login credentials for the Tests Portal
-    // Email format: mri.machine@medicare, ct.scan@medicare, etc.
     const emailSlug = name.toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');
     const generatedEmail = `${emailSlug}@medicare`;
     const tempPassword   = generatePassword();
-
     const btn=$('equipSubmitBtn'); btn.disabled=true; btn.textContent='Registering…';
     try{
-      // Store as workingFrom / workingTo — matches doctor portal and tests portal exactly
       await addDoc(collection(db,'equipment'),{
         name, serial, operator, contact, room,
         workingFrom: from, workingTo: to,
-        email:    generatedEmail,   // used by Tests Portal to log in
-        password: tempPassword,     // used by Tests Portal to authenticate
+        email:    generatedEmail,
+        password: tempPassword,
         role:     'equipment',
         createdAt: serverTimestamp()
       });
       clearFields(['equipName','equipSerial','equipOperator','equipContact','equipRoom']);
       $('equipFrom').value=''; $('equipTo').value='';
-      // Show credential modal
       $('equipCredEmail').textContent    = generatedEmail;
       $('equipCredPassword').textContent = tempPassword;
       $('equipCredModal').classList.add('open');
@@ -1005,9 +1107,9 @@
     try{
       await addDoc(collection(db,'beds'),{
         room, bedNumber, floor,
-        status:'Available',   // doctor portal reads this exact value
-        patientName:'',       // doctor portal writes to this field
-        nurseAssigned:'',     // doctor portal writes to this field
+        status:'Available',
+        patientName:'',
+        nurseAssigned:'',
         createdAt:serverTimestamp()
       });
       clearFields(['bedRoom','bedNum']); $('bedFloor').value='';

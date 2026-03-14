@@ -4,247 +4,442 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Doctor Portal | MediCare+</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
-    :root{
-      --teal:#00C6A7;--deep:#07111F;--card:#0D1E30;--navy:#112640;
-      --accent:#F4C542;--rose:#FF6B8A;--lavender:#A78BFA;--emerald:#34D399;
-      --border:rgba(0,198,167,.2);--text:#D8EEF8;--muted:#6A93B0;
+    :root {
+      --orange:  #ff6a00;
+      --orange2: #ff8c2a;
+      --orange3: #ffb347;
+      --black:   #060606;
+      --black2:  #0d0d0d;
+      --black3:  #131313;
+      --card:    #0f0f0f;
+      --border:  rgba(255,106,0,0.18);
+      --border2: rgba(255,106,0,0.4);
+      --text:    #f0e6d8;
+      --muted:   #7a6555;
+      --green:   #34d399;
+      --rose:    #ff5e7a;
+      --lavender:#a78bfa;
+      --amber:   #f4c542;
     }
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:var(--deep);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--black);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-    .bg-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;}
-    .bg-grid{position:absolute;inset:0;
-      background-image:linear-gradient(rgba(0,198,167,.03) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(0,198,167,.03) 1px,transparent 1px);
-      background-size:56px 56px;}
-    .bg-orb1{position:absolute;width:700px;height:700px;border-radius:50%;
-      background:radial-gradient(circle,rgba(0,198,167,.06) 0%,transparent 65%);top:-250px;right:-200px;}
-    .bg-orb2{position:absolute;width:500px;height:500px;border-radius:50%;
-      background:radial-gradient(circle,rgba(167,139,250,.05) 0%,transparent 65%);bottom:-150px;left:-150px;}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      background-size:200px;opacity:.5;
+    }
+    .orb{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+    .orb1{width:600px;height:600px;top:-200px;right:-150px;background:radial-gradient(circle,rgba(255,106,0,0.1) 0%,transparent 70%);}
+    .orb2{width:450px;height:450px;bottom:-150px;left:-100px;background:radial-gradient(circle,rgba(255,106,0,0.06) 0%,transparent 70%);}
 
-    /* LOGIN */
-    #loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--deep);}
-    .login-wrap{position:relative;z-index:5;width:100%;max-width:440px;padding:2.5rem;
-      background:rgba(13,30,48,.95);border:1px solid var(--border);border-radius:28px;
-      box-shadow:0 40px 100px rgba(0,0,0,.6);backdrop-filter:blur(20px);}
-    .login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--teal);text-align:center;line-height:1;}
-    .login-logo span{color:var(--accent);}
-    .login-role{text-align:center;margin:.4rem 0 2rem;font-size:.82rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:.5rem;}
-    .role-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block;}
-    .f-group{margin-bottom:1.1rem;}
-    .f-group label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.45rem;font-weight:500;}
-    .f-group input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;padding:.75rem 1rem;color:var(--text);font-size:.92rem;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;}
-    .f-group input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,198,167,.1);}
-    .btn-primary{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--teal),#00a88e);border:none;border-radius:12px;color:#07111F;font-weight:700;font-size:.95rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s,box-shadow .2s;margin-top:.5rem;}
-    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(0,198,167,.35);}
-    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-    .login-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);border-radius:9px;padding:.6rem .9rem;color:var(--rose);font-size:.82rem;margin-top:.9rem;display:none;text-align:center;}
-    .login-loading{text-align:center;color:var(--muted);font-size:.83rem;margin-top:.75rem;display:none;}
-    .change-pass-link{text-align:center;margin-top:1rem;font-size:.8rem;color:var(--muted);}
-    .change-pass-link a{color:var(--teal);cursor:pointer;text-decoration:none;}
+    /* ── LOGIN ── */
+    #loginScreen{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--black);}
+    .login-box{
+      position:relative;z-index:5;width:100%;max-width:420px;
+      background:var(--black2);
+      border:1px solid var(--border2);
+      border-radius:4px;
+      padding:2.5rem;
+      box-shadow:0 40px 100px rgba(0,0,0,.8), 0 0 60px rgba(255,106,0,0.08);
+    }
+    .login-logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--text);text-align:center;}
+    .login-logo span{color:var(--orange);}
+    .login-role{
+      text-align:center;margin:.5rem 0 2rem;
+      font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+      color:var(--muted);display:flex;align-items:center;justify-content:center;gap:.5rem;
+    }
+    .role-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);box-shadow:0 0 8px var(--orange);}
+    .f-group{margin-bottom:1rem;}
+    .f-group label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem;font-weight:500;}
+    .f-group input{
+      width:100%;background:rgba(255,255,255,0.04);
+      border:1px solid var(--border);border-radius:6px;
+      padding:.7rem .9rem;color:var(--text);font-size:.9rem;font-family:'Outfit',sans-serif;outline:none;
+      transition:border-color .2s;
+    }
+    .f-group input:focus{border-color:var(--orange);}
+    .btn-login{
+      width:100%;padding:.85rem;
+      background:var(--orange);border:none;border-radius:6px;
+      color:#000;font-weight:700;font-size:.9rem;font-family:'Outfit',sans-serif;
+      cursor:pointer;transition:all .2s;margin-top:.5rem;
+    }
+    .btn-login:hover{background:var(--orange2);box-shadow:0 0 30px rgba(255,106,0,0.4);}
+    .btn-login:disabled{opacity:.5;cursor:not-allowed;}
+    .login-err{background:rgba(255,94,122,.08);border:1px solid rgba(255,94,122,.3);border-radius:6px;padding:.6rem .9rem;color:var(--rose);font-size:.8rem;margin-top:.75rem;display:none;text-align:center;}
+    .login-loading{text-align:center;color:var(--muted);font-size:.8rem;margin-top:.6rem;display:none;}
+    .change-link{text-align:center;margin-top:1rem;font-size:.78rem;color:var(--muted);}
+    .change-link a{color:var(--orange);cursor:pointer;}
 
-    /* APP */
+    /* ── NAV ── */
     #appShell{display:none;}
-    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;background:rgba(7,17,31,.8);border-bottom:1px solid var(--border);backdrop-filter:blur(16px);}
-    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--teal);}
-    .nav-logo span{color:var(--accent);}
-    .nav-center{display:flex;gap:.25rem;}
-    .nav-tab{padding:.45rem 1.1rem;border-radius:50px;font-size:.83rem;cursor:pointer;color:var(--muted);background:transparent;border:1px solid transparent;transition:all .2s;font-family:'Outfit',sans-serif;}
-    .nav-tab:hover{color:var(--text);background:rgba(255,255,255,.05);}
-    .nav-tab.active{color:var(--teal);background:rgba(0,198,167,.1);border-color:var(--border);}
+    nav{
+      position:sticky;top:0;z-index:50;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1rem 3rem;
+      background:rgba(6,6,6,0.9);
+      border-bottom:1px solid var(--border);
+      backdrop-filter:blur(20px);
+    }
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--text);}
+    .nav-logo span{color:var(--orange);}
+    .nav-tabs{display:flex;gap:.25rem;}
+    .nav-tab{
+      padding:.45rem 1.1rem;border-radius:6px;
+      font-size:.82rem;cursor:pointer;color:var(--muted);
+      background:transparent;border:1px solid transparent;
+      transition:all .2s;font-family:'Outfit',sans-serif;
+    }
+    .nav-tab:hover{color:var(--text);background:rgba(255,255,255,.04);}
+    .nav-tab.active{color:var(--orange);background:rgba(255,106,0,.08);border-color:var(--border);}
     .nav-right{display:flex;align-items:center;gap:.75rem;}
-    .doc-chip{display:flex;align-items:center;gap:.5rem;background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:50px;padding:.35rem .85rem;font-size:.78rem;color:var(--teal);}
-    .doc-chip .avatar{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#00a88e);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#07111F;font-weight:700;}
-    .btn-signout{padding:.4rem 1rem;border:1px solid var(--border);border-radius:50px;background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .doc-chip{
+      display:flex;align-items:center;gap:.5rem;
+      background:rgba(255,106,0,.08);border:1px solid var(--border);
+      border-radius:4px;padding:.35rem .85rem;font-size:.78rem;color:var(--orange);
+    }
+    .avatar-sm{width:22px;height:22px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#000;font-weight:700;}
+    .btn-signout{
+      padding:.4rem 1rem;border:1px solid var(--border);border-radius:4px;
+      background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;
+      font-family:'Outfit',sans-serif;transition:all .2s;
+    }
     .btn-signout:hover{border-color:var(--rose);color:var(--rose);}
 
-    .main{position:relative;z-index:5;padding:2.5rem;max-width:1200px;margin:0 auto;}
+    /* ── MAIN ── */
+    .main{position:relative;z-index:5;padding:2.5rem 3rem;max-width:1200px;margin:0 auto;}
     .page{display:none;}
     .page.active{display:block;animation:fadeUp .3s ease;}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
     .pg-header{margin-bottom:2rem;}
-    .pg-header h2{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:#f0f8ff;line-height:1.1;}
-    .pg-header p{color:var(--muted);font-size:.88rem;margin-top:.3rem;}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem;}
-    .card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:#f0f8ff;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
+    .pg-header h2{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--text);line-height:1.1;}
+    .pg-header p{color:var(--muted);font-size:.85rem;margin-top:.3rem;}
 
+    /* ── CARDS ── */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.5rem;}
+    .card-title{
+      font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;
+      color:var(--text);margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;
+    }
+
+    /* ── STATS ── */
     .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.25rem 1.5rem;transition:border-color .2s,transform .2s;}
-    .stat-card:hover{border-color:rgba(0,198,167,.45);transform:translateY(-2px);}
-    .stat-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--teal);}
-    .stat-lbl{font-size:.8rem;color:var(--muted);margin-top:.15rem;}
-    .stat-icon{font-size:1.4rem;margin-bottom:.5rem;}
+    .stat-card{
+      background:var(--card);border:1px solid var(--border);border-radius:4px;
+      padding:1.25rem 1.5rem;transition:border-color .2s,transform .2s;
+    }
+    .stat-card:hover{border-color:var(--border2);transform:translateY(-2px);}
+    .stat-num{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--orange);}
+    .stat-lbl{font-size:.75rem;color:var(--muted);margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em;}
+    .stat-icon{font-size:1.3rem;margin-bottom:.4rem;}
 
-    /* APPOINTMENT CARDS */
+    .today-strip{
+      background:rgba(255,106,0,.06);border:1px solid var(--border);border-radius:4px;
+      padding:1rem 1.5rem;margin-bottom:1.5rem;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .today-day{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text);}
+    .today-cnt{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--orange);}
+
+    /* ── APPOINTMENT CARDS ── */
     .appt-list{display:flex;flex-direction:column;gap:.85rem;}
-    .appt-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;transition:border-color .2s,background .2s;}
-    .appt-card:hover{background:rgba(0,198,167,.04);border-color:rgba(0,198,167,.3);}
-    .appt-card-top{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:1.25rem;}
-    .appt-card-bottom{margin-top:.85rem;padding-top:.85rem;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;}
-    .appt-time-block{text-align:center;background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:12px;padding:.6rem .9rem;min-width:72px;}
-    .appt-time{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--teal);}
-    .appt-date{font-size:.7rem;color:var(--muted);margin-top:.1rem;}
-    .appt-info h4{font-size:.92rem;color:#f0f8ff;font-weight:500;margin-bottom:.2rem;}
-    .appt-info .sym{font-size:.8rem;color:var(--muted);}
-    .appt-info .sym span{color:var(--accent);}
-    .appt-status{padding:.25rem .75rem;border-radius:50px;font-size:.73rem;font-weight:600;white-space:nowrap;}
-    .s-confirmed{background:rgba(0,198,167,.15);color:var(--teal);}
-    .s-pending{background:rgba(244,197,66,.15);color:var(--accent);}
-    .s-cancelled{background:rgba(255,107,138,.15);color:var(--rose);}
-    .s-completed{background:rgba(167,139,250,.15);color:var(--lavender);}
-    .s-hospitalised{background:rgba(52,211,153,.12);color:var(--emerald);}
-    .appt-actions{display:flex;gap:.5rem;}
-    .btn-sm{padding:.3rem .75rem;border-radius:8px;font-size:.75rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;}
-    .btn-complete{background:rgba(0,198,167,.1);border-color:rgba(0,198,167,.3);color:var(--teal);}
-    .btn-complete:hover{background:rgba(0,198,167,.2);}
-    .btn-cancel{background:rgba(255,107,138,.1);border-color:rgba(255,107,138,.3);color:var(--rose);}
-    .btn-cancel:hover{background:rgba(255,107,138,.2);}
+    .appt-card{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--border);border-radius:4px;
+      padding:1rem 1.25rem;
+      transition:border-color .2s,background .2s;
+    }
+    .appt-card:hover{background:rgba(255,106,0,.03);border-color:var(--border2);}
+    .appt-top{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:1.25rem;}
+    .appt-bottom{
+      margin-top:.85rem;padding-top:.85rem;
+      border-top:1px solid rgba(255,255,255,.05);
+      display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;
+    }
+    .time-block{
+      text-align:center;
+      background:rgba(255,106,0,.08);border:1px solid var(--border);
+      border-radius:4px;padding:.6rem .9rem;min-width:72px;
+    }
+    .time-val{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--orange);}
+    .date-val{font-size:.68rem;color:var(--muted);margin-top:.1rem;}
+    .appt-info h4{font-size:.9rem;color:var(--text);font-weight:500;margin-bottom:.2rem;}
+    .appt-info .sym{font-size:.78rem;color:var(--muted);}
+    .appt-info .sym span{color:var(--amber);}
+
+    /* STATUS BADGES */
+    .status-badge{padding:.22rem .75rem;border-radius:3px;font-size:.7rem;font-weight:600;white-space:nowrap;letter-spacing:.04em;}
+    .s-confirmed{background:rgba(255,106,0,.12);color:var(--orange);}
+    .s-pending{background:rgba(244,197,66,.12);color:var(--amber);}
+    .s-cancelled{background:rgba(255,94,122,.12);color:var(--rose);}
+    .s-completed{background:rgba(167,139,250,.12);color:var(--lavender);}
+    .s-hospitalised{background:rgba(52,211,153,.1);color:var(--green);}
 
     /* ACTION BUTTONS */
-    .btn-equipment{background:rgba(244,197,66,.1);border-color:rgba(244,197,66,.35);color:var(--accent);padding:.35rem 1rem;border-radius:9px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
-    .btn-equipment:hover{background:rgba(244,197,66,.2);transform:translateY(-1px);}
-    .btn-equipment:disabled{opacity:.4;cursor:not-allowed;transform:none;}
-    .btn-hospitalise{background:rgba(167,139,250,.12);border-color:rgba(167,139,250,.35);color:var(--lavender);padding:.35rem 1rem;border-radius:9px;font-size:.78rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
-    .btn-hospitalise:hover{background:rgba(167,139,250,.2);transform:translateY(-1px);}
-    .btn-hospitalise:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-sm{
+      padding:.3rem .75rem;border-radius:4px;font-size:.74rem;
+      cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;
+    }
+    .btn-done{background:rgba(255,106,0,.1);border-color:rgba(255,106,0,.3);color:var(--orange);}
+    .btn-done:hover{background:rgba(255,106,0,.2);}
+    .btn-cancel{background:rgba(255,94,122,.1);border-color:rgba(255,94,122,.3);color:var(--rose);}
+    .btn-cancel:hover{background:rgba(255,94,122,.2);}
 
-    /* BADGES */
-    .assign-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .7rem;border-radius:50px;font-size:.72rem;font-weight:500;}
-    .badge-equip{background:rgba(244,197,66,.1);border:1px solid rgba(244,197,66,.25);color:var(--accent);}
-    .badge-bed{background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);color:var(--lavender);}
-    .badge-nurse{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:var(--emerald);}
+    .btn-action{
+      display:inline-flex;align-items:center;gap:.4rem;
+      padding:.35rem 1rem;border-radius:4px;font-size:.76rem;
+      cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;border:1px solid;
+      white-space:nowrap;
+    }
+    .btn-equip{background:rgba(244,197,66,.08);border-color:rgba(244,197,66,.3);color:var(--amber);}
+    .btn-equip:hover{background:rgba(244,197,66,.18);transform:translateY(-1px);}
+    .btn-equip:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-hosp{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3);color:var(--lavender);}
+    .btn-hosp:hover{background:rgba(167,139,250,.2);transform:translateY(-1px);}
+    .btn-hosp:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-report{background:rgba(255,106,0,.1);border-color:rgba(255,106,0,.3);color:var(--orange);}
+    .btn-report:hover{background:rgba(255,106,0,.2);transform:translateY(-1px);}
 
-    /* MODAL */
-    .modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(7,17,31,.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
-    .modal-overlay.open{opacity:1;pointer-events:all;}
-    .modal{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:2rem;width:100%;max-width:520px;box-shadow:0 40px 100px rgba(0,0,0,.7);transform:translateY(20px);transition:transform .25s;}
-    .modal-overlay.open .modal{transform:translateY(0);}
-    .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:#f0f8ff;margin-bottom:.35rem;}
-    .modal-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.5rem;}
-    .modal-patient{background:rgba(0,198,167,.06);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.85rem;}
-    .modal-patient strong{color:#f0f8ff;}
-    .modal-patient .sym{color:var(--muted);font-size:.78rem;margin-top:.2rem;}
+    /* ASSIGN BADGES */
+    .assign-badge{
+      display:inline-flex;align-items:center;gap:.35rem;
+      padding:.2rem .65rem;border-radius:3px;font-size:.7rem;font-weight:500;
+    }
+    .badge-equip{background:rgba(244,197,66,.08);border:1px solid rgba(244,197,66,.22);color:var(--amber);}
+    .badge-bed{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:var(--lavender);}
+    .badge-nurse{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.22);color:var(--green);}
 
-    .equip-list{display:flex;flex-direction:column;gap:.6rem;max-height:240px;overflow-y:auto;padding-right:.25rem;}
-    .equip-list::-webkit-scrollbar{width:4px;}
-    .equip-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-    .equip-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;cursor:pointer;transition:all .2s;}
+    /* ── MODALS ── */
+    .overlay{
+      position:fixed;inset:0;z-index:200;
+      background:rgba(6,6,6,.88);backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;transition:opacity .25s;
+    }
+    .overlay.open{opacity:1;pointer-events:all;}
+    .modal{
+      background:var(--black2);border:1px solid var(--border2);border-radius:4px;
+      padding:2rem;width:100%;max-width:540px;
+      box-shadow:0 40px 100px rgba(0,0,0,.8),0 0 60px rgba(255,106,0,.08);
+      transform:translateY(16px);transition:transform .25s;
+      max-height:90vh;overflow-y:auto;
+    }
+    .overlay.open .modal{transform:translateY(0);}
+    .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--text);margin-bottom:.25rem;}
+    .modal-sub{font-size:.8rem;color:var(--muted);margin-bottom:1.25rem;letter-spacing:.02em;}
+    .modal-patient{
+      background:rgba(255,106,0,.06);border:1px solid var(--border);
+      border-radius:4px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.84rem;
+    }
+    .modal-patient strong{color:var(--text);}
+    .modal-patient .sym{color:var(--muted);font-size:.76rem;margin-top:.2rem;}
+
+    /* Equipment list */
+    .equip-list{display:flex;flex-direction:column;gap:.5rem;max-height:220px;overflow-y:auto;padding-right:.2rem;}
+    .equip-list::-webkit-scrollbar{width:3px;}
+    .equip-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    .equip-item{
+      display:flex;align-items:center;justify-content:space-between;
+      background:rgba(255,255,255,.02);border:1px solid var(--border);
+      border-radius:4px;padding:.6rem .9rem;cursor:pointer;transition:all .2s;
+    }
     .equip-item:hover{border-color:rgba(244,197,66,.35);background:rgba(244,197,66,.04);}
     .equip-item.selected{border-color:rgba(244,197,66,.5);background:rgba(244,197,66,.08);}
     .equip-item.disabled-equip{opacity:.4;cursor:not-allowed;}
-    .equip-item.disabled-equip:hover{border-color:var(--border);background:rgba(255,255,255,.03);}
-    .equip-name{font-size:.88rem;color:#f0f8ff;font-weight:500;}
-    .equip-meta{font-size:.73rem;color:var(--muted);margin-top:.15rem;}
-    .slot-free{color:var(--emerald);}
+    .equip-item.disabled-equip:hover{border-color:var(--border);background:rgba(255,255,255,.02);}
+    .equip-name{font-size:.86rem;color:var(--text);font-weight:500;}
+    .equip-meta{font-size:.72rem;color:var(--muted);margin-top:.12rem;}
+    .slot-free{color:var(--green);}
     .slot-busy{color:var(--rose);}
-    .equip-check{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .2s;flex-shrink:0;}
-    .equip-item.selected .equip-check{background:var(--accent);border-color:var(--accent);color:#07111F;}
+    .equip-check{
+      width:17px;height:17px;border-radius:50%;border:2px solid var(--border);
+      background:transparent;display:flex;align-items:center;justify-content:center;
+      font-size:.62rem;transition:all .2s;flex-shrink:0;
+    }
+    .equip-item.selected .equip-check{background:var(--amber);border-color:var(--amber);color:#000;}
 
-    .resource-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin-bottom:.6rem;}
-    .resource-label{font-size:.85rem;color:#f0f8ff;}
-    .resource-val{font-size:.82rem;color:var(--emerald);font-weight:500;}
+    /* Hosp resource rows */
+    .resource-row{
+      display:flex;align-items:center;justify-content:space-between;
+      background:rgba(255,255,255,.02);border:1px solid var(--border);
+      border-radius:4px;padding:.65rem .9rem;margin-bottom:.5rem;
+    }
+    .resource-label{font-size:.83rem;color:var(--text);}
+    .resource-val{font-size:.8rem;color:var(--green);font-weight:500;}
     .resource-val.unavail{color:var(--rose);}
 
+    /* Report modal fields */
+    .report-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem;}
+    .report-field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;}
+    .report-field input,.report-field textarea,.report-field select{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:4px;
+      padding:.6rem .85rem;color:var(--text);font-size:.85rem;font-family:'Outfit',sans-serif;outline:none;
+      transition:border-color .2s;
+    }
+    .report-field input:focus,.report-field textarea:focus,.report-field select:focus{border-color:var(--orange);}
+    .report-field textarea{resize:vertical;min-height:70px;line-height:1.5;}
+    .report-field select option{background:#0d0d0d;}
+    .report-section{
+      background:rgba(255,106,0,.04);border:1px solid var(--border);
+      border-radius:4px;padding:.85rem 1rem;margin-bottom:.9rem;
+    }
+    .report-section-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--orange);font-weight:600;margin-bottom:.65rem;}
+    .report-info-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+    .report-info-row:last-child{border-bottom:none;}
+    .report-info-key{font-size:.78rem;color:var(--muted);}
+    .report-info-val{font-size:.78rem;color:var(--text);font-weight:500;}
+    .report-info-val.highlight{color:var(--orange);}
+
+    /* Modal footer */
     .modal-footer{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end;}
-    .btn-modal-cancel{padding:.6rem 1.25rem;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--muted);font-size:.85rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
+    .btn-modal-cancel{
+      padding:.6rem 1.25rem;border:1px solid var(--border);border-radius:4px;
+      background:transparent;color:var(--muted);font-size:.83rem;cursor:pointer;
+      font-family:'Outfit',sans-serif;transition:all .2s;
+    }
     .btn-modal-cancel:hover{border-color:var(--rose);color:var(--rose);}
-    .btn-modal-confirm{padding:.6rem 1.5rem;border:none;border-radius:10px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;}
-    .btn-equip-confirm{background:linear-gradient(135deg,var(--accent),#e6b730);color:#07111F;}
-    .btn-equip-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(244,197,66,.3);}
-    .btn-hosp-confirm{background:linear-gradient(135deg,var(--lavender),#8b5cf6);color:#fff;}
-    .btn-hosp-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(167,139,250,.3);}
-    .btn-modal-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
+    .btn-modal-confirm{
+      padding:.6rem 1.5rem;border:none;border-radius:4px;
+      font-weight:700;font-size:.83rem;cursor:pointer;
+      font-family:'Outfit',sans-serif;transition:all .2s;
+    }
+    .btn-orange-confirm{background:var(--orange);color:#000;}
+    .btn-orange-confirm:hover{background:var(--orange2);box-shadow:0 0 24px rgba(255,106,0,.4);}
+    .btn-amber-confirm{background:var(--amber);color:#000;}
+    .btn-amber-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(244,197,66,.3);}
+    .btn-lav-confirm{background:var(--lavender);color:#000;}
+    .btn-lav-confirm:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(167,139,250,.3);}
+    .btn-modal-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
 
-    /* TOAST */
-    .toast-wrap{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;gap:.6rem;}
-    .toast{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.25rem;font-size:.83rem;min-width:280px;max-width:360px;display:flex;align-items:flex-start;gap:.75rem;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:slideIn .3s ease;}
-    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-    .toast.hide{animation:slideOut .3s ease forwards;}
-    @keyframes slideOut{to{opacity:0;transform:translateX(30px)}}
-    .toast-icon{font-size:1.1rem;flex-shrink:0;margin-top:.05rem;}
-    .toast-body strong{display:block;color:#f0f8ff;margin-bottom:.15rem;}
-    .toast-body span{color:var(--muted);font-size:.78rem;line-height:1.4;}
-    .toast.ok{border-color:rgba(0,198,167,.35);}
-    .toast.err{border-color:rgba(255,107,138,.35);}
-    .toast.info{border-color:rgba(167,139,250,.35);}
-
-    /* PROFILE */
-    .profile-hero{display:flex;align-items:center;gap:2rem;padding:2rem;background:linear-gradient(135deg,rgba(0,198,167,.08),rgba(167,139,250,.05));border:1px solid var(--border);border-radius:20px;margin-bottom:1.5rem;}
-    .profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--teal),#00a88e);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:#07111F;flex-shrink:0;border:3px solid rgba(0,198,167,.3);}
-    .profile-info h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:#f0f8ff;}
-    .profile-info .spec-tag{display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem;background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:50px;padding:.25rem .75rem;font-size:.78rem;color:var(--teal);}
-    .profile-info .dept{font-size:.83rem;color:var(--muted);margin-top:.35rem;}
-    .sym-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
-    .sym-pill{background:rgba(255,255,255,.05);border:1px solid rgba(0,198,167,.15);border-radius:50px;padding:.3rem .8rem;font-size:.78rem;color:#aac8e0;}
-    .avail-bar{background:rgba(0,198,167,.08);border:1px solid var(--border);border-radius:14px;padding:1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
-    .time-pill{background:rgba(0,198,167,.12);border:1px solid var(--border);border-radius:10px;padding:.5rem 1rem;font-size:.88rem;color:var(--teal);font-weight:500;}
-    .avail-label{font-size:.8rem;color:var(--muted);}
-    .avail-time{display:flex;align-items:center;gap:.75rem;}
-
-    /* SETTINGS */
-    .pass-form{max-width:420px;}
-    .field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;}
-    .field label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:500;}
-    .field input{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:.65rem .9rem;color:var(--text);font-size:.88rem;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s;}
-    .field input:focus{border-color:var(--teal);}
-    .btn-save{padding:.65rem 1.75rem;background:linear-gradient(135deg,var(--teal),#00a88e);border:none;border-radius:10px;color:#07111F;font-weight:700;font-size:.88rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:transform .15s;}
-    .btn-save:hover{transform:translateY(-1px);}
-    .btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-    .alert{border-radius:10px;padding:.7rem 1rem;font-size:.83rem;margin-top:.9rem;display:none;}
-    .alert-ok{background:rgba(0,198,167,.1);border:1px solid rgba(0,198,167,.3);color:var(--teal);}
-    .alert-err{background:rgba(255,107,138,.1);border:1px solid rgba(255,107,138,.3);color:var(--rose);}
-
-    .empty{text-align:center;padding:3rem;color:#3a5a74;font-size:.88rem;}
-    .empty .e-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.4;}
-    .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(0,198,167,.25);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+    /* Loading */
+    .loading-state{text-align:center;padding:1.5rem;color:var(--muted);font-size:.83rem;}
+    .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,106,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .equip-loading{text-align:center;padding:1.5rem;color:var(--muted);font-size:.85rem;}
-    .today-strip{background:linear-gradient(135deg,rgba(0,198,167,.1),rgba(167,139,250,.07));border:1px solid var(--border);border-radius:14px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;}
-    .today-strip .day{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#f0f8ff;}
-    .today-strip .count{font-size:.82rem;color:var(--muted);}
-    .today-count-num{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--teal);font-weight:700;}
+
+    /* ── TOAST ── */
+    .toast-wrap{position:fixed;bottom:2rem;right:2rem;z-index:300;display:flex;flex-direction:column;gap:.6rem;}
+    .toast{
+      background:var(--black2);border:1px solid var(--border2);border-radius:4px;
+      padding:.85rem 1.25rem;font-size:.82rem;min-width:280px;max-width:360px;
+      display:flex;align-items:flex-start;gap:.75rem;
+      box-shadow:0 20px 60px rgba(0,0,0,.7);animation:toastIn .3s ease;
+    }
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+    .toast.hide{animation:toastOut .3s ease forwards;}
+    @keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+    .toast-icon{font-size:1rem;flex-shrink:0;margin-top:.05rem;}
+    .toast-body strong{display:block;color:var(--text);margin-bottom:.1rem;font-size:.85rem;}
+    .toast-body span{color:var(--muted);font-size:.76rem;line-height:1.4;}
+    .toast.ok{border-color:rgba(255,106,0,.4);}
+    .toast.err{border-color:rgba(255,94,122,.4);}
+    .toast.info{border-color:rgba(167,139,250,.4);}
+
+    /* ── PROFILE ── */
+    .profile-hero{
+      display:flex;align-items:center;gap:2rem;padding:2rem;
+      background:rgba(255,106,0,.04);border:1px solid var(--border);border-radius:4px;margin-bottom:1.5rem;
+    }
+    .profile-avatar{
+      width:76px;height:76px;border-radius:50%;
+      background:var(--orange);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:#000;flex-shrink:0;
+    }
+    .profile-name{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--text);}
+    .spec-tag{
+      display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem;
+      background:rgba(255,106,0,.08);border:1px solid var(--border);
+      border-radius:3px;padding:.22rem .7rem;font-size:.75rem;color:var(--orange);
+    }
+    .sym-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
+    .sym-pill{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);
+      border-radius:3px;padding:.28rem .75rem;font-size:.76rem;color:var(--muted);
+    }
+    .time-pill{
+      background:rgba(255,106,0,.08);border:1px solid var(--border);
+      border-radius:3px;padding:.45rem .9rem;font-size:.85rem;color:var(--orange);font-weight:500;
+    }
+
+    /* ── SETTINGS ── */
+    .field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem;}
+    .field label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;}
+    .field input{
+      background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:4px;
+      padding:.65rem .9rem;color:var(--text);font-size:.87rem;font-family:'Outfit',sans-serif;outline:none;
+      transition:border-color .2s;
+    }
+    .field input:focus{border-color:var(--orange);}
+    .btn-save{
+      padding:.65rem 1.75rem;background:var(--orange);border:none;border-radius:4px;
+      color:#000;font-weight:700;font-size:.87rem;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;
+    }
+    .btn-save:hover{background:var(--orange2);box-shadow:0 0 20px rgba(255,106,0,.35);}
+    .btn-save:disabled{opacity:.5;cursor:not-allowed;}
+    .alert{border-radius:4px;padding:.65rem 1rem;font-size:.8rem;margin-top:.8rem;display:none;}
+    .alert-ok{background:rgba(255,106,0,.08);border:1px solid rgba(255,106,0,.3);color:var(--orange);}
+    .alert-err{background:rgba(255,94,122,.08);border:1px solid rgba(255,94,122,.3);color:var(--rose);}
+
+    /* FILTER PILLS */
+    .filter-bar{display:flex;gap:.4rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+    .filter-pill{
+      padding:.38rem 1rem;border-radius:3px;font-size:.76rem;font-weight:500;
+      cursor:pointer;border:1px solid var(--border);color:var(--muted);
+      background:transparent;font-family:'Outfit',sans-serif;transition:all .2s;
+    }
+    .filter-pill:hover{color:var(--text);border-color:var(--border2);}
+    .filter-pill.active{background:rgba(255,106,0,.1);color:var(--orange);border-color:var(--border2);}
+
+    .empty{text-align:center;padding:3rem;color:var(--muted);font-size:.85rem;}
+    .empty .e-icon{font-size:2.5rem;margin-bottom:.75rem;opacity:.3;}
 
     @media(max-width:900px){
+      nav{padding:1rem 1.5rem;}
+      .main{padding:2rem 1.5rem;}
       .stat-grid{grid-template-columns:repeat(2,1fr);}
-      .nav-center{display:none;}
-      .appt-card-top{grid-template-columns:1fr;}
+      .nav-tabs{display:none;}
+      .appt-top{grid-template-columns:1fr;}
     }
   </style>
 </head>
 <body>
-<div class="bg-wrap"><div class="bg-grid"></div><div class="bg-orb1"></div><div class="bg-orb2"></div></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
 <div class="toast-wrap" id="toastWrap"></div>
 
-<!-- LOGIN -->
+<!-- ── LOGIN ── -->
 <div id="loginScreen">
-  <div class="bg-wrap" style="position:absolute"><div class="bg-grid"></div></div>
-  <div class="login-wrap">
-    <div class="login-logo">Medi<span>Care+</span></div>
-    <div class="login-role"><span class="role-dot"></span> Doctor Portal</div>
-    <div class="f-group"><label>Your Email</label><input type="email" id="loginEmail" placeholder="dr.name@medicare" autocomplete="email"/></div>
+  <div class="login-box">
+    <div class="login-logo">Medi<span>Care</span>+</div>
+    <div class="login-role"><span class="role-dot"></span>Doctor Portal</div>
+    <div class="f-group"><label>Email</label><input type="email" id="loginEmail" placeholder="dr.name@medicare" autocomplete="email"/></div>
     <div class="f-group"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
-    <button class="btn-primary" id="loginBtn">Sign In to Doctor Portal</button>
+    <button class="btn-login" id="loginBtn">Sign In →</button>
     <div class="login-err" id="loginErr"></div>
-    <div class="login-loading" id="loginLoading">⏳ Verifying credentials…</div>
-    <div class="change-pass-link">First time? <a onclick="showResetHint()">Change your temporary password</a> after logging in.</div>
+    <div class="login-loading" id="loginLoading">Verifying credentials…</div>
+    <div class="change-link">First login? <a onclick="alert('Log in then go to Settings → Change Password.')">Change temporary password</a></div>
   </div>
 </div>
 
-<!-- APP SHELL -->
+<!-- ── APP ── -->
 <div id="appShell">
   <nav>
-    <div class="nav-logo">Medi<span>Care+</span></div>
-    <div class="nav-center">
+    <div class="nav-logo">Medi<span>Care</span>+</div>
+    <div class="nav-tabs">
       <button class="nav-tab active" onclick="showTab('dashboard',this)">Dashboard</button>
       <button class="nav-tab" onclick="showTab('appointments',this)">Appointments</button>
-      <button class="nav-tab" onclick="showTab('profile',this)">My Profile</button>
+      <button class="nav-tab" onclick="showTab('profile',this)">Profile</button>
       <button class="nav-tab" onclick="showTab('settings',this)">Settings</button>
     </div>
     <div class="nav-right">
-      <div class="doc-chip"><div class="avatar" id="docInitial">D</div><span id="docNameNav">Doctor</span></div>
+      <div class="doc-chip"><div class="avatar-sm" id="docInitial">D</div><span id="docNameNav">Doctor</span></div>
       <button class="btn-signout" onclick="doSignOut()">Sign Out</button>
     </div>
   </nav>
@@ -258,11 +453,11 @@
         <p id="welcomeSub">Here's your overview for today.</p>
       </div>
       <div class="today-strip">
-        <div><div class="day" id="todayDay">—</div><div class="count">Today's appointments</div></div>
-        <div style="text-align:right"><div class="today-count-num" id="todayCount">—</div><div class="count">scheduled</div></div>
+        <div><div class="today-day" id="todayDay">—</div><div style="font-size:.75rem;color:var(--muted);margin-top:.2rem;">Today's schedule</div></div>
+        <div style="text-align:right"><div class="today-cnt" id="todayCount">—</div><div style="font-size:.75rem;color:var(--muted);">appointments</div></div>
       </div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Total Appointments</div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Total</div></div>
         <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="statCompleted">—</div><div class="stat-lbl">Completed</div></div>
         <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num" id="statPending">—</div><div class="stat-lbl">Pending</div></div>
         <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-num" id="statCancelled">—</div><div class="stat-lbl">Cancelled</div></div>
@@ -275,103 +470,128 @@
 
     <!-- APPOINTMENTS -->
     <div class="page" id="page-appointments">
-      <div class="pg-header"><h2>All Appointments</h2><p>Your complete appointment history and upcoming schedule</p></div>
-      <div style="display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
-        <button class="btn-sm btn-complete" style="border-radius:50px;padding:.4rem 1rem;" onclick="filterAppts('all',this)">All</button>
-        <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Confirmed',this)">Confirmed</button>
-        <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Pending',this)">Pending</button>
-        <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Completed',this)">Completed</button>
-        <button class="btn-sm" style="border-radius:50px;padding:.4rem 1rem;border:1px solid var(--border);color:var(--muted);background:transparent;" onclick="filterAppts('Cancelled',this)">Cancelled</button>
+      <div class="pg-header"><h2>All Appointments</h2><p>Complete history and upcoming schedule</p></div>
+      <div class="filter-bar">
+        <button class="filter-pill active" onclick="filterAppts('all',this)">All</button>
+        <button class="filter-pill" onclick="filterAppts('Confirmed',this)">Confirmed</button>
+        <button class="filter-pill" onclick="filterAppts('Pending',this)">Pending</button>
+        <button class="filter-pill" onclick="filterAppts('Completed',this)">Completed</button>
+        <button class="filter-pill" onclick="filterAppts('Cancelled',this)">Cancelled</button>
+        <button class="filter-pill" onclick="filterAppts('Hospitalised',this)">Hospitalised</button>
       </div>
-      <div class="appt-list" id="allAppts"><div class="empty"><div class="e-icon"><span class="spinner"></span></div>Loading appointments…</div></div>
+      <div class="appt-list" id="allAppts"><div class="empty"><div class="e-icon"><span class="spinner"></span></div>Loading…</div></div>
     </div>
 
     <!-- PROFILE -->
     <div class="page" id="page-profile">
-      <div class="pg-header"><h2>My Profile</h2><p>Your information registered by the admin</p></div>
+      <div class="pg-header"><h2>My Profile</h2><p>Information registered by admin</p></div>
       <div class="profile-hero">
         <div class="profile-avatar" id="profileAvatar">D</div>
-        <div class="profile-info">
-          <h3 id="profileName">—</h3>
+        <div>
+          <div class="profile-name" id="profileName">—</div>
           <div class="spec-tag">🩺 <span id="profileSpec">—</span></div>
-          <div class="dept" id="profileDept">—</div>
-          <div style="font-size:.8rem;color:var(--muted);margin-top:.35rem;" id="profileEmail">—</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:.4rem;" id="profileDept">—</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:.2rem;" id="profileEmail">—</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
         <div class="card">
-          <div class="card-title">🕐 Availability</div>
-          <div class="avail-bar" style="margin-bottom:0;">
-            <div>
-              <div class="avail-label">Working Hours</div>
-              <div class="avail-time" style="margin-top:.4rem;">
-                <span class="time-pill" id="profileFrom">—</span>
-                <span style="color:var(--muted);font-size:.85rem;">to</span>
-                <span class="time-pill" id="profileTo">—</span>
-              </div>
-            </div>
+          <div class="card-title">🕐 Working Hours</div>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-top:.25rem;">
+            <span class="time-pill" id="profileFrom">—</span>
+            <span style="color:var(--muted);font-size:.85rem;">to</span>
+            <span class="time-pill" id="profileTo">—</span>
           </div>
         </div>
         <div class="card">
           <div class="card-title">📞 Contact</div>
-          <div style="font-size:.9rem;color:var(--text);" id="profilePhone">—</div>
-          <div style="font-size:.78rem;color:var(--muted);margin-top:.4rem;">Phone number on record</div>
+          <div style="font-size:.9rem;" id="profilePhone">—</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Phone on record</div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title">🗂 Symptoms I Handle</div>
-        <div class="sym-grid" id="profileSymptoms"><div style="color:var(--muted);font-size:.85rem;">No symptoms mapped yet.</div></div>
+        <div class="card-title">🗂 Symptoms Handled</div>
+        <div class="sym-grid" id="profileSymptoms"><div style="color:var(--muted);font-size:.83rem;">No symptoms mapped.</div></div>
       </div>
     </div>
 
     <!-- SETTINGS -->
     <div class="page" id="page-settings">
       <div class="pg-header"><h2>Settings</h2><p>Update your account password</p></div>
-      <div class="card" style="max-width:500px;">
+      <div class="card" style="max-width:480px;">
         <div class="card-title">🔐 Change Password</div>
-        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1.25rem;">If this is your first login, please change your temporary password immediately.</p>
-        <div class="pass-form">
-          <div class="field"><label>Current Password</label><input type="password" id="currPass" placeholder="Your current password"/></div>
-          <div class="field"><label>New Password</label><input type="password" id="newPass" placeholder="At least 8 characters"/></div>
-          <div class="field"><label>Confirm New Password</label><input type="password" id="confirmPass" placeholder="Repeat new password"/></div>
-          <button class="btn-save" id="passBtn">Update Password</button>
-          <div class="alert alert-ok" id="passOk">✅ Password changed successfully!</div>
-          <div class="alert alert-err" id="passErr"></div>
-        </div>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.25rem;">If this is your first login, change your temporary password immediately.</p>
+        <div class="field"><label>Current Password</label><input type="password" id="currPass" placeholder="Current password"/></div>
+        <div class="field"><label>New Password</label><input type="password" id="newPass" placeholder="Min 8 characters"/></div>
+        <div class="field"><label>Confirm New Password</label><input type="password" id="confirmPass" placeholder="Repeat new password"/></div>
+        <button class="btn-save" id="passBtn">Update Password</button>
+        <div class="alert alert-ok" id="passOk">✅ Password updated successfully.</div>
+        <div class="alert alert-err" id="passErr"></div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- EQUIPMENT MODAL -->
-<div class="modal-overlay" id="equipModal">
+<!-- ── EQUIPMENT MODAL ── -->
+<div class="overlay" id="equipModal">
   <div class="modal">
     <div class="modal-title">🔬 Assign Equipment Test</div>
-    <div class="modal-sub">Select a machine — slots auto-calculated from admin's registered working hours</div>
+    <div class="modal-sub">Select a machine — slots auto-calculated from registered working hours</div>
     <div class="modal-patient" id="equipPatientInfo"></div>
-    <div class="equip-list" id="equipList">
-      <div class="equip-loading"><span class="spinner"></span> Loading available equipment…</div>
-    </div>
+    <div class="equip-list" id="equipList"><div class="loading-state"><span class="spinner"></span> Loading equipment…</div></div>
     <div class="modal-footer">
       <button class="btn-modal-cancel" onclick="closeModal('equipModal')">Cancel</button>
-      <button class="btn-modal-confirm btn-equip-confirm" id="equipConfirmBtn" disabled onclick="confirmEquipAssign()">Assign Test →</button>
+      <button class="btn-modal-confirm btn-amber-confirm" id="equipConfirmBtn" disabled onclick="confirmEquipAssign()">Assign Test →</button>
     </div>
   </div>
 </div>
 
-<!-- HOSPITALISE MODAL -->
-<div class="modal-overlay" id="hospModal">
+<!-- ── HOSPITALISE MODAL ── -->
+<div class="overlay" id="hospModal">
   <div class="modal">
     <div class="modal-title">🏥 Hospitalise Patient</div>
     <div class="modal-sub">First available bed + morning &amp; night nurse will be auto-assigned</div>
     <div class="modal-patient" id="hospPatientInfo"></div>
-    <div id="hospResourceInfo">
-      <div class="equip-loading"><span class="spinner"></span> Checking available beds &amp; nurses…</div>
-    </div>
+    <div id="hospResourceInfo"><div class="loading-state"><span class="spinner"></span> Checking resources…</div></div>
     <div class="modal-footer">
       <button class="btn-modal-cancel" onclick="closeModal('hospModal')">Cancel</button>
-      <button class="btn-modal-confirm btn-hosp-confirm" id="hospConfirmBtn" disabled onclick="confirmHospitalise()">Confirm Admission →</button>
+      <button class="btn-modal-confirm btn-lav-confirm" id="hospConfirmBtn" disabled onclick="confirmHospitalise()">Confirm Admission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── REPORT MODAL ── -->
+<div class="overlay" id="reportModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-title">📋 Send Checkup Report</div>
+    <div class="modal-sub">Complete the report — it will be emailed to the patient immediately</div>
+    <div class="modal-patient" id="reportPatientInfo"></div>
+
+    <!-- Summary section shown from appointment data -->
+    <div class="report-section" id="reportAutoSection"></div>
+
+    <!-- Doctor fills in -->
+    <div class="report-field">
+      <label>Diagnosis / Findings</label>
+      <textarea id="rDiagnosis" placeholder="Describe your findings and diagnosis…" rows="3"></textarea>
+    </div>
+    <div class="report-field">
+      <label>Prescription / Medications</label>
+      <textarea id="rPrescription" placeholder="List medications, dosages, and instructions…" rows="3"></textarea>
+    </div>
+    <div class="report-field">
+      <label>Follow-up Instructions</label>
+      <textarea id="rFollowup" placeholder="Next steps, lifestyle advice, follow-up date…" rows="2"></textarea>
+    </div>
+    <div class="report-field">
+      <label>Doctor's Notes (optional)</label>
+      <textarea id="rNotes" placeholder="Any additional notes…" rows="2"></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" onclick="closeModal('reportModal')">Cancel</button>
+      <button class="btn-modal-confirm btn-orange-confirm" id="reportSendBtn" onclick="sendReport()">📧 Send Report →</button>
     </div>
   </div>
 </div>
@@ -380,11 +600,10 @@
   function showTab(name,el){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-    const target=document.getElementById('page-'+name);
-    if(target) target.classList.add('active');
+    const tgt=document.getElementById('page-'+name);
+    if(tgt) tgt.classList.add('active');
     if(el) el.classList.add('active');
   }
-  function showResetHint(){ alert('Please log in first, then go to Settings → Change Password.'); }
   function doSignOut(){
     localStorage.removeItem('mc_doctor_id');
     document.getElementById('appShell').style.display='none';
@@ -398,95 +617,69 @@
     const wrap=document.getElementById('toastWrap');
     const t=document.createElement('div');
     t.className=`toast ${type}`;
-    t.innerHTML=`<div class="toast-icon">${icons[type]||'💬'}</div><div class="toast-body"><strong>${title}</strong><span>${body}</span></div>`;
+    t.innerHTML=`<div class="toast-icon">${icons[type]}</div><div class="toast-body"><strong>${title}</strong><span>${body}</span></div>`;
     wrap.appendChild(t);
     setTimeout(()=>{ t.classList.add('hide'); setTimeout(()=>t.remove(),350); },dur);
   }
+  function $(id){ return document.getElementById(id); }
 </script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import {
-    getFirestore, collection, query, where,
-    onSnapshot, doc, updateDoc, serverTimestamp,
-    getDocs, getDoc, addDoc
+    getFirestore,collection,query,where,
+    onSnapshot,doc,updateDoc,serverTimestamp,
+    getDocs,getDoc,addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAUCZZXpiOfZVgjmIrNAnn_LF0SOm1WwhA",
-    authDomain: "healthcare-scheduler-5b242.firebaseapp.com",
-    projectId: "healthcare-scheduler-5b242",
-    storageBucket: "healthcare-scheduler-5b242.firebasestorage.app",
-    messagingSenderId: "28196196047",
-    appId: "1:28196196047:web:262b5a5020cd37f64b31ba"
+  const firebaseConfig={
+    apiKey:"AIzaSyAUCZZXpiOfZVgjmIrNAnn_LF0SOm1WwhA",
+    authDomain:"healthcare-scheduler-5b242.firebaseapp.com",
+    projectId:"healthcare-scheduler-5b242",
+    storageBucket:"healthcare-scheduler-5b242.firebasestorage.app",
+    messagingSenderId:"28196196047",
+    appId:"1:28196196047:web:262b5a5020cd37f64b31ba"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+  const app=initializeApp(firebaseConfig);
+  const db =getFirestore(app);
+  emailjs.init("nEbb9aPtYh8imCD0M");
 
-  let currentDoctor   = null;
-  let allAppointments = [];
-  let currentFilter   = 'all';
-  let activeAppt      = null;
-  let selectedEquipId = null;
-  let selectedSlot    = null;
-  let hospResources   = null;
+  let currentDoctor=null, allAppointments=[], currentFilter='all';
+  let activeAppt=null, selectedEquipId=null, selectedSlot=null, hospResources=null;
 
-  function $(id){ return document.getElementById(id); }
-
+  // ── helpers ────────────────────────────────────────────────────────────
   function fmtTime(t){
     if(!t) return '—';
-    const [h,m]=t.split(':');
-    const d=new Date(); d.setHours(+h,+m);
+    const [h,m]=t.split(':'); const d=new Date(); d.setHours(+h,+m);
     return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   }
   function fmtDate(ds){
     if(!ds) return '—';
-    return new Date(ds).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    return new Date(ds+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
   }
   function greeting(){ const h=new Date().getHours(); return h<12?'Good morning':h<17?'Good afternoon':'Good evening'; }
   function todayStr(){ return new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
-  function isToday(ds){ if(!ds) return false; return new Date().toDateString()===new Date(ds).toDateString(); }
+  function isToday(ds){ if(!ds) return false; return new Date().toDateString()===new Date(ds+'T00:00:00').toDateString(); }
   function initials(n){ if(!n) return 'D'; return n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(); }
   function statusClass(s){
     if(!s) return 's-pending';
-    const sl=s.toLowerCase();
-    if(sl==='confirmed')    return 's-confirmed';
-    if(sl==='pending')      return 's-pending';
-    if(sl==='cancelled')    return 's-cancelled';
-    if(sl==='completed')    return 's-completed';
-    if(sl==='hospitalised') return 's-hospitalised';
-    return 's-pending';
+    const m={confirmed:'s-confirmed',pending:'s-pending',cancelled:'s-cancelled',completed:'s-completed',hospitalised:'s-hospitalised'};
+    return m[s.toLowerCase()]||'s-pending';
   }
-  function showAlert(id,dur=3500){ const el=$(id); el.style.display='block'; setTimeout(()=>el.style.display='none',dur); }
-  function showPassErr(msg){ const el=$('passErr'); el.textContent='⚠ '+msg; el.style.display='block'; setTimeout(()=>el.style.display='none',4500); }
-
-  // ── Time slot generator using admin's workingFrom / workingTo fields ──────
-  function generateTimeSlots(from, to, mins=60){
+  function generateTimeSlots(from,to,mins=60){
     if(!from||!to) return [];
-    const [sh,sm]=from.split(':').map(Number);
-    const [eh,em]=to.split(':').map(Number);
-    let cur=sh*60+sm;
-    const endM=eh*60+em;
-    const slots=[];
-    while(cur+mins<=endM){
-      slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
-      cur+=mins;
-    }
+    const [sh,sm]=from.split(':').map(Number), [eh,em]=to.split(':').map(Number);
+    let cur=sh*60+sm; const end=eh*60+em; const slots=[];
+    while(cur+mins<=end){ slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`); cur+=mins; }
     return slots;
   }
+  function isMorningNurse(s){ return !!(s&&s.toLowerCase().includes('morning')); }
+  function isNightNurse(s){   return !!(s&&s.toLowerCase().includes('night'));   }
 
-  // ── Nurse shift helpers matching admin's exact values ─────────────────────
-  // Admin writes: "Shift 1 (Morning)"  or  "Shift 2 (Night)"
-  function isMorningNurse(shift){ return !!(shift && shift.toLowerCase().includes('morning')); }
-  function isNightNurse(shift){   return !!(shift && shift.toLowerCase().includes('night'));   }
-
-  // ── Session ───────────────────────────────────────────────────────────────
-  function saveSession(id){ localStorage.setItem('mc_doctor_id',id); }
-  function loadSession(){ return localStorage.getItem('mc_doctor_id'); }
-
+  // ── Session ────────────────────────────────────────────────────────────
   (async()=>{
-    const savedId=loadSession();
+    const savedId=localStorage.getItem('mc_doctor_id');
     if(savedId){
       try{
         const snap=await getDoc(doc(db,'doctors',savedId));
@@ -498,30 +691,30 @@
     $('appShell').style.display='none';
   })();
 
-  // ── Login ─────────────────────────────────────────────────────────────────
-  async function doLoginFn(){
+  // ── Login ──────────────────────────────────────────────────────────────
+  async function doLogin(){
     const email=$('loginEmail').value.trim().toLowerCase();
     const pass=$('loginPassword').value;
-    const errEl=$('loginErr'), loadEl=$('loginLoading');
-    errEl.style.display='none';
-    if(!email||!pass){ errEl.textContent='Please fill in all fields.'; errEl.style.display='block'; return; }
-    loadEl.style.display='block'; $('loginBtn').disabled=true;
+    const err=$('loginErr'), load=$('loginLoading');
+    err.style.display='none';
+    if(!email||!pass){ err.textContent='Please fill all fields.'; err.style.display='block'; return; }
+    load.style.display='block'; $('loginBtn').disabled=true;
     try{
       const q=query(collection(db,'doctors'),where('email','==',email));
       const snap=await getDocs(q);
-      if(snap.empty){ errEl.textContent='No account found with this email.'; errEl.style.display='block'; return; }
+      if(snap.empty){ err.textContent='No account found.'; err.style.display='block'; return; }
       const data=snap.docs[0].data();
-      if(data.password!==pass){ errEl.textContent='Incorrect password.'; errEl.style.display='block'; return; }
+      if(data.password!==pass){ err.textContent='Incorrect password.'; err.style.display='block'; return; }
       currentDoctor={id:snap.docs[0].id,...data};
-      saveSession(currentDoctor.id);
+      localStorage.setItem('mc_doctor_id',currentDoctor.id);
       bootApp(currentDoctor);
-    }catch(e){ errEl.textContent='Error: '+e.message; errEl.style.display='block'; }
-    finally{ loadEl.style.display='none'; $('loginBtn').disabled=false; }
+    }catch(e){ err.textContent='Error: '+e.message; err.style.display='block'; }
+    finally{ load.style.display='none'; $('loginBtn').disabled=false; }
   }
-  $('loginBtn').addEventListener('click',doLoginFn);
-  ['loginEmail','loginPassword'].forEach(id=>{ $(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLoginFn(); }); });
+  $('loginBtn').addEventListener('click',doLogin);
+  ['loginEmail','loginPassword'].forEach(id=>$(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); }));
 
-  // ── Boot ──────────────────────────────────────────────────────────────────
+  // ── Boot ───────────────────────────────────────────────────────────────
   function bootApp(doctor){
     $('loginScreen').style.display='none';
     $('appShell').style.display='block';
@@ -537,20 +730,17 @@
     $('profileSpec').textContent  = doctor.speciality||'—';
     $('profileDept').textContent  = doctor.department||'—';
     $('profileEmail').textContent = doctor.email||'—';
-    // Admin stores: availableFrom, availableTo
     $('profileFrom').textContent  = fmtTime(doctor.availableFrom);
     $('profileTo').textContent    = fmtTime(doctor.availableTo);
     $('profilePhone').textContent = doctor.phone||'—';
     const symEl=$('profileSymptoms');
-    if(Array.isArray(doctor.symptoms)&&doctor.symptoms.length){
-      symEl.innerHTML=doctor.symptoms.map(s=>`<span class="sym-pill">${s}</span>`).join('');
-    } else {
-      symEl.innerHTML='<div style="color:var(--muted);font-size:.85rem;">No symptoms mapped yet.</div>';
-    }
+    symEl.innerHTML=(Array.isArray(doctor.symptoms)&&doctor.symptoms.length)
+      ? doctor.symptoms.map(s=>`<span class="sym-pill">${s}</span>`).join('')
+      : '<div style="color:var(--muted);font-size:.83rem;">No symptoms mapped.</div>';
     loadAppointments(doctor.name);
   }
 
-  // ── Appointments ──────────────────────────────────────────────────────────
+  // ── Appointments ───────────────────────────────────────────────────────
   function loadAppointments(doctorName){
     const q=query(collection(db,'appointments'),where('doctorName','==',doctorName));
     onSnapshot(q,snap=>{
@@ -561,21 +751,21 @@
   function renderStats(){
     $('statTotal').textContent    =allAppointments.length;
     $('statCompleted').textContent=allAppointments.filter(a=>a.status==='Completed').length;
-    $('statPending').textContent  =allAppointments.filter(a=>a.status==='Pending'||a.status==='Confirmed').length;
+    $('statPending').textContent  =allAppointments.filter(a=>['Pending','Confirmed'].includes(a.status)).length;
     $('statCancelled').textContent=allAppointments.filter(a=>a.status==='Cancelled').length;
     $('todayCount').textContent   =allAppointments.filter(a=>isToday(a.date)).length;
   }
   function renderTodayAppts(){
     const list=allAppointments.filter(a=>isToday(a.date));
     const el=$('todayAppts');
-    if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No appointments today — enjoy your day!</div>'; return; }
-    el.innerHTML=list.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(a=>apptCard(a)).join('');
+    if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No appointments today</div>'; return; }
+    el.innerHTML=list.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(apptCard).join('');
   }
   function renderAllAppts(){
     const list=currentFilter==='all'?allAppointments:allAppointments.filter(a=>a.status===currentFilter);
     const el=$('allAppts');
     if(!list.length){ el.innerHTML='<div class="empty"><div class="e-icon">📭</div>No appointments found.</div>'; return; }
-    el.innerHTML=list.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(a=>apptCard(a)).join('');
+    el.innerHTML=list.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(apptCard).join('');
   }
 
   function apptCard(a){
@@ -583,314 +773,368 @@
     const canAct=a.status==='Confirmed'||a.status==='Pending';
     const equipped=!!a.equipmentAssigned;
     const hosp=!!a.bedAssigned;
+    const hasEmail=!!(a.email||a.patientEmail);
     let badges='';
     if(equipped) badges+=`<span class="assign-badge badge-equip">🔬 ${a.equipmentAssigned}${a.equipmentSlot?' · '+fmtTime(a.equipmentSlot):''}</span>`;
     if(hosp)     badges+=`<span class="assign-badge badge-bed">🛏 ${a.bedAssigned}</span>`;
     if(a.morningNurse) badges+=`<span class="assign-badge badge-nurse">🌅 ${a.morningNurse}</span>`;
     if(a.nightNurse)   badges+=`<span class="assign-badge badge-nurse">🌙 ${a.nightNurse}</span>`;
     return `<div class="appt-card">
-      <div class="appt-card-top">
-        <div class="appt-time-block">
-          <div class="appt-time">${fmtTime(a.time||a.appointmentTime)}</div>
-          <div class="appt-date">${fmtDate(a.date||a.appointmentDate)}</div>
+      <div class="appt-top">
+        <div class="time-block">
+          <div class="time-val">${fmtTime(a.time||a.appointmentTime)}</div>
+          <div class="date-val">${fmtDate(a.date||a.appointmentDate)}</div>
         </div>
         <div class="appt-info">
           <h4>${a.patientName||a.name||'Patient'}</h4>
           <div class="sym">Symptom: <span>${a.symptom||a.symptoms||'—'}</span></div>
-          ${a.notes?`<div class="sym" style="margin-top:.2rem">Notes: <span style="color:#aac8e0">${a.notes}</span></div>`:''}
+          ${a.notes?`<div class="sym" style="margin-top:.15rem">Notes: <span style="color:#c8a87a">${a.notes}</span></div>`:''}
+          ${hasEmail?`<div class="sym" style="margin-top:.15rem">📧 <span style="color:var(--muted)">${a.email||a.patientEmail}</span></div>`:''}
         </div>
-        <span class="appt-status ${sc}">${a.status||'Pending'}</span>
-        <div class="appt-actions">
-          ${canAct?`<button class="btn-sm btn-complete" onclick="updateApptStatus('${a.id}','Completed')">✓ Done</button>`:''}
-          ${canAct?`<button class="btn-sm btn-cancel"   onclick="updateApptStatus('${a.id}','Cancelled')">✕</button>`:''}
+        <span class="status-badge ${sc}">${a.status||'Pending'}</span>
+        <div style="display:flex;gap:.4rem;">
+          ${canAct?`<button class="btn-sm btn-done" onclick="updateStatus('${a.id}','Completed')">✓ Done</button>`:''}
+          ${canAct?`<button class="btn-sm btn-cancel" onclick="updateStatus('${a.id}','Cancelled')">✕</button>`:''}
         </div>
       </div>
-      <div class="appt-card-bottom">
+      <div class="appt-bottom">
         ${badges}
-        <div style="display:flex;gap:.6rem;margin-left:auto;">
-          <button class="btn-equipment"
+        <div style="display:flex;gap:.5rem;margin-left:auto;flex-wrap:wrap;">
+          <button class="btn-action btn-equip"
             ${equipped?'disabled title="Equipment already assigned"':`onclick="openEquipModal('${a.id}')"`}>
             🔬 ${equipped?'Test Assigned':'Assign Test'}
           </button>
-          <button class="btn-hospitalise"
+          <button class="btn-action btn-hosp"
             ${hosp?'disabled title="Already hospitalised"':`onclick="openHospModal('${a.id}')"`}>
             🏥 ${hosp?'Hospitalised':'Hospitalise'}
+          </button>
+          <button class="btn-action btn-report" onclick="openReportModal('${a.id}')">
+            📋 Send Report
           </button>
         </div>
       </div>
     </div>`;
   }
 
-  window.updateApptStatus=async function(apptId,status){
-    try{ await updateDoc(doc(db,'appointments',apptId),{status,updatedAt:serverTimestamp()}); }
+  window.updateStatus=async function(id,status){
+    try{ await updateDoc(doc(db,'appointments',id),{status,updatedAt:serverTimestamp()}); }
     catch(e){ showToast('Error',e.message,'err'); }
   };
   window.filterAppts=function(filter,btn){
     currentFilter=filter;
-    document.querySelectorAll('#page-appointments .btn-sm').forEach(b=>{
-      b.style.background='transparent'; b.style.color='var(--muted)'; b.style.borderColor='var(--border)';
-    });
-    btn.style.background='rgba(0,198,167,.15)'; btn.style.color='var(--teal)'; btn.style.borderColor='rgba(0,198,167,.35)';
+    document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
     renderAllAppts();
   };
 
-  // ══════════════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════════════
   // EQUIPMENT MODAL
-  // Admin fields: name, serial, operator, contact, room, workingFrom, workingTo
-  // Slots: 60-min intervals between workingFrom → workingTo
-  // ══════════════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════════════
   window.openEquipModal=async function(apptId){
     activeAppt=allAppointments.find(a=>a.id===apptId);
     selectedEquipId=null; selectedSlot=null;
     if(!activeAppt) return;
     $('equipPatientInfo').innerHTML=`
       <strong>${activeAppt.patientName||activeAppt.name||'Patient'}</strong>
-      <div class="sym">Symptom: <span style="color:var(--accent)">${activeAppt.symptom||activeAppt.symptoms||'—'}</span></div>`;
+      <div class="sym">Symptom: <span style="color:var(--amber)">${activeAppt.symptom||'—'}</span></div>`;
     $('equipConfirmBtn').disabled=true;
-    $('equipList').innerHTML='<div class="equip-loading"><span class="spinner"></span> Loading available equipment…</div>';
+    $('equipList').innerHTML='<div class="loading-state"><span class="spinner"></span> Loading equipment…</div>';
     $('equipModal').classList.add('open');
     try{
       const equipSnap=await getDocs(collection(db,'equipment'));
       const assignSnap=await getDocs(collection(db,'equipmentAssignments'));
       const assignments=assignSnap.docs.map(d=>d.data());
-
-      // Use the appointment's date for slot conflict checking.
-      // If the appointment has no date yet, fall back to today.
-      const targetDate = activeAppt.date || new Date().toISOString().split('T')[0];
-
-      if(equipSnap.empty){
-        $('equipList').innerHTML='<div class="equip-loading" style="color:var(--rose)">No equipment registered. Ask admin to add equipment.</div>';
-        return;
-      }
+      const targetDate=activeAppt.date||new Date().toISOString().split('T')[0];
+      if(equipSnap.empty){ $('equipList').innerHTML='<div class="loading-state" style="color:var(--rose)">No equipment registered.</div>'; return; }
       let html='';
       equipSnap.docs.forEach(edoc=>{
         const e={id:edoc.id,...edoc.data()};
-        // ── Use admin's exact field names: workingFrom, workingTo ──
-        const from=e.workingFrom||'08:00';
-        const to  =e.workingTo  ||'17:00';
-        const allSlots=generateTimeSlots(from,to,60);
-
-        // Only treat a slot as taken if it's on the SAME date as the appointment.
-        // This means the same machine can be used at the same time on different days.
-        const takenSlots=assignments
-          .filter(a=>a.equipmentId===e.id && a.date===targetDate)
-          .map(a=>a.slot);
+        const allSlots=generateTimeSlots(e.workingFrom||'08:00',e.workingTo||'17:00',60);
+        const takenSlots=assignments.filter(a=>a.equipmentId===e.id&&a.date===targetDate).map(a=>a.slot);
         const freeSlots=allSlots.filter(s=>!takenSlots.includes(s));
-
-        const eName  =e.name||'Equipment';
+        const eName=e.name||'Equipment';
         const roomTxt=e.room?` · Room ${e.room}`:'';
-        const opTxt  =e.operator?` · ${e.operator}`:'';
         const dateLabel=new Date(targetDate+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
-
-        if(freeSlots.length===0){
+        if(!freeSlots.length){
           html+=`<div class="equip-item disabled-equip">
             <div><div class="equip-name">${eName}</div>
-            <div class="equip-meta slot-busy">Fully booked on ${dateLabel}${roomTxt}${opTxt}</div></div>
+            <div class="equip-meta slot-busy">Fully booked on ${dateLabel}${roomTxt}</div></div>
             <div class="equip-check"></div></div>`;
         } else {
           const next=freeSlots[0];
           html+=`<div class="equip-item" id="ei-${e.id}" onclick="selectEquip('${e.id}','${next}')">
             <div><div class="equip-name">${eName}</div>
-            <div class="equip-meta slot-free">Next free: ${fmtTime(next)} on ${dateLabel} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}${opTxt}</div></div>
+            <div class="equip-meta slot-free">Next free: ${fmtTime(next)} on ${dateLabel} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}</div></div>
             <div class="equip-check" id="ec-${e.id}">✓</div></div>`;
         }
       });
       $('equipList').innerHTML=html;
-    }catch(e){
-      $('equipList').innerHTML=`<div class="equip-loading" style="color:var(--rose)">Error: ${e.message}</div>`;
-    }
+    }catch(e){ $('equipList').innerHTML=`<div class="loading-state" style="color:var(--rose)">Error: ${e.message}</div>`; }
   };
-
   window.selectEquip=function(equipId,slot){
     document.querySelectorAll('.equip-item:not(.disabled-equip)').forEach(el=>el.classList.remove('selected'));
-    document.querySelectorAll('[id^="ec-"]').forEach(el=>{ el.style.background='transparent'; el.style.color=''; });
+    document.querySelectorAll('[id^="ec-"]').forEach(el=>{ el.style.background=''; el.style.color=''; });
     selectedEquipId=equipId; selectedSlot=slot;
     const item=$('ei-'+equipId), chk=$('ec-'+equipId);
     if(item) item.classList.add('selected');
-    if(chk){ chk.style.background='var(--accent)'; chk.style.color='#07111F'; }
+    if(chk){ chk.style.background='var(--amber)'; chk.style.color='#000'; }
     $('equipConfirmBtn').disabled=false;
   };
-
   window.confirmEquipAssign=async function(){
     if(!activeAppt||!selectedEquipId||!selectedSlot) return;
     const btn=$('equipConfirmBtn');
     btn.disabled=true; btn.textContent='Assigning…';
     try{
       const eDoc=await getDoc(doc(db,'equipment',selectedEquipId));
-      // Admin's field name is `name`
       const eName=eDoc.exists()?(eDoc.data().name||'Equipment'):'Equipment';
       await addDoc(collection(db,'equipmentAssignments'),{
-        equipmentId:   selectedEquipId,
-        equipmentName: eName,
-        appointmentId: activeAppt.id,
-        patientName:   activeAppt.patientName||activeAppt.name,
-        doctorName:    currentDoctor.name,
-        slot:          selectedSlot,
-        date:          activeAppt.date || new Date().toISOString().split('T')[0], // date-aware conflict checking
-        assignedAt:    serverTimestamp()
+        equipmentId:selectedEquipId, equipmentName:eName,
+        appointmentId:activeAppt.id, patientName:activeAppt.patientName||activeAppt.name,
+        doctorName:currentDoctor.name, slot:selectedSlot,
+        date:activeAppt.date||new Date().toISOString().split('T')[0],
+        assignedAt:serverTimestamp()
       });
       await updateDoc(doc(db,'appointments',activeAppt.id),{
-        equipmentAssigned: eName,
-        equipmentSlot:     selectedSlot,
-        equipmentId:       selectedEquipId,
-        updatedAt:         serverTimestamp()
+        equipmentAssigned:eName, equipmentSlot:selectedSlot,
+        equipmentId:selectedEquipId, updatedAt:serverTimestamp()
       });
       closeModal('equipModal');
-      showToast('Test Assigned',`${eName} booked at ${fmtTime(selectedSlot)} for ${activeAppt.patientName||activeAppt.name}`,'ok');
-    }catch(e){ showToast('Assignment Failed',e.message,'err'); }
+      showToast('Test Assigned',`${eName} at ${fmtTime(selectedSlot)} for ${activeAppt.patientName||activeAppt.name}`,'ok');
+    }catch(e){ showToast('Failed',e.message,'err'); }
     btn.disabled=false; btn.textContent='Assign Test →';
   };
 
-  // ══════════════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════════════
   // HOSPITALISE MODAL
-  //
-  // Admin `beds` fields:  room, bedNumber, floor, status, patientName, nurseAssigned
-  //   status values: 'Available'  /  'Occupied'
-  //
-  // Admin `nurses` fields: name, shift, phone
-  //   shift values: "Shift 1 (Morning)"  /  "Shift 2 (Night)"
-  //
-  // On confirm → update bed with admin's exact field names so Room View shows info
-  // ══════════════════════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════════════════════════════
   window.openHospModal=async function(apptId){
     activeAppt=allAppointments.find(a=>a.id===apptId);
     hospResources=null;
     if(!activeAppt) return;
     $('hospPatientInfo').innerHTML=`
       <strong>${activeAppt.patientName||activeAppt.name||'Patient'}</strong>
-      <div class="sym">Symptom: <span style="color:var(--accent)">${activeAppt.symptom||activeAppt.symptoms||'—'}</span></div>`;
+      <div class="sym">Symptom: <span style="color:var(--amber)">${activeAppt.symptom||'—'}</span></div>`;
     $('hospConfirmBtn').disabled=true;
-    $('hospResourceInfo').innerHTML='<div class="equip-loading"><span class="spinner"></span> Checking available beds &amp; nurses…</div>';
+    $('hospResourceInfo').innerHTML='<div class="loading-state"><span class="spinner"></span> Checking resources…</div>';
     $('hospModal').classList.add('open');
     try{
-      // ── Find first available bed ──────────────────────────────────────────
-      // Admin sets status = 'Available' (capital A)
       const bedSnap=await getDocs(collection(db,'beds'));
       const beds=bedSnap.docs.map(d=>({id:d.id,...d.data()}));
       const freeBed=beds.find(b=>(b.status||'Available')==='Available')||null;
-
-      // ── Find free nurses separated by shift ───────────────────────────────
-      // Active hospitalisations tell us which nurses are already occupied
       const hospSnap=await getDocs(query(collection(db,'hospitalisations'),where('discharged','==',false)));
-      const busyNurseIds=new Set(
-        hospSnap.docs.flatMap(d=>[d.data().morningNurseId,d.data().nightNurseId]).filter(Boolean)
-      );
+      const busyIds=new Set(hospSnap.docs.flatMap(d=>[d.data().morningNurseId,d.data().nightNurseId]).filter(Boolean));
       const nurseSnap=await getDocs(collection(db,'nurses'));
       const nurses=nurseSnap.docs.map(d=>({id:d.id,...d.data()}));
-
-      // Match admin shift strings: "Shift 1 (Morning)" / "Shift 2 (Night)"
-      const mNurse=nurses.find(n=>isMorningNurse(n.shift)&&!busyNurseIds.has(n.id))||null;
-      const nNurse=nurses.find(n=>isNightNurse(n.shift)  &&!busyNurseIds.has(n.id))||null;
-
+      const mNurse=nurses.find(n=>isMorningNurse(n.shift)&&!busyIds.has(n.id))||null;
+      const nNurse=nurses.find(n=>isNightNurse(n.shift)&&!busyIds.has(n.id))||null;
       hospResources={freeBed,mNurse,nNurse};
-
-      const bedLabel=freeBed?`Room ${freeBed.room} · Bed ${freeBed.bedNumber} (${freeBed.floor||''})`  :null;
-      const mLabel  =mNurse ?(mNurse.name||'—')+` — ${mNurse.shift}`                                   :null;
-      const nLabel  =nNurse ?(nNurse.name||'—')+` — ${nNurse.shift}`                                   :null;
-
+      const bedLabel=freeBed?`Room ${freeBed.room} · Bed ${freeBed.bedNumber} (${freeBed.floor||''})`:null;
       $('hospResourceInfo').innerHTML=`
-        <div class="resource-row">
-          <div class="resource-label">🛏 Free Bed</div>
-          <div class="resource-val ${freeBed?'':'unavail'}">${bedLabel||'No beds available'}</div>
-        </div>
-        <div class="resource-row">
-          <div class="resource-label">🌅 Morning Shift Nurse</div>
-          <div class="resource-val ${mNurse?'':'unavail'}">${mLabel||'None available'}</div>
-        </div>
-        <div class="resource-row">
-          <div class="resource-label">🌙 Night Shift Nurse</div>
-          <div class="resource-val ${nNurse?'':'unavail'}">${nLabel||'None available'}</div>
-        </div>
-        ${!freeBed?'<div style="margin-top:.75rem;font-size:.78rem;color:var(--rose);text-align:center">⚠ No free beds available. Admission cannot proceed.</div>':''}
-        ${freeBed&&(!mNurse||!nNurse)?'<div style="margin-top:.75rem;font-size:.78rem;color:var(--accent);text-align:center">⚠ One shift has no available nurse — will admit with available staff.</div>':''}`;
+        <div class="resource-row"><div class="resource-label">🛏 Free Bed</div><div class="resource-val ${freeBed?'':'unavail'}">${bedLabel||'No beds available'}</div></div>
+        <div class="resource-row"><div class="resource-label">🌅 Morning Nurse</div><div class="resource-val ${mNurse?'':'unavail'}">${mNurse?(mNurse.name+' — '+mNurse.shift):'None available'}</div></div>
+        <div class="resource-row"><div class="resource-label">🌙 Night Nurse</div><div class="resource-val ${nNurse?'':'unavail'}">${nNurse?(nNurse.name+' — '+nNurse.shift):'None available'}</div></div>
+        ${!freeBed?'<div style="margin-top:.6rem;font-size:.76rem;color:var(--rose);text-align:center">⚠ No free beds. Admission cannot proceed.</div>':''}`;
       $('hospConfirmBtn').disabled=!freeBed;
-    }catch(e){
-      $('hospResourceInfo').innerHTML=`<div class="equip-loading" style="color:var(--rose)">Error: ${e.message}</div>`;
-    }
+    }catch(e){ $('hospResourceInfo').innerHTML=`<div class="loading-state" style="color:var(--rose)">Error: ${e.message}</div>`; }
   };
-
   window.confirmHospitalise=async function(){
     if(!activeAppt||!hospResources) return;
     const btn=$('hospConfirmBtn');
     btn.disabled=true; btn.textContent='Admitting…';
     const {freeBed,mNurse,nNurse}=hospResources;
     try{
-      const patName  =activeAppt.patientName||activeAppt.name||'—';
-      const bedId    =freeBed.id;
-      // Human-readable label stored on appointment
-      const bedLabel =`Room ${freeBed.room} · Bed ${freeBed.bedNumber}`;
-      // Admin's field names for nurses: name
-      const mName    =mNurse?(mNurse.name||'—'):'—';
-      const nName    =nNurse?(nNurse.name||'—'):'—';
-      const mId      =mNurse?mNurse.id:null;
-      const nId      =nNurse?nNurse.id:null;
-
-      // Create hospitalisation record
+      const patName=activeAppt.patientName||activeAppt.name||'—';
+      const bedLabel=`Room ${freeBed.room} · Bed ${freeBed.bedNumber}`;
+      const mName=mNurse?(mNurse.name||'—'):'—';
+      const nName=nNurse?(nNurse.name||'—'):'—';
       await addDoc(collection(db,'hospitalisations'),{
-        appointmentId: activeAppt.id,
-        patientName:   patName,
-        doctorName:    currentDoctor.name,
-        bedId,
-        bedRoom:       freeBed.room,
-        bedNumber:     freeBed.bedNumber,
-        floor:         freeBed.floor||'',
-        morningNurseId:mId,
-        morningNurse:  mName,
-        nightNurseId:  nId,
-        nightNurse:    nName,
-        admittedAt:    serverTimestamp(),
-        discharged:    false
+        appointmentId:activeAppt.id, patientName:patName,
+        doctorName:currentDoctor.name, bedId:freeBed.id,
+        bedRoom:freeBed.room, bedNumber:freeBed.bedNumber, floor:freeBed.floor||'',
+        morningNurseId:mNurse?.id||null, morningNurse:mName,
+        nightNurseId:nNurse?.id||null, nightNurse:nName,
+        admittedAt:serverTimestamp(), discharged:false
       });
-
-      // Update appointment
       await updateDoc(doc(db,'appointments',activeAppt.id),{
-        hospitalised:  true,
-        bedAssigned:   bedLabel,
-        morningNurse:  mName,
-        nightNurse:    nName,
-        status:        'Hospitalised',
-        updatedAt:     serverTimestamp()
+        hospitalised:true, bedAssigned:bedLabel,
+        morningNurse:mName, nightNurse:nName,
+        status:'Hospitalised', updatedAt:serverTimestamp()
       });
-
-      // ── Update bed using ADMIN's exact field names ─────────────────────
-      // Admin reads: status, patientName, nurseAssigned
-      // Admin toggles between 'Available' and 'Occupied'
-      const nurseAssigned=[mName,nName].filter(n=>n&&n!=='—').join(', ');
-      if(bedId){
-        await updateDoc(doc(db,'beds',bedId),{
-          status:        'Occupied',      // admin's status value
-          patientName:   patName,         // admin's field: patientName
-          nurseAssigned: nurseAssigned    // admin's field: nurseAssigned
+      if(freeBed.id){
+        await updateDoc(doc(db,'beds',freeBed.id),{
+          status:'Occupied', patientName:patName,
+          nurseAssigned:[mName,nName].filter(n=>n&&n!=='—').join(', ')
         });
       }
-
       closeModal('hospModal');
       showToast('Patient Admitted',`${bedLabel} · 🌅 ${mName} · 🌙 ${nName}`,'info',6000);
     }catch(e){ showToast('Admission Failed',e.message,'err'); }
     btn.disabled=false; btn.textContent='Confirm Admission →';
   };
 
-  // ── Change password ───────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════
+  // REPORT MODAL
+  // ══════════════════════════════════════════════════════════════════════
+  window.openReportModal=function(apptId){
+    activeAppt=allAppointments.find(a=>a.id===apptId);
+    if(!activeAppt) return;
+
+    // Clear inputs
+    ['rDiagnosis','rPrescription','rFollowup','rNotes'].forEach(id=>{ $(id).value=''; });
+    $('reportSendBtn').disabled=false;
+    $('reportSendBtn').textContent='📧 Send Report →';
+
+    const a=activeAppt;
+    const patName=a.patientName||a.name||'Patient';
+    const patEmail=a.email||a.patientEmail||'';
+
+    $('reportPatientInfo').innerHTML=`
+      <strong>${patName}</strong>
+      <div class="sym">Symptom: <span style="color:var(--amber)">${a.symptom||'—'}</span> &nbsp;·&nbsp; ${fmtDate(a.date)} at ${fmtTime(a.time)}</div>
+      ${patEmail?`<div class="sym" style="margin-top:.2rem">📧 Report will be sent to: <span style="color:var(--orange)">${patEmail}</span></div>`
+        :'<div class="sym" style="color:var(--rose);margin-top:.2rem">⚠ No email on record — report will not be emailed.</div>'}`;
+
+    // Build the auto-summary section
+    let autoRows='';
+    autoRows+=`<div class="report-info-row"><span class="report-info-key">Doctor</span><span class="report-info-val">${currentDoctor.name||'—'}</span></div>`;
+    autoRows+=`<div class="report-info-row"><span class="report-info-key">Speciality</span><span class="report-info-val">${currentDoctor.speciality||'—'}</span></div>`;
+    autoRows+=`<div class="report-info-row"><span class="report-info-key">Appointment</span><span class="report-info-val highlight">${fmtDate(a.date)} at ${fmtTime(a.time)}</span></div>`;
+    autoRows+=`<div class="report-info-row"><span class="report-info-key">Status</span><span class="report-info-val">${a.status||'—'}</span></div>`;
+
+    if(a.equipmentAssigned){
+      autoRows+=`<div class="report-info-row"><span class="report-info-key">🔬 Test Assigned</span><span class="report-info-val highlight">${a.equipmentAssigned}</span></div>`;
+      if(a.equipmentSlot) autoRows+=`<div class="report-info-row"><span class="report-info-key">Test Slot</span><span class="report-info-val highlight">${fmtDate(a.date)} at ${fmtTime(a.equipmentSlot)}</span></div>`;
+    }
+    if(a.bedAssigned){
+      autoRows+=`<div class="report-info-row"><span class="report-info-key">🏥 Hospitalised</span><span class="report-info-val highlight">${a.bedAssigned}</span></div>`;
+      if(a.morningNurse&&a.morningNurse!=='—') autoRows+=`<div class="report-info-row"><span class="report-info-key">Morning Nurse</span><span class="report-info-val">${a.morningNurse}</span></div>`;
+      if(a.nightNurse&&a.nightNurse!=='—')   autoRows+=`<div class="report-info-row"><span class="report-info-key">Night Nurse</span><span class="report-info-val">${a.nightNurse}</span></div>`;
+    }
+
+    $('reportAutoSection').innerHTML=`
+      <div class="report-section-title">Appointment Summary</div>
+      ${autoRows}`;
+
+    $('reportModal').classList.add('open');
+  };
+
+  window.sendReport=async function(){
+    const a=activeAppt;
+    if(!a) return;
+    const diagnosis=$('rDiagnosis').value.trim();
+    const prescription=$('rPrescription').value.trim();
+    const followup=$('rFollowup').value.trim();
+    const notes=$('rNotes').value.trim();
+    if(!diagnosis){ showToast('Required','Please enter diagnosis/findings.','err'); return; }
+
+    const patName=a.patientName||a.name||'Patient';
+    const patEmail=a.email||a.patientEmail||'';
+    const btn=$('reportSendBtn');
+    btn.disabled=true; btn.textContent='Sending…';
+
+    // Build test and hospitalisation lines for email
+    let testLine='Not assigned';
+    if(a.equipmentAssigned){
+      testLine=a.equipmentAssigned;
+      if(a.equipmentSlot) testLine+=` — scheduled on ${fmtDate(a.date)} at ${fmtTime(a.equipmentSlot)}`;
+    }
+    let hospLine='Not hospitalised';
+    if(a.bedAssigned){
+      hospLine=a.bedAssigned;
+      if(a.morningNurse&&a.morningNurse!=='—') hospLine+=` | Morning Nurse: ${a.morningNurse}`;
+      if(a.nightNurse&&a.nightNurse!=='—')     hospLine+=` | Night Nurse: ${a.nightNurse}`;
+    }
+
+    try{
+      // Save report to Firestore
+      await addDoc(collection(db,'reports'),{
+        appointmentId: a.id,
+        patientName:   patName,
+        patientEmail:  patEmail,
+        doctorName:    currentDoctor.name,
+        speciality:    currentDoctor.speciality||'—',
+        symptom:       a.symptom||'—',
+        appointmentDate: a.date,
+        appointmentTime: a.time,
+        diagnosis,
+        prescription: prescription||'—',
+        followup:     followup||'—',
+        notes:        notes||'—',
+        equipmentAssigned: a.equipmentAssigned||'Not assigned',
+        equipmentSlot:     a.equipmentSlot||'—',
+        bedAssigned:       a.bedAssigned||'Not hospitalised',
+        morningNurse:      a.morningNurse||'—',
+        nightNurse:        a.nightNurse||'—',
+        createdAt:         serverTimestamp()
+      });
+
+      // Send email via EmailJS if patient has email
+      if(patEmail){
+        try{
+          await emailjs.send("default_service","template_sbvt3ze",{
+            // Recipient
+            to_name:      patName,
+            name:         patName,
+            patient_name: patName,
+            to_email:     patEmail,
+            email:        patEmail,
+            user_email:   patEmail,
+            reply_to:     patEmail,
+            // Doctor
+            doctor:       currentDoctor.name,
+            doctor_name:  currentDoctor.name,
+            speciality:   currentDoctor.speciality||'—',
+            // Appointment
+            date:         fmtDate(a.date),
+            time:         fmtTime(a.time),
+            symptom:      a.symptom||'—',
+            // Medical report
+            diagnosis,
+            prescription: prescription||'Not prescribed',
+            followup:     followup||'No follow-up instructions',
+            notes:        notes||'—',
+            // Tests & hospitalisation
+            test_assigned:   testLine,
+            hospitalisation: hospLine,
+            // Report type label
+            report_type: 'Post-Checkup Medical Report'
+          },{publicKey:"nEbb9aPtYh8imCD0M"});
+          showToast('Report Sent',`Medical report emailed to ${patEmail}`,'ok',6000);
+        }catch(emailErr){
+          console.warn('EmailJS error:',emailErr);
+          showToast('Report Saved','Saved to records — email delivery failed.','info');
+        }
+      } else {
+        showToast('Report Saved','No email on record. Report saved to database.','info');
+      }
+      closeModal('reportModal');
+    }catch(e){
+      showToast('Failed',e.message,'err');
+      btn.disabled=false; btn.textContent='📧 Send Report →';
+    }
+  };
+
+  // ── Change Password ────────────────────────────────────────────────────
   $('passBtn').addEventListener('click',async()=>{
-    const curr=$('currPass').value,nw=$('newPass').value,conf=$('confirmPass').value;
-    const btn=$('passBtn');
-    $('passErr').style.display='none';
-    if(!curr||!nw||!conf){ showPassErr('Please fill in all fields.'); return; }
-    if(nw.length<8){ showPassErr('New password must be at least 8 characters.'); return; }
-    if(nw!==conf){ showPassErr('Passwords do not match.'); return; }
-    if(curr!==currentDoctor.password){ showPassErr('Current password is incorrect.'); return; }
-    btn.disabled=true; btn.textContent='Updating…';
+    const curr=$('currPass').value, nw=$('newPass').value, conf=$('confirmPass').value;
+    const errEl=$('passErr');
+    errEl.style.display='none';
+    if(!curr||!nw||!conf){ errEl.textContent='⚠ Fill all fields.'; errEl.style.display='block'; return; }
+    if(nw.length<8){ errEl.textContent='⚠ Min 8 characters.'; errEl.style.display='block'; return; }
+    if(nw!==conf){ errEl.textContent='⚠ Passwords do not match.'; errEl.style.display='block'; return; }
+    if(curr!==currentDoctor.password){ errEl.textContent='⚠ Current password incorrect.'; errEl.style.display='block'; return; }
+    $('passBtn').disabled=true; $('passBtn').textContent='Updating…';
     try{
       await updateDoc(doc(db,'doctors',currentDoctor.id),{password:nw});
       currentDoctor.password=nw;
-      $('currPass').value=''; $('newPass').value=''; $('confirmPass').value='';
-      showAlert('passOk');
-    }catch(e){ showPassErr('Failed: '+e.message); }
-    btn.disabled=false; btn.textContent='Update Password';
+      ['currPass','newPass','confirmPass'].forEach(id=>$(id).value='');
+      $('passOk').style.display='block'; setTimeout(()=>$('passOk').style.display='none',3500);
+    }catch(e){ errEl.textContent='⚠ '+e.message; errEl.style.display='block'; }
+    $('passBtn').disabled=false; $('passBtn').textContent='Update Password';
   });
 
-  // Close modals on overlay click
-  ['equipModal','hospModal'].forEach(id=>{
+  // Close overlays on backdrop click
+  ['equipModal','hospModal','reportModal'].forEach(id=>{
     $(id).addEventListener('click',e=>{ if(e.target===$(id)) closeModal(id); });
   });
 </script>
