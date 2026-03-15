@@ -1072,7 +1072,7 @@ window.bNext3 = function() {
           slotPreference: bookingData.slotPref,
           paymentRef:     refId,
           razorpayPaymentId,
-          amountPaid:     500,
+          amountPaid:     100,
           createdAt:      serverTimestamp()
         });
 
@@ -1119,7 +1119,7 @@ window.bNext3 = function() {
         document.getElementById('bSuccessSub').textContent =
           `Confirmed for ${fmtDate(apptDate)} at ${fmtTime(apptTime)} with ${doctorName}. Check ${currentUser.email} for details.`;
         document.getElementById('bSuccessRef').textContent =
-          `Razorpay ID: ${refId} · ₹500 paid`;
+          `Razorpay ID: ${refId} · ₹1 paid`;
         hideEl('bStep3'); showEl('bStep4');
 
       } catch(err) {
