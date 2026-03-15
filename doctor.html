@@ -5,12 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Doctor Portal | MediCare+</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<link
-        rel="icon"
-        href="https://lh3.googleusercontent.com/pw/AP1GczN5NKp-gdC4g_ZU5tF_XD2rYIjna4kGRsxJjHpZ3puZ7t3UCNrDHc96-gcHWtdEfXqfdenTXg25JZbTt910OceNs6tR_hR7qIcZoySqHWhYs9e5YtuzCrwCTwaQOLR4syZWu2LgCA9TeiccyJDx5NVr=w407-h407-s-no-gm?authuser=0"
-        type="image/svg+xml"
-/>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="icon" href="https://lh3.googleusercontent.com/pw/AP1GczN5NKp-gdC4g_ZU5tF_XD2rYIjna4kGRsxJjHpZ3puZ7t3UCNrDHc96-gcHWtdEfXqfdenTXg25JZbTt910OceNs6tR_hR7qIcZoySqHWhYs9e5YtuzCrwCTwaQOLR4syZWu2LgCA9TeiccyJDx5NVr=w407-h407-s-no-gm?authuser=0" type="image/svg+xml"/>
+<script src="https://unpkg.com/@emailjs/browser@4.4.1/dist/email.min.js"></script>
 <style>
 :root {
   --bg:      #f8f9f7;
@@ -141,6 +137,8 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;height:60px
 .btn-done:hover{background:rgba(31,61,46,0.14);}
 .btn-cancel-sm{background:rgba(176,64,80,0.06);border-color:rgba(176,64,80,0.2);color:var(--rose);}
 .btn-cancel-sm:hover{background:rgba(176,64,80,0.14);}
+.btn-decline{background:rgba(90,96,160,0.06);border-color:rgba(90,96,160,0.2);color:var(--lavender);}
+.btn-decline:hover{background:rgba(90,96,160,0.14);}
 .btn-action{display:inline-flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.32rem 0.85rem;border:1px solid;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
 .btn-equip{background:rgba(138,106,42,0.06);border-color:rgba(138,106,42,0.2);color:var(--amber);}
 .btn-equip:hover{background:rgba(138,106,42,0.14);}
@@ -156,6 +154,7 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;height:60px
 .badge-equip{background:rgba(138,106,42,0.06);border-color:rgba(138,106,42,0.2);color:var(--amber);}
 .badge-bed{background:rgba(90,96,160,0.06);border-color:rgba(90,96,160,0.2);color:var(--lavender);}
 .badge-nurse{background:rgba(45,122,85,0.06);border-color:rgba(45,122,85,0.2);color:var(--green);}
+.badge-transferred{background:rgba(176,64,80,0.06);border-color:rgba(176,64,80,0.2);color:var(--rose);}
 
 /* Filter bar */
 .filter-bar{display:flex;gap:0;border:1px solid var(--border2);margin-bottom:1.75rem;background:var(--white);overflow:hidden;box-shadow:0 1px 4px rgba(31,61,46,0.04);}
@@ -476,9 +475,14 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;height:60px
 <script type="module">
   import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import{getFirestore,collection,query,where,onSnapshot,doc,updateDoc,serverTimestamp,getDocs,getDoc,addDoc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
   const firebaseConfig={apiKey:"AIzaSyAUCZZXpiOfZVgjmIrNAnn_LF0SOm1WwhA",authDomain:"healthcare-scheduler-5b242.firebaseapp.com",projectId:"healthcare-scheduler-5b242",storageBucket:"healthcare-scheduler-5b242.firebasestorage.app",messagingSenderId:"28196196047",appId:"1:28196196047:web:262b5a5020cd37f64b31ba"};
-  const app=initializeApp(firebaseConfig);const db=getFirestore(app);emailjs.init("nEbb9aPtYh8imCD0M");
+  const app=initializeApp(firebaseConfig);
+  const db=getFirestore(app);
+  emailjs.init("nEbb9aPtYh8imCD0M");
+
   let currentDoctor=null,allAppointments=[],currentFilter='all',activeAppt=null,selectedEquipId=null,selectedSlot=null,hospResources=null;
+
   function fmtTime(t){if(!t)return'—';const[h,m]=t.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
   function fmtDate(ds){if(!ds)return'—';return new Date(ds+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
   function greeting(){const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening';}
@@ -490,38 +494,428 @@ nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;height:60px
   function isMorningNurse(s){return!!(s&&s.toLowerCase().includes('morning'));}
   function isNightNurse(s){return!!(s&&s.toLowerCase().includes('night'));}
 
-  (async()=>{const savedId=localStorage.getItem('mc_doctor_id');if(savedId){try{const snap=await getDoc(doc(db,'doctors',savedId));if(snap.exists()){currentDoctor={id:snap.id,...snap.data()};bootApp(currentDoctor);return;}}catch(e){}localStorage.removeItem('mc_doctor_id');}$('loginScreen').style.display='flex';$('appShell').style.display='none';})();
+  // ── Auto-login from localStorage ─────────────────────────────────────────
+  (async()=>{
+    const savedId=localStorage.getItem('mc_doctor_id');
+    if(savedId){
+      try{
+        const snap=await getDoc(doc(db,'doctors',savedId));
+        if(snap.exists()){currentDoctor={id:snap.id,...snap.data()};bootApp(currentDoctor);return;}
+      }catch(e){}
+      localStorage.removeItem('mc_doctor_id');
+    }
+    $('loginScreen').style.display='flex';
+    $('appShell').style.display='none';
+  })();
 
-  async function doLogin(){const email=$('loginEmail').value.trim().toLowerCase();const pass=$('loginPassword').value;const err=$('loginErr'),load=$('loginLoading');err.style.display='none';if(!email||!pass){err.textContent='Please fill all fields.';err.style.display='block';return;}load.style.display='block';$('loginBtn').disabled=true;try{const q=query(collection(db,'doctors'),where('email','==',email));const snap=await getDocs(q);if(snap.empty){err.textContent='No account found.';err.style.display='block';return;}const data=snap.docs[0].data();if(data.password!==pass){err.textContent='Incorrect password.';err.style.display='block';return;}currentDoctor={id:snap.docs[0].id,...data};localStorage.setItem('mc_doctor_id',currentDoctor.id);bootApp(currentDoctor);}catch(e){err.textContent='Error: '+e.message;err.style.display='block';}finally{load.style.display='none';$('loginBtn').disabled=false;}}
+  // ── Login ─────────────────────────────────────────────────────────────────
+  async function doLogin(){
+    const email=$('loginEmail').value.trim().toLowerCase();
+    const pass=$('loginPassword').value;
+    const err=$('loginErr'),load=$('loginLoading');
+    err.style.display='none';
+    if(!email||!pass){err.textContent='Please fill all fields.';err.style.display='block';return;}
+    load.style.display='block';$('loginBtn').disabled=true;
+    try{
+      const q=query(collection(db,'doctors'),where('email','==',email));
+      const snap=await getDocs(q);
+      if(snap.empty){err.textContent='No account found.';err.style.display='block';return;}
+      const data=snap.docs[0].data();
+      if(data.password!==pass){err.textContent='Incorrect password.';err.style.display='block';return;}
+      currentDoctor={id:snap.docs[0].id,...data};
+      localStorage.setItem('mc_doctor_id',currentDoctor.id);
+      bootApp(currentDoctor);
+    }catch(e){err.textContent='Error: '+e.message;err.style.display='block';}
+    finally{load.style.display='none';$('loginBtn').disabled=false;}
+  }
   $('loginBtn').addEventListener('click',doLogin);
   ['loginEmail','loginPassword'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();}));
 
-  function bootApp(doctor){$('loginScreen').style.display='none';$('appShell').style.display='block';showTab('dashboard',document.querySelector('.nav-tab'));const name=doctor.name||doctor.email;const firstName=name.replace(/^dr\.?\s*/i,'').split(' ')[0];$('docNameNav').textContent=name.split(' ').slice(0,2).join(' ');$('docInitial').textContent=initials(name);$('welcomeMsg').textContent=`${greeting()}, ${firstName}`;$('welcomeSub').textContent=[doctor.speciality,doctor.department].filter(Boolean).join(' · ')||'Doctor Dashboard';$('todayDay').textContent=todayFull();$('profileAvatar').textContent=initials(name);$('profileName').textContent=name;$('profileSpec').textContent=doctor.speciality||'—';$('profileDept').textContent=doctor.department||'—';$('profileEmail').textContent=doctor.email||'—';$('profileFrom').textContent=fmtTime(doctor.availableFrom);$('profileTo').textContent=fmtTime(doctor.availableTo);$('profilePhone').textContent=doctor.phone||'—';const symEl=$('profileSymptoms');symEl.innerHTML=(Array.isArray(doctor.symptoms)&&doctor.symptoms.length)?doctor.symptoms.map(s=>`<span class="sym-pill">${s}</span>`).join(''):'<span style="font-family:\'DM Mono\',monospace;font-size:0.68rem;letter-spacing:0.12em;color:var(--muted)">No symptoms mapped.</span>';loadAppointments(doctor.name);}
+  // ── Boot app ──────────────────────────────────────────────────────────────
+  function bootApp(doctor){
+    $('loginScreen').style.display='none';
+    $('appShell').style.display='block';
+    showTab('dashboard',document.querySelector('.nav-tab'));
+    const name=doctor.name||doctor.email;
+    const firstName=name.replace(/^dr\.?\s*/i,'').split(' ')[0];
+    $('docNameNav').textContent=name.split(' ').slice(0,2).join(' ');
+    $('docInitial').textContent=initials(name);
+    $('welcomeMsg').textContent=`${greeting()}, ${firstName}`;
+    $('welcomeSub').textContent=[doctor.speciality,doctor.department].filter(Boolean).join(' · ')||'Doctor Dashboard';
+    $('todayDay').textContent=todayFull();
+    $('profileAvatar').textContent=initials(name);
+    $('profileName').textContent=name;
+    $('profileSpec').textContent=doctor.speciality||'—';
+    $('profileDept').textContent=doctor.department||'—';
+    $('profileEmail').textContent=doctor.email||'—';
+    $('profileFrom').textContent=fmtTime(doctor.availableFrom);
+    $('profileTo').textContent=fmtTime(doctor.availableTo);
+    $('profilePhone').textContent=doctor.phone||'—';
+    const symEl=$('profileSymptoms');
+    symEl.innerHTML=(Array.isArray(doctor.symptoms)&&doctor.symptoms.length)
+      ?doctor.symptoms.map(s=>`<span class="sym-pill">${s}</span>`).join('')
+      :'<span style="font-family:\'DM Mono\',monospace;font-size:0.68rem;letter-spacing:0.12em;color:var(--muted)">No symptoms mapped.</span>';
+    loadAppointments(doctor.name);
+  }
 
-  function loadAppointments(doctorName){const q=query(collection(db,'appointments'),where('doctorName','==',doctorName));onSnapshot(q,snap=>{allAppointments=snap.docs.map(d=>({id:d.id,...d.data()}));renderStats();renderTodayAppts();renderAllAppts();});}
-  function renderStats(){$('statTotal').textContent=allAppointments.length||'0';$('statCompleted').textContent=allAppointments.filter(a=>a.status==='Completed').length||'0';$('statPending').textContent=allAppointments.filter(a=>['Pending','Confirmed'].includes(a.status)).length||'0';$('statCancelled').textContent=allAppointments.filter(a=>a.status==='Cancelled').length||'0';const tc=allAppointments.filter(a=>isToday(a.date)).length;$('todayCount').textContent=tc||'0';$('todayCountLabel').textContent=`${tc} item${tc!==1?'s':''}`;}
-  function renderTodayAppts(){const list=allAppointments.filter(a=>isToday(a.date));const el=$('todayAppts');if(!list.length){el.innerHTML='<div class="empty">No appointments today</div>';return;}el.innerHTML=list.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(apptCard).join('');}
-  function renderAllAppts(){const list=currentFilter==='all'?allAppointments:allAppointments.filter(a=>a.status===currentFilter);const el=$('allAppts');if(!list.length){el.innerHTML='<div class="empty">No appointments found</div>';return;}el.innerHTML=list.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(apptCard).join('');}
+  // ── Load appointments ─────────────────────────────────────────────────────
+  function loadAppointments(doctorName){
+    const q=query(collection(db,'appointments'),where('doctorName','==',doctorName));
+    onSnapshot(q,snap=>{
+      allAppointments=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderStats();renderTodayAppts();renderAllAppts();
+    });
+  }
 
-  function apptCard(a){const sc=statusClass(a.status);const canAct=a.status==='Confirmed'||a.status==='Pending';const equipped=!!a.equipmentAssigned,hosp=!!a.bedAssigned;const hasEmail=!!(a.email||a.patientEmail);let badges='';if(equipped)badges+=`<span class="assign-badge badge-equip">${a.equipmentAssigned}${a.equipmentSlot?' · '+fmtTime(a.equipmentSlot):''}</span>`;if(hosp)badges+=`<span class="assign-badge badge-bed">${a.bedAssigned}</span>`;if(a.morningNurse)badges+=`<span class="assign-badge badge-nurse">Morning: ${a.morningNurse}</span>`;if(a.nightNurse)badges+=`<span class="assign-badge badge-nurse">Night: ${a.nightNurse}</span>`;return`<div class="appt-card"><div class="appt-top"><div class="time-block"><div class="time-val">${fmtTime(a.time||a.appointmentTime)}</div><div class="date-val">${fmtDate(a.date||a.appointmentDate)}</div></div><div><div class="appt-name">${a.patientName||a.name||'Patient'}</div><div class="appt-meta">Symptom: <span class="em">${a.symptom||'—'}</span></div>${a.notes?`<div class="appt-meta" style="margin-top:0.15rem">Notes: <span class="hi">${a.notes}</span></div>`:''}${hasEmail?`<div class="appt-meta" style="margin-top:0.15rem">${a.email||a.patientEmail}</div>`:''}</div><span class="status-badge ${sc}">${a.status||'Pending'}</span><div style="display:flex;gap:0.4rem;">${canAct?`<button class="btn-sm btn-done" onclick="updateStatus('${a.id}','Completed')">✓ Done</button>`:''}${canAct?`<button class="btn-sm btn-cancel-sm" onclick="updateStatus('${a.id}','Cancelled')">✕</button>`:''}</div></div><div class="appt-bottom">${badges}<div style="display:flex;gap:0.4rem;margin-left:auto;flex-wrap:wrap;"><button class="btn-action btn-equip" ${equipped?'disabled':`onclick="openEquipModal('${a.id}')"`}>${equipped?'Test Assigned':'Assign Test'}</button><button class="btn-action btn-hosp" ${hosp?'disabled':`onclick="openHospModal('${a.id}')"`}>${hosp?'Hospitalised':'Hospitalise'}</button><button class="btn-action btn-report" onclick="openReportModal('${a.id}')">Send Report</button></div></div></div>`;}
+  function renderStats(){
+    $('statTotal').textContent=allAppointments.length||'0';
+    $('statCompleted').textContent=allAppointments.filter(a=>a.status==='Completed').length||'0';
+    $('statPending').textContent=allAppointments.filter(a=>['Pending','Confirmed'].includes(a.status)).length||'0';
+    $('statCancelled').textContent=allAppointments.filter(a=>a.status==='Cancelled').length||'0';
+    const tc=allAppointments.filter(a=>isToday(a.date)).length;
+    $('todayCount').textContent=tc||'0';
+    $('todayCountLabel').textContent=`${tc} item${tc!==1?'s':''}`;
+  }
 
-  window.updateStatus=async function(id,status){try{await updateDoc(doc(db,'appointments',id),{status,updatedAt:serverTimestamp()});}catch(e){showToast('Error',e.message,'err');}};
-  window.filterAppts=function(filter,btn){currentFilter=filter;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderAllAppts();};
+  function renderTodayAppts(){
+    const list=allAppointments.filter(a=>isToday(a.date));
+    const el=$('todayAppts');
+    if(!list.length){el.innerHTML='<div class="empty">No appointments today</div>';return;}
+    el.innerHTML=list.sort((a,b)=>(a.time||'').localeCompare(b.time||'')).map(apptCard).join('');
+  }
 
-  window.openEquipModal=async function(apptId){activeAppt=allAppointments.find(a=>a.id===apptId);selectedEquipId=null;selectedSlot=null;if(!activeAppt)return;$('equipPatientInfo').innerHTML=`<div class="mpc-name">${activeAppt.patientName||activeAppt.name||'Patient'}</div><div class="mpc-meta">Symptom: <span class="em">${activeAppt.symptom||'—'}</span></div>`;$('equipConfirmBtn').disabled=true;$('equipList').innerHTML='<div class="loading-state"><span class="spinner"></span>&nbsp; Loading equipment…</div>';$('equipModal').classList.add('open');try{const equipSnap=await getDocs(collection(db,'equipment'));const assignSnap=await getDocs(collection(db,'equipmentAssignments'));const assignments=assignSnap.docs.map(d=>d.data());const targetDate=activeAppt.date||new Date().toISOString().split('T')[0];if(equipSnap.empty){$('equipList').innerHTML='<div class="loading-state" style="color:var(--rose)">No equipment registered.</div>';return;}let html='';equipSnap.docs.forEach(edoc=>{const e={id:edoc.id,...edoc.data()};const allSlots=generateTimeSlots(e.workingFrom||'08:00',e.workingTo||'17:00',60);const takenSlots=assignments.filter(a=>a.equipmentId===e.id&&a.date===targetDate).map(a=>a.slot);const freeSlots=allSlots.filter(s=>!takenSlots.includes(s));const eName=e.name||'Equipment';const roomTxt=e.room?` · Room ${e.room}`:'';const dateLabel=new Date(targetDate+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});if(!freeSlots.length){html+=`<div class="equip-item disabled-equip"><div><div class="equip-name">${eName}</div><div class="equip-meta slot-busy">Fully booked on ${dateLabel}${roomTxt}</div></div><div class="equip-check"></div></div>`;}else{const next=freeSlots[0];html+=`<div class="equip-item" id="ei-${e.id}" onclick="selectEquip('${e.id}','${next}')"><div><div class="equip-name">${eName}</div><div class="equip-meta slot-free">Next free: ${fmtTime(next)} on ${dateLabel} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}</div></div><div class="equip-check" id="ec-${e.id}">✓</div></div>`;}});$('equipList').innerHTML=html;}catch(e){$('equipList').innerHTML=`<div class="loading-state" style="color:var(--rose)">Error: ${e.message}</div>`;}};
-  window.selectEquip=function(equipId,slot){document.querySelectorAll('.equip-item:not(.disabled-equip)').forEach(el=>el.classList.remove('selected'));selectedEquipId=equipId;selectedSlot=slot;const item=$('ei-'+equipId);if(item)item.classList.add('selected');$('equipConfirmBtn').disabled=false;};
-  window.confirmEquipAssign=async function(){if(!activeAppt||!selectedEquipId||!selectedSlot)return;const btn=$('equipConfirmBtn');btn.disabled=true;btn.textContent='Assigning…';try{const eDoc=await getDoc(doc(db,'equipment',selectedEquipId));const eName=eDoc.exists()?(eDoc.data().name||'Equipment'):'Equipment';await addDoc(collection(db,'equipmentAssignments'),{equipmentId:selectedEquipId,equipmentName:eName,appointmentId:activeAppt.id,patientName:activeAppt.patientName||activeAppt.name,doctorName:currentDoctor.name,slot:selectedSlot,date:activeAppt.date||new Date().toISOString().split('T')[0],assignedAt:serverTimestamp()});await updateDoc(doc(db,'appointments',activeAppt.id),{equipmentAssigned:eName,equipmentSlot:selectedSlot,equipmentId:selectedEquipId,updatedAt:serverTimestamp()});closeModal('equipModal');showToast('Test Assigned',`${eName} at ${fmtTime(selectedSlot)} for ${activeAppt.patientName||activeAppt.name}`,'ok');}catch(e){showToast('Failed',e.message,'err');}btn.disabled=false;btn.textContent='Assign Test →';};
+  function renderAllAppts(){
+    const list=currentFilter==='all'?allAppointments:allAppointments.filter(a=>a.status===currentFilter);
+    const el=$('allAppts');
+    if(!list.length){el.innerHTML='<div class="empty">No appointments found</div>';return;}
+    el.innerHTML=list.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).map(apptCard).join('');
+  }
 
-  window.openHospModal=async function(apptId){activeAppt=allAppointments.find(a=>a.id===apptId);hospResources=null;if(!activeAppt)return;$('hospPatientInfo').innerHTML=`<div class="mpc-name">${activeAppt.patientName||activeAppt.name||'Patient'}</div><div class="mpc-meta">Symptom: <span class="em">${activeAppt.symptom||'—'}</span></div>`;$('hospConfirmBtn').disabled=true;$('hospResourceInfo').innerHTML='<div class="loading-state"><span class="spinner"></span>&nbsp; Checking resources…</div>';$('hospModal').classList.add('open');try{const bedSnap=await getDocs(collection(db,'beds'));const beds=bedSnap.docs.map(d=>({id:d.id,...d.data()}));const freeBed=beds.find(b=>(b.status||'Available')==='Available')||null;const hospSnap=await getDocs(query(collection(db,'hospitalisations'),where('discharged','==',false)));const busyIds=new Set(hospSnap.docs.flatMap(d=>[d.data().morningNurseId,d.data().nightNurseId]).filter(Boolean));const nurseSnap=await getDocs(collection(db,'nurses'));const nurses=nurseSnap.docs.map(d=>({id:d.id,...d.data()}));const mNurse=nurses.find(n=>isMorningNurse(n.shift)&&!busyIds.has(n.id))||null;const nNurse=nurses.find(n=>isNightNurse(n.shift)&&!busyIds.has(n.id))||null;hospResources={freeBed,mNurse,nNurse};const bedLabel=freeBed?`Room ${freeBed.room} · Bed ${freeBed.bedNumber} (${freeBed.floor||''})`:null;$('hospResourceInfo').innerHTML=`<div class="resource-row"><div class="resource-label">Free Bed</div><div class="resource-val ${freeBed?'':'unavail'}">${bedLabel||'No beds available'}</div></div><div class="resource-row"><div class="resource-label">Morning Nurse</div><div class="resource-val ${mNurse?'':'unavail'}">${mNurse?(mNurse.name+' — '+mNurse.shift):'None available'}</div></div><div class="resource-row"><div class="resource-label">Night Nurse</div><div class="resource-val ${nNurse?'':'unavail'}">${nNurse?(nNurse.name+' — '+nNurse.shift):'None available'}</div></div>${!freeBed?'<div style="margin-top:0.75rem;font-family:\'DM Mono\',monospace;font-size:0.68rem;letter-spacing:0.1em;color:var(--rose);text-align:center;padding:0.75rem;border:1px solid rgba(176,64,80,0.2);background:rgba(176,64,80,0.04)">No free beds — admission cannot proceed.</div>':''}`;$('hospConfirmBtn').disabled=!freeBed;}catch(e){$('hospResourceInfo').innerHTML=`<div class="loading-state" style="color:var(--rose)">Error: ${e.message}</div>`;}};
-  window.confirmHospitalise=async function(){if(!activeAppt||!hospResources)return;const btn=$('hospConfirmBtn');btn.disabled=true;btn.textContent='Admitting…';const{freeBed,mNurse,nNurse}=hospResources;try{const patName=activeAppt.patientName||activeAppt.name||'—';const bedLabel=`Room ${freeBed.room} · Bed ${freeBed.bedNumber}`;const mName=mNurse?(mNurse.name||'—'):'—';const nName=nNurse?(nNurse.name||'—'):'—';await addDoc(collection(db,'hospitalisations'),{appointmentId:activeAppt.id,patientName:patName,doctorName:currentDoctor.name,bedId:freeBed.id,bedRoom:freeBed.room,bedNumber:freeBed.bedNumber,floor:freeBed.floor||'',morningNurseId:mNurse?.id||null,morningNurse:mName,nightNurseId:nNurse?.id||null,nightNurse:nName,admittedAt:serverTimestamp(),discharged:false});await updateDoc(doc(db,'appointments',activeAppt.id),{hospitalised:true,bedAssigned:bedLabel,morningNurse:mName,nightNurse:nName,status:'Hospitalised',updatedAt:serverTimestamp()});if(freeBed.id){await updateDoc(doc(db,'beds',freeBed.id),{status:'Occupied',patientName:patName,nurseAssigned:[mName,nName].filter(n=>n&&n!=='—').join(', ')});}closeModal('hospModal');showToast('Patient Admitted',`${bedLabel} · Morning: ${mName} · Night: ${nName}`,'info',6000);}catch(e){showToast('Admission Failed',e.message,'err');}btn.disabled=false;btn.textContent='Confirm Admission →';};
+  // ── Appointment card ──────────────────────────────────────────────────────
+  function apptCard(a){
+    const sc=statusClass(a.status);
+    const canAct=a.status==='Confirmed'||a.status==='Pending';
+    const equipped=!!a.equipmentAssigned,hosp=!!a.bedAssigned;
+    const hasEmail=!!(a.email||a.patientEmail);
+    let badges='';
+    if(a.transferredFrom) badges+=`<span class="assign-badge badge-transferred">Transferred from ${a.transferredFrom}</span>`;
+    if(equipped) badges+=`<span class="assign-badge badge-equip">${a.equipmentAssigned}${a.equipmentSlot?' · '+fmtTime(a.equipmentSlot):''}</span>`;
+    if(hosp) badges+=`<span class="assign-badge badge-bed">${a.bedAssigned}</span>`;
+    if(a.morningNurse) badges+=`<span class="assign-badge badge-nurse">Morning: ${a.morningNurse}</span>`;
+    if(a.nightNurse) badges+=`<span class="assign-badge badge-nurse">Night: ${a.nightNurse}</span>`;
+    return`<div class="appt-card">
+      <div class="appt-top">
+        <div class="time-block">
+          <div class="time-val">${fmtTime(a.time||a.appointmentTime)}</div>
+          <div class="date-val">${fmtDate(a.date||a.appointmentDate)}</div>
+        </div>
+        <div>
+          <div class="appt-name">${a.patientName||a.name||'Patient'}</div>
+          <div class="appt-meta">Symptom: <span class="em">${a.symptom||'—'}</span></div>
+          ${a.notes?`<div class="appt-meta" style="margin-top:0.15rem">Notes: <span class="hi">${a.notes}</span></div>`:''}
+          ${hasEmail?`<div class="appt-meta" style="margin-top:0.15rem">${a.email||a.patientEmail}</div>`:''}
+        </div>
+        <span class="status-badge ${sc}">${a.status||'Pending'}</span>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          ${canAct?`<button class="btn-sm btn-done" onclick="updateStatus('${a.id}','Completed')">✓ Done</button>`:''}
+          ${canAct?`<button class="btn-sm btn-cancel-sm" onclick="updateStatus('${a.id}','Cancelled')">✕ Cancel</button>`:''}
+          ${canAct?`<button class="btn-sm btn-decline" onclick="declineAndTransfer('${a.id}')">⇄ Decline & Transfer</button>`:''}
+        </div>
+      </div>
+      <div class="appt-bottom">
+        ${badges}
+        <div style="display:flex;gap:0.4rem;margin-left:auto;flex-wrap:wrap;">
+          <button class="btn-action btn-equip" ${equipped?'disabled':`onclick="openEquipModal('${a.id}')"`}>${equipped?'Test Assigned':'Assign Test'}</button>
+          <button class="btn-action btn-hosp" ${hosp?'disabled':`onclick="openHospModal('${a.id}')"`}>${hosp?'Hospitalised':'Hospitalise'}</button>
+          <button class="btn-action btn-report" onclick="openReportModal('${a.id}')">Send Report</button>
+        </div>
+      </div>
+    </div>`;
+  }
 
-  window.openReportModal=function(apptId){activeAppt=allAppointments.find(a=>a.id===apptId);if(!activeAppt)return;['rDiagnosis','rPrescription','rFollowup','rNotes'].forEach(id=>{$(id).value='';});$('reportSendBtn').disabled=false;$('reportSendBtn').textContent='Send Report →';const a=activeAppt;const patName=a.patientName||a.name||'Patient';const patEmail=a.email||a.patientEmail||'';$('reportPatientInfo').innerHTML=`<div class="mpc-name">${patName}</div><div class="mpc-meta">Symptom: <span class="em">${a.symptom||'—'}</span> &nbsp;·&nbsp; ${fmtDate(a.date)} at ${fmtTime(a.time)}<br>${patEmail?`Report destination: <span class="hi">${patEmail}</span>`:'<span style="color:var(--rose)">No email on record — will not be emailed</span>'}</div>`;const rows=[['Doctor',currentDoctor.name||'—'],['Speciality',currentDoctor.speciality||'—'],['Appointment',`${fmtDate(a.date)} at ${fmtTime(a.time)}`,'hi'],['Status',a.status||'—']];if(a.equipmentAssigned){rows.push(['Test Assigned',a.equipmentAssigned,'hi']);if(a.equipmentSlot)rows.push(['Test Slot',`${fmtDate(a.date)} at ${fmtTime(a.equipmentSlot)}`,'hi']);}if(a.bedAssigned){rows.push(['Hospitalised',a.bedAssigned,'hi']);if(a.morningNurse&&a.morningNurse!=='—')rows.push(['Morning Nurse',a.morningNurse]);if(a.nightNurse&&a.nightNurse!=='—')rows.push(['Night Nurse',a.nightNurse]);}const autoRows=rows.map(([k,v,cls])=>`<div class="rs-row"><span class="rs-key">${k}</span><span class="rs-val ${cls||''}">${v}</span></div>`).join('');$('reportAutoSection').innerHTML=`<div class="rs-head">Appointment Summary</div>${autoRows}`;$('reportModal').classList.add('open');};
+  // ── Update status ─────────────────────────────────────────────────────────
+  window.updateStatus=async function(id,status){
+    try{await updateDoc(doc(db,'appointments',id),{status,updatedAt:serverTimestamp()});}
+    catch(e){showToast('Error',e.message,'err');}
+  };
 
-  window.sendReport=async function(){const a=activeAppt;if(!a)return;const diagnosis=$('rDiagnosis').value.trim();if(!diagnosis){showToast('Required','Please enter diagnosis/findings.','err');return;}const prescription=$('rPrescription').value.trim();const followup=$('rFollowup').value.trim();const notes=$('rNotes').value.trim();const patName=a.patientName||a.name||'Patient';const patEmail=a.email||a.patientEmail||'';const btn=$('reportSendBtn');btn.disabled=true;btn.textContent='Sending…';let testLine='Not assigned';if(a.equipmentAssigned){testLine=a.equipmentAssigned;if(a.equipmentSlot)testLine+=` — scheduled on ${fmtDate(a.date)} at ${fmtTime(a.equipmentSlot)}`;}let hospLine='Not hospitalised';if(a.bedAssigned){hospLine=a.bedAssigned;if(a.morningNurse&&a.morningNurse!=='—')hospLine+=` | Morning: ${a.morningNurse}`;if(a.nightNurse&&a.nightNurse!=='—')hospLine+=` | Night: ${a.nightNurse}`;}try{await addDoc(collection(db,'reports'),{appointmentId:a.id,patientName:patName,patientEmail:patEmail,doctorName:currentDoctor.name,speciality:currentDoctor.speciality||'—',symptom:a.symptom||'—',appointmentDate:a.date,appointmentTime:a.time,diagnosis,prescription:prescription||'—',followup:followup||'—',notes:notes||'—',equipmentAssigned:a.equipmentAssigned||'Not assigned',equipmentSlot:a.equipmentSlot||'—',bedAssigned:a.bedAssigned||'Not hospitalised',morningNurse:a.morningNurse||'—',nightNurse:a.nightNurse||'—',createdAt:serverTimestamp()});if(patEmail){try{await emailjs.send("service_wgminnp","template_sbvt3ze",{to_name:patName,name:patName,patient_name:patName,to_email:patEmail,email:patEmail,user_email:patEmail,reply_to:patEmail,doctor:currentDoctor.name,doctor_name:currentDoctor.name,speciality:currentDoctor.speciality||'—',date:fmtDate(a.date),time:fmtTime(a.time),symptom:a.symptom||'—',diagnosis,prescription:prescription||'Not prescribed',followup:followup||'No follow-up instructions',notes:notes||'—',test_assigned:testLine,hospitalisation:hospLine,report_type:'Post-Checkup Medical Report'},{publicKey:"nEbb9aPtYh8imCD0M"});showToast('Report Sent',`Emailed to ${patEmail}`,'ok',6000);}catch(emailErr){console.warn('EmailJS:',emailErr);showToast('Report Saved','Saved to records — email delivery failed.','info');}}else{showToast('Report Saved','No email on record. Saved to database.','info');}closeModal('reportModal');}catch(e){showToast('Failed',e.message,'err');btn.disabled=false;btn.textContent='Send Report →';}};
+  window.filterAppts=function(filter,btn){
+    currentFilter=filter;
+    document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderAllAppts();
+  };
 
-  $('passBtn').addEventListener('click',async()=>{const curr=$('currPass').value,nw=$('newPass').value,conf=$('confirmPass').value;const errEl=$('passErr');errEl.style.display='none';if(!curr||!nw||!conf){errEl.textContent='Please fill all fields.';errEl.style.display='block';return;}if(nw.length<8){errEl.textContent='Password must be at least 8 characters.';errEl.style.display='block';return;}if(nw!==conf){errEl.textContent='Passwords do not match.';errEl.style.display='block';return;}if(curr!==currentDoctor.password){errEl.textContent='Current password is incorrect.';errEl.style.display='block';return;}$('passBtn').disabled=true;$('passBtn').textContent='Updating…';try{await updateDoc(doc(db,'doctors',currentDoctor.id),{password:nw});currentDoctor.password=nw;['currPass','newPass','confirmPass'].forEach(id=>$(id).value='');$('passOk').style.display='block';setTimeout(()=>$('passOk').style.display='none',3500);}catch(e){errEl.textContent=e.message;errEl.style.display='block';}$('passBtn').disabled=false;$('passBtn').textContent='Update Password';});
+  // ── Decline & Transfer ────────────────────────────────────────────────────
+  window.declineAndTransfer=async function(apptId){
+    if(!confirm('Decline this appointment and transfer to another doctor of the same speciality?')) return;
+    const appt=allAppointments.find(a=>a.id===apptId);
+    if(!appt) return;
 
-  ['equipModal','hospModal','reportModal'].forEach(id=>{$(id).addEventListener('click',e=>{if(e.target===$(id))closeModal(id);});});
+    showToast('Transferring','Finding another doctor…','info',3000);
+
+    try{
+      // Find all doctors with same speciality except current
+      const docSnap=await getDocs(query(collection(db,'doctors'),where('speciality','==',currentDoctor.speciality)));
+      const others=docSnap.docs.map(d=>({id:d.id,...d.data()})).filter(d=>d.id!==currentDoctor.id);
+
+      if(!others.length){
+        showToast('No Doctors Available','No other doctor with the same speciality found.','err');
+        return;
+      }
+
+      // Find who has a free slot at same date/time
+      const apptSnap=await getDocs(collection(db,'appointments'));
+      const takenMap={};
+      apptSnap.docs.forEach(d=>{
+        const a=d.data();
+        if(!takenMap[a.doctorName]) takenMap[a.doctorName]=new Set();
+        if(a.date&&a.time) takenMap[a.doctorName].add(a.date+'_'+a.time);
+      });
+
+      const slotKey=(appt.date||'')+'_'+(appt.time||'');
+      const available=others.filter(d=>!(takenMap[d.name]||new Set()).has(slotKey));
+
+      // Prefer free slot, fallback to any
+      const newDoctor=available[0]||others[0];
+
+      // Update Firestore
+      await updateDoc(doc(db,'appointments',apptId),{
+        doctorName:      newDoctor.name,
+        speciality:      newDoctor.speciality||currentDoctor.speciality,
+        status:          'Confirmed',
+        transferredFrom: currentDoctor.name,
+        updatedAt:       serverTimestamp()
+      });
+
+      const patName  = appt.patientName||appt.name||'Patient';
+      const patEmail = appt.email||appt.patientEmail||'';
+      const date     = fmtDate(appt.date);
+      const time     = fmtTime(appt.time);
+      const spec     = newDoctor.speciality||currentDoctor.speciality;
+
+      // Email patient with updated doctor details
+      if(patEmail){
+        try{
+          await emailjs.send('default_service','template_smasli7',{
+            to_name:      patName,
+            name:         patName,
+            patient_name: patName,
+            from_name:    'MediCare+',
+            to_email:     patEmail,
+            email:        patEmail,
+            user_email:   patEmail,
+            reply_to:     patEmail,
+            doctor:       newDoctor.name,
+            doctor_name:  newDoctor.name,
+            speciality:   spec,
+            date,
+            time,
+            symptom:      appt.symptom||'—'
+          },'nEbb9aPtYh8imCD0M');
+        }catch(e){console.warn('Patient email failed:',e);}
+      }
+
+      // Email new doctor
+      const newDoctorEmail=newDoctor.personalEmail||null;
+      if(newDoctorEmail){
+        try{
+          await emailjs.send('default_service','template_936u3an',{
+            to_name:       newDoctor.name,
+            to_email:      newDoctorEmail,
+            from_name:     'MediCare+',
+            doctor_name:   newDoctor.name,
+            patient_name:  patName,
+            patient_id:    appt.patientId||'—',
+            patient_age:   appt.age||'—',
+            patient_phone: appt.phone||'—',
+            symptoms:      appt.symptom||'—',
+            date,
+            time,
+            speciality:    spec
+          },'b4DyfMQc57sZlO_u1');
+        }catch(e){console.warn('Doctor email failed:',e);}
+      }
+
+      showToast('Transferred',`Appointment moved to ${newDoctor.name}`,'ok',6000);
+
+    }catch(e){
+      showToast('Transfer Failed',e.message,'err');
+    }
+  };
+
+  // ── Equipment modal ───────────────────────────────────────────────────────
+  window.openEquipModal=async function(apptId){
+    activeAppt=allAppointments.find(a=>a.id===apptId);
+    selectedEquipId=null;selectedSlot=null;
+    if(!activeAppt) return;
+    $('equipPatientInfo').innerHTML=`<div class="mpc-name">${activeAppt.patientName||activeAppt.name||'Patient'}</div><div class="mpc-meta">Symptom: <span class="em">${activeAppt.symptom||'—'}</span></div>`;
+    $('equipConfirmBtn').disabled=true;
+    $('equipList').innerHTML='<div class="loading-state"><span class="spinner"></span>&nbsp; Loading equipment…</div>';
+    $('equipModal').classList.add('open');
+    try{
+      const equipSnap=await getDocs(collection(db,'equipment'));
+      const assignSnap=await getDocs(collection(db,'equipmentAssignments'));
+      const assignments=assignSnap.docs.map(d=>d.data());
+      const targetDate=activeAppt.date||new Date().toISOString().split('T')[0];
+      if(equipSnap.empty){$('equipList').innerHTML='<div class="loading-state" style="color:var(--rose)">No equipment registered.</div>';return;}
+      let html='';
+      equipSnap.docs.forEach(edoc=>{
+        const e={id:edoc.id,...edoc.data()};
+        const allSlots=generateTimeSlots(e.workingFrom||'08:00',e.workingTo||'17:00',60);
+        const takenSlots=assignments.filter(a=>a.equipmentId===e.id&&a.date===targetDate).map(a=>a.slot);
+        const freeSlots=allSlots.filter(s=>!takenSlots.includes(s));
+        const eName=e.name||'Equipment';
+        const roomTxt=e.room?` · Room ${e.room}`:'';
+        const dateLabel=new Date(targetDate+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+        if(!freeSlots.length){
+          html+=`<div class="equip-item disabled-equip"><div><div class="equip-name">${eName}</div><div class="equip-meta slot-busy">Fully booked on ${dateLabel}${roomTxt}</div></div><div class="equip-check"></div></div>`;
+        }else{
+          const next=freeSlots[0];
+          html+=`<div class="equip-item" id="ei-${e.id}" onclick="selectEquip('${e.id}','${next}')"><div><div class="equip-name">${eName}</div><div class="equip-meta slot-free">Next free: ${fmtTime(next)} on ${dateLabel} · ${freeSlots.length} slot${freeSlots.length>1?'s':''} open${roomTxt}</div></div><div class="equip-check" id="ec-${e.id}">✓</div></div>`;
+        }
+      });
+      $('equipList').innerHTML=html;
+    }catch(e){$('equipList').innerHTML=`<div class="loading-state" style="color:var(--rose)">Error: ${e.message}</div>`;}
+  };
+
+  window.selectEquip=function(equipId,slot){
+    document.querySelectorAll('.equip-item:not(.disabled-equip)').forEach(el=>el.classList.remove('selected'));
+    selectedEquipId=equipId;selectedSlot=slot;
+    const item=$('ei-'+equipId);if(item)item.classList.add('selected');
+    $('equipConfirmBtn').disabled=false;
+  };
+
+  window.confirmEquipAssign=async function(){
+    if(!activeAppt||!selectedEquipId||!selectedSlot) return;
+    const btn=$('equipConfirmBtn');btn.disabled=true;btn.textContent='Assigning…';
+    try{
+      const eDoc=await getDoc(doc(db,'equipment',selectedEquipId));
+      const eName=eDoc.exists()?(eDoc.data().name||'Equipment'):'Equipment';
+      await addDoc(collection(db,'equipmentAssignments'),{equipmentId:selectedEquipId,equipmentName:eName,appointmentId:activeAppt.id,patientName:activeAppt.patientName||activeAppt.name,doctorName:currentDoctor.name,slot:selectedSlot,date:activeAppt.date||new Date().toISOString().split('T')[0],assignedAt:serverTimestamp()});
+      await updateDoc(doc(db,'appointments',activeAppt.id),{equipmentAssigned:eName,equipmentSlot:selectedSlot,equipmentId:selectedEquipId,updatedAt:serverTimestamp()});
+      closeModal('equipModal');
+      showToast('Test Assigned',`${eName} at ${fmtTime(selectedSlot)} for ${activeAppt.patientName||activeAppt.name}`,'ok');
+    }catch(e){showToast('Failed',e.message,'err');}
+    btn.disabled=false;btn.textContent='Assign Test →';
+  };
+
+  // ── Hospitalise modal ─────────────────────────────────────────────────────
+  window.openHospModal=async function(apptId){
+    activeAppt=allAppointments.find(a=>a.id===apptId);
+    hospResources=null;
+    if(!activeAppt) return;
+    $('hospPatientInfo').innerHTML=`<div class="mpc-name">${activeAppt.patientName||activeAppt.name||'Patient'}</div><div class="mpc-meta">Symptom: <span class="em">${activeAppt.symptom||'—'}</span></div>`;
+    $('hospConfirmBtn').disabled=true;
+    $('hospResourceInfo').innerHTML='<div class="loading-state"><span class="spinner"></span>&nbsp; Checking resources…</div>';
+    $('hospModal').classList.add('open');
+    try{
+      const bedSnap=await getDocs(collection(db,'beds'));
+      const beds=bedSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const freeBed=beds.find(b=>(b.status||'Available')==='Available')||null;
+      const hospSnap=await getDocs(query(collection(db,'hospitalisations'),where('discharged','==',false)));
+      const busyIds=new Set(hospSnap.docs.flatMap(d=>[d.data().morningNurseId,d.data().nightNurseId]).filter(Boolean));
+      const nurseSnap=await getDocs(collection(db,'nurses'));
+      const nurses=nurseSnap.docs.map(d=>({id:d.id,...d.data()}));
+      const mNurse=nurses.find(n=>isMorningNurse(n.shift)&&!busyIds.has(n.id))||null;
+      const nNurse=nurses.find(n=>isNightNurse(n.shift)&&!busyIds.has(n.id))||null;
+      hospResources={freeBed,mNurse,nNurse};
+      const bedLabel=freeBed?`Room ${freeBed.room} · Bed ${freeBed.bedNumber} (${freeBed.floor||''})`:null;
+      $('hospResourceInfo').innerHTML=`
+        <div class="resource-row"><div class="resource-label">Free Bed</div><div class="resource-val ${freeBed?'':'unavail'}">${bedLabel||'No beds available'}</div></div>
+        <div class="resource-row"><div class="resource-label">Morning Nurse</div><div class="resource-val ${mNurse?'':'unavail'}">${mNurse?(mNurse.name+' — '+mNurse.shift):'None available'}</div></div>
+        <div class="resource-row"><div class="resource-label">Night Nurse</div><div class="resource-val ${nNurse?'':'unavail'}">${nNurse?(nNurse.name+' — '+nNurse.shift):'None available'}</div></div>
+        ${!freeBed?'<div style="margin-top:0.75rem;font-family:\'DM Mono\',monospace;font-size:0.68rem;letter-spacing:0.1em;color:var(--rose);text-align:center;padding:0.75rem;border:1px solid rgba(176,64,80,0.2);background:rgba(176,64,80,0.04)">No free beds — admission cannot proceed.</div>':''}`;
+      $('hospConfirmBtn').disabled=!freeBed;
+    }catch(e){$('hospResourceInfo').innerHTML=`<div class="loading-state" style="color:var(--rose)">Error: ${e.message}</div>`;}
+  };
+
+  window.confirmHospitalise=async function(){
+    if(!activeAppt||!hospResources) return;
+    const btn=$('hospConfirmBtn');btn.disabled=true;btn.textContent='Admitting…';
+    const{freeBed,mNurse,nNurse}=hospResources;
+    try{
+      const patName=activeAppt.patientName||activeAppt.name||'—';
+      const bedLabel=`Room ${freeBed.room} · Bed ${freeBed.bedNumber}`;
+      const mName=mNurse?(mNurse.name||'—'):'—';
+      const nName=nNurse?(nNurse.name||'—'):'—';
+      await addDoc(collection(db,'hospitalisations'),{appointmentId:activeAppt.id,patientName:patName,doctorName:currentDoctor.name,bedId:freeBed.id,bedRoom:freeBed.room,bedNumber:freeBed.bedNumber,floor:freeBed.floor||'',morningNurseId:mNurse?.id||null,morningNurse:mName,nightNurseId:nNurse?.id||null,nightNurse:nName,admittedAt:serverTimestamp(),discharged:false});
+      await updateDoc(doc(db,'appointments',activeAppt.id),{hospitalised:true,bedAssigned:bedLabel,morningNurse:mName,nightNurse:nName,status:'Hospitalised',updatedAt:serverTimestamp()});
+      if(freeBed.id){await updateDoc(doc(db,'beds',freeBed.id),{status:'Occupied',patientName:patName,nurseAssigned:[mName,nName].filter(n=>n&&n!=='—').join(', ')});}
+      closeModal('hospModal');
+      showToast('Patient Admitted',`${bedLabel} · Morning: ${mName} · Night: ${nName}`,'info',6000);
+    }catch(e){showToast('Admission Failed',e.message,'err');}
+    btn.disabled=false;btn.textContent='Confirm Admission →';
+  };
+
+  // ── Report modal ──────────────────────────────────────────────────────────
+  window.openReportModal=function(apptId){
+    activeAppt=allAppointments.find(a=>a.id===apptId);
+    if(!activeAppt) return;
+    ['rDiagnosis','rPrescription','rFollowup','rNotes'].forEach(id=>{$(id).value='';});
+    $('reportSendBtn').disabled=false;$('reportSendBtn').textContent='Send Report →';
+    const a=activeAppt;
+    const patName=a.patientName||a.name||'Patient';
+    const patEmail=a.email||a.patientEmail||'';
+    $('reportPatientInfo').innerHTML=`<div class="mpc-name">${patName}</div><div class="mpc-meta">Symptom: <span class="em">${a.symptom||'—'}</span> &nbsp;·&nbsp; ${fmtDate(a.date)} at ${fmtTime(a.time)}<br>${patEmail?`Report destination: <span class="hi">${patEmail}</span>`:'<span style="color:var(--rose)">No email on record — will not be emailed</span>'}</div>`;
+    const rows=[['Doctor',currentDoctor.name||'—'],['Speciality',currentDoctor.speciality||'—'],['Appointment',`${fmtDate(a.date)} at ${fmtTime(a.time)}`,'hi'],['Status',a.status||'—']];
+    if(a.equipmentAssigned){rows.push(['Test Assigned',a.equipmentAssigned,'hi']);if(a.equipmentSlot)rows.push(['Test Slot',`${fmtDate(a.date)} at ${fmtTime(a.equipmentSlot)}`,'hi']);}
+    if(a.bedAssigned){rows.push(['Hospitalised',a.bedAssigned,'hi']);if(a.morningNurse&&a.morningNurse!=='—')rows.push(['Morning Nurse',a.morningNurse]);if(a.nightNurse&&a.nightNurse!=='—')rows.push(['Night Nurse',a.nightNurse]);}
+    const autoRows=rows.map(([k,v,cls])=>`<div class="rs-row"><span class="rs-key">${k}</span><span class="rs-val ${cls||''}">${v}</span></div>`).join('');
+    $('reportAutoSection').innerHTML=`<div class="rs-head">Appointment Summary</div>${autoRows}`;
+    $('reportModal').classList.add('open');
+  };
+
+  window.sendReport=async function(){
+    const a=activeAppt;if(!a) return;
+    const diagnosis=$('rDiagnosis').value.trim();
+    if(!diagnosis){showToast('Required','Please enter diagnosis/findings.','err');return;}
+    const prescription=$('rPrescription').value.trim();
+    const followup=$('rFollowup').value.trim();
+    const notes=$('rNotes').value.trim();
+    const patName=a.patientName||a.name||'Patient';
+    const patEmail=a.email||a.patientEmail||'';
+    const btn=$('reportSendBtn');btn.disabled=true;btn.textContent='Sending…';
+    let testLine='Not assigned';
+    if(a.equipmentAssigned){testLine=a.equipmentAssigned;if(a.equipmentSlot)testLine+=` — scheduled on ${fmtDate(a.date)} at ${fmtTime(a.equipmentSlot)}`;}
+    let hospLine='Not hospitalised';
+    if(a.bedAssigned){hospLine=a.bedAssigned;if(a.morningNurse&&a.morningNurse!=='—')hospLine+=` | Morning: ${a.morningNurse}`;if(a.nightNurse&&a.nightNurse!=='—')hospLine+=` | Night: ${a.nightNurse}`;}
+    try{
+      await addDoc(collection(db,'reports'),{appointmentId:a.id,patientName:patName,patientEmail:patEmail,doctorName:currentDoctor.name,speciality:currentDoctor.speciality||'—',symptom:a.symptom||'—',appointmentDate:a.date,appointmentTime:a.time,diagnosis,prescription:prescription||'—',followup:followup||'—',notes:notes||'—',equipmentAssigned:a.equipmentAssigned||'Not assigned',equipmentSlot:a.equipmentSlot||'—',bedAssigned:a.bedAssigned||'Not hospitalised',morningNurse:a.morningNurse||'—',nightNurse:a.nightNurse||'—',createdAt:serverTimestamp()});
+      if(patEmail){
+        try{
+          await emailjs.send("service_wgminnp","template_sbvt3ze",{to_name:patName,name:patName,patient_name:patName,to_email:patEmail,email:patEmail,user_email:patEmail,reply_to:patEmail,doctor:currentDoctor.name,doctor_name:currentDoctor.name,speciality:currentDoctor.speciality||'—',date:fmtDate(a.date),time:fmtTime(a.time),symptom:a.symptom||'—',diagnosis,prescription:prescription||'Not prescribed',followup:followup||'No follow-up instructions',notes:notes||'—',test_assigned:testLine,hospitalisation:hospLine,report_type:'Post-Checkup Medical Report'},{publicKey:"nEbb9aPtYh8imCD0M"});
+          showToast('Report Sent',`Emailed to ${patEmail}`,'ok',6000);
+        }catch(emailErr){console.warn('EmailJS:',emailErr);showToast('Report Saved','Saved to records — email delivery failed.','info');}
+      }else{
+        showToast('Report Saved','No email on record. Saved to database.','info');
+      }
+      closeModal('reportModal');
+    }catch(e){showToast('Failed',e.message,'err');btn.disabled=false;btn.textContent='Send Report →';}
+  };
+
+  // ── Settings ──────────────────────────────────────────────────────────────
+  $('passBtn').addEventListener('click',async()=>{
+    const curr=$('currPass').value,nw=$('newPass').value,conf=$('confirmPass').value;
+    const errEl=$('passErr');errEl.style.display='none';
+    if(!curr||!nw||!conf){errEl.textContent='Please fill all fields.';errEl.style.display='block';return;}
+    if(nw.length<8){errEl.textContent='Password must be at least 8 characters.';errEl.style.display='block';return;}
+    if(nw!==conf){errEl.textContent='Passwords do not match.';errEl.style.display='block';return;}
+    if(curr!==currentDoctor.password){errEl.textContent='Current password is incorrect.';errEl.style.display='block';return;}
+    $('passBtn').disabled=true;$('passBtn').textContent='Updating…';
+    try{
+      await updateDoc(doc(db,'doctors',currentDoctor.id),{password:nw});
+      currentDoctor.password=nw;
+      ['currPass','newPass','confirmPass'].forEach(id=>$(id).value='');
+      $('passOk').style.display='block';setTimeout(()=>$('passOk').style.display='none',3500);
+    }catch(e){errEl.textContent=e.message;errEl.style.display='block';}
+    $('passBtn').disabled=false;$('passBtn').textContent='Update Password';
+  });
+
+  // Close modals on backdrop click
+  ['equipModal','hospModal','reportModal'].forEach(id=>{
+    $(id).addEventListener('click',e=>{if(e.target===$(id))closeModal(id);});
+  });
 </script>
 </body>
 </html>
