@@ -1079,22 +1079,42 @@ window.bNext3 = function() {
         // Confirmation email
         try {
           await emailjs.send('default_service', 'template_smasli7', {
-            to_name:    currentUser.name,
-            name:       currentUser.name,
+            to_name:      currentUser.name,
+            name:         currentUser.name,
             patient_name: currentUser.name,
-            from_name:  'MediCare+',
-            to_email:   currentUser.email,
-            email:      currentUser.email,
-            user_email: currentUser.email,
-            reply_to:   currentUser.email,
-            doctor:     doctorName,
-            doctor_name: doctorName,
+            from_name:    'MediCare+',
+            to_email:     currentUser.email,
+            email:        currentUser.email,
+            user_email:   currentUser.email,
+            reply_to:     currentUser.email,
+            doctor:       doctorName,
+            doctor_name:  doctorName,
             speciality,
-            date:    fmtDate(apptDate),
-            time:    fmtTime(apptTime),
-            symptom: extractedSymptoms.join(', ')
-          }, { publicKey: 'nEbb9aPtYh8imCD0M' });
-        } catch(e) { console.warn('Email:', e); }
+            date:         fmtDate(apptDate),
+            time:         fmtTime(apptTime),
+            symptom:      extractedSymptoms.join(', ')
+          });
+        } catch(e) { console.warn('Patient email failed:', e); }
+
+        const doctorEmail = matchedDoctor?.doctor?.personalEmail || null;
+        if (doctorEmail) {
+          try {
+            await emailjs.send('default_service', 'template_936u3an', {
+              to_name:       doctorName,
+              to_email:      doctorEmail,
+              from_name:     'MediCare+',
+              doctor_name:   doctorName,
+              patient_name:  currentUser.name,
+              patient_id:    currentUser.patientId,
+              patient_age:   currentUser.age,
+              patient_phone: currentUser.phone,
+              symptoms:      extractedSymptoms.join(', '),
+              date:          fmtDate(apptDate),
+              time:          fmtTime(apptTime),
+              speciality
+            }, 'b4DyfMQc57sZlO_u1');
+          } catch(e) { console.warn('Doctor email failed:', e); }
+        }
 
         document.getElementById('bSuccessSub').textContent =
           `Confirmed for ${fmtDate(apptDate)} at ${fmtTime(apptTime)} with ${doctorName}. Check ${currentUser.email} for details.`;

@@ -688,6 +688,14 @@ tr:hover td{background:rgba(31,61,46,0.015);}
 .btn-toggle-occ{background:rgba(45,122,85,0.05);border-color:rgba(45,122,85,0.2);color:rgba(45,122,85,0.8);}
 .btn-toggle-occ:hover{background:rgba(45,122,85,0.12);color:var(--green);}
 
+/* ── EMAIL FIELD NOTE ── */
+.field-note{
+  font-family:'DM Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.1em;
+  color:var(--muted);margin-top:0.3rem;
+  font-style:italic;
+}
+
 @media(max-width:900px){
   .layout{grid-template-columns:1fr;}
   .sidebar{display:none;}
@@ -857,6 +865,13 @@ tr:hover td{background:rgba(31,61,46,0.015);}
               </div>
               <div class="field"><label>Department</label><input type="text" id="docDept" placeholder="Auto-filled from speciality"/></div>
               <div class="field"><label>Contact / Phone</label><input type="tel" id="docPhone" placeholder="+91 98765 43210"/></div>
+              <!-- ── NEW EMAIL FIELD ── -->
+              <div class="field">
+                <label>Personal Email</label>
+                <input type="email" id="docEmail" placeholder="doctor@example.com"/>
+                <span class="field-note">Doctor's personal / contact email address</span>
+              </div>
+              <!-- ── END NEW EMAIL FIELD ── -->
               <div class="field"><label>Available From</label>
                 <select id="docFrom"><option value="">— Time —</option>
                   <option value="08:00">8:00 AM</option><option value="08:30">8:30 AM</option>
@@ -888,7 +903,7 @@ tr:hover td{background:rgba(31,61,46,0.015);}
               </div>
             </div>
 
-            <div class="hint-box">A secure temporary password will be auto-generated and displayed once after registration.</div>
+            <div class="hint-box">A secure temporary password will be auto-generated and displayed once after registration. The personal email above is stored separately for contact purposes.</div>
             <div class="form-actions">
               <button class="btn-submit" id="docSubmitBtn">Register Doctor &amp; Create Login</button>
               <div class="alert alert-success" id="docSuccess">Doctor registered successfully.</div>
@@ -904,8 +919,8 @@ tr:hover td{background:rgba(31,61,46,0.015);}
         <div class="card">
           <div class="card-head"><div class="card-title">Doctor Registry</div></div>
           <div class="table-wrap"><table>
-            <thead><tr><th>Name</th><th>Speciality</th><th>Department</th><th>Symptoms</th><th>Login Email</th><th>Available</th><th></th></tr></thead>
-            <tbody id="doctorsTable"><tr class="loading-row"><td colspan="7"><span class="spinner"></span></td></tr></tbody>
+            <thead><tr><th>Name</th><th>Speciality</th><th>Department</th><th>Symptoms</th><th>Personal Email</th><th>Login Email</th><th>Available</th><th></th></tr></thead>
+            <tbody id="doctorsTable"><tr class="loading-row"><td colspan="8"><span class="spinner"></span></td></tr></tbody>
           </table></div>
         </div>
       </div>
@@ -1365,9 +1380,14 @@ tr:hover td{background:rgba(31,61,46,0.015);}
     const symBadge=symCount>0
       ?`<span class="badge badge-green" title="${(d.symptoms||[]).join(', ')}" style="cursor:help">${symCount} symptoms</span>`
       :'<span style="color:var(--muted);font-size:0.72rem">—</span>';
+    // personalEmail is stored as d.personalEmail; loginEmail is d.email (auto-generated)
+    const personalEmail=d.personalEmail
+      ?`<span style="font-family:'DM Mono',monospace;font-size:0.72rem">${escapeHtml(d.personalEmail)}</span>`
+      :'<span style="color:var(--muted);font-size:0.72rem">—</span>';
     return `<tr>
       <td>${d.name||'—'}</td><td>${d.speciality||'—'}</td><td>${d.department||'—'}</td>
       <td>${symBadge}</td>
+      <td>${personalEmail}</td>
       <td style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--forest)">${d.email||'—'}</td>
       <td style="font-family:'DM Mono',monospace;font-size:0.72rem">${formatTime(d.availableFrom)} – ${formatTime(d.availableTo)}</td>
       <td><button class="btn-delete" onclick="deleteRecord('doctors','${id}')">Remove</button></td>
@@ -1405,16 +1425,27 @@ tr:hover td{background:rgba(31,61,46,0.015);}
 
   // ── Register Doctor ────────────────────────────────────────────────────
   $('docSubmitBtn').addEventListener('click',async()=>{
-    const name=v('docName'),spec=v('docSpec'),from=v('docFrom'),to=v('docTo'),phone=v('docPhone'),dept=v('docDept');
+    const name=v('docName'),spec=v('docSpec'),from=v('docFrom'),to=v('docTo'),phone=v('docPhone'),dept=v('docDept'),personalEmail=v('docEmail');
     let symptoms=[];try{symptoms=JSON.parse($('docSymptoms')?.value||'[]');}catch(e){}
     if(!name||!spec||!from||!to){showErr('docError','Please fill Name, Speciality, and availability times.');return;}
+    // Validate personal email format if provided
+    if(personalEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personalEmail)){
+      showErr('docError','Please enter a valid personal email address.');return;
+    }
     const usernamePart=name.toLowerCase().replace(/^dr\.?\s*/i,'').trim().replace(/\s+/g,'.');
     const generatedEmail=`dr.${usernamePart}@medicare`;
     const tempPassword=generatePassword();
     const btn=$('docSubmitBtn');btn.disabled=true;btn.textContent='Registering…';
     try{
-      await addDoc(collection(db,'doctors'),{name,speciality:spec,email:generatedEmail,password:tempPassword,availableFrom:from,availableTo:to,phone,department:dept,role:'doctor',symptoms,createdAt:serverTimestamp()});
-      clearFields(['docName','docPhone','docDept']);$('docSpec').value='';$('docFrom').value='';$('docTo').value='';
+      await addDoc(collection(db,'doctors'),{
+        name,speciality:spec,email:generatedEmail,password:tempPassword,
+        availableFrom:from,availableTo:to,phone,department:dept,
+        role:'doctor',symptoms,
+        personalEmail:personalEmail||'',  // ← saved as separate field
+        createdAt:serverTimestamp()
+      });
+      clearFields(['docName','docPhone','docDept','docEmail']);
+      $('docSpec').value='';$('docFrom').value='';$('docTo').value='';
       $('symptomPanel').style.display='none';const h=$('docSymptoms');if(h)h.value='';
       $('credEmail').textContent=generatedEmail;$('credPassword').textContent=tempPassword;
       $('credModal').classList.add('open');
