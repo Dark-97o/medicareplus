@@ -17,6 +17,7 @@
   --muted:#7a7060;
   --border:rgba(26,26,24,0.12);--border2:rgba(31,61,46,0.25);
   --red:#c0392b;--green:#27ae60;
+  --amber:#d97706;--amber-bg:rgba(217,119,6,0.08);--amber-border:rgba(217,119,6,0.2);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -266,8 +267,200 @@ footer{position:relative;z-index:2;background:var(--ink);padding:4rem 3rem 2rem;
 .action-btn.secondary{background:transparent;color:var(--forest);border:1px solid var(--border2);}
 .action-btn.secondary:hover{background:rgba(31,61,46,0.05);}
 
-/* Razorpay launches its own modal — no custom payment CSS needed */
+/* ═══════════════════════════════════════════════════════
+   DISEASE BRIEF PANEL — NEW FEATURE
+═══════════════════════════════════════════════════════ */
+.disease-brief-panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  animation: briefReveal 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes briefReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
+.disease-brief-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(31,61,46,0.07) 0%, rgba(31,61,46,0.03) 100%);
+  border-bottom: 1px solid var(--border);
+}
+.disease-brief-pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--sage);
+  box-shadow: 0 0 0 0 rgba(90,125,101,0.4);
+  animation: briefPulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes briefPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(90,125,101,0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(90,125,101,0); }
+  100% { box-shadow: 0 0 0 0 rgba(90,125,101,0); }
+}
+.disease-brief-head-text {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sage);
+}
+.disease-brief-head-badge {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(31,61,46,0.1);
+  color: var(--forest);
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+}
+.disease-brief-disclaimer {
+  padding: 0.6rem 1rem;
+  background: var(--amber-bg);
+  border-bottom: 1px solid var(--amber-border);
+  font-size: 0.7rem;
+  color: var(--amber);
+  font-weight: 300;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  line-height: 1.5;
+}
+.disease-brief-disclaimer svg { flex-shrink: 0; margin-top: 1px; }
+
+.disease-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.disease-card {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+  transition: background 0.2s;
+  cursor: default;
+}
+.disease-card:last-child { border-bottom: none; }
+.disease-card:hover { background: rgba(31,61,46,0.02); }
+
+.disease-rank {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(122,112,96,0.35);
+  padding-top: 1px;
+  min-width: 16px;
+}
+.disease-info { display: flex; flex-direction: column; gap: 0.25rem; }
+.disease-name {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.disease-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.55;
+}
+.disease-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; }
+.disease-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.57rem;
+  letter-spacing: 0.08em;
+  padding: 0.18rem 0.45rem;
+  background: rgba(31,61,46,0.06);
+  border: 1px solid rgba(31,61,46,0.12);
+  border-radius: 20px;
+  color: var(--sage);
+  text-transform: uppercase;
+}
+
+.disease-likelihood {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  min-width: 52px;
+}
+.likelihood-bar-wrap {
+  width: 52px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.likelihood-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--forest);
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  width: 0;
+}
+.likelihood-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.disease-brief-footer {
+  padding: 0.75rem 1rem;
+  background: rgba(245,240,232,0.6);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.disease-brief-footer-note {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+.disease-brief-footer-cta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--forest);
+  cursor: none;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.disease-brief-footer-cta:hover { opacity: 0.65; }
+
+/* Brief loading skeleton */
+.brief-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+}
+.skel-line {
+  height: 10px;
+  background: linear-gradient(90deg, var(--cream2) 25%, var(--cream3) 50%, var(--cream2) 75%);
+  background-size: 200% 100%;
+  animation: skelShimmer 1.4s infinite;
+  border-radius: 2px;
+}
+@keyframes skelShimmer { from{background-position:200% 0} to{background-position:-200% 0} }
+
+/* success / razorpay */
 .success-screen{padding:2rem 1.5rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.75rem;}
 .success-icon{width:56px;height:56px;border-radius:50%;background:rgba(39,174,96,0.12);border:1px solid rgba(39,174,96,0.3);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto;}
 .success-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:500;color:var(--forest);}
@@ -592,7 +785,7 @@ footer{position:relative;z-index:2;background:var(--ink);padding:4rem 3rem 2rem;
           <button class="action-btn" style="margin-top:0.75rem" onclick="bNext1()">Next →</button>
         </div>
 
-        <!-- Step 2: Problems -->
+        <!-- Step 2: Problems + Disease Brief -->
         <div id="bStep2" class="hidden">
           <div class="booking-step-label">Step 2 of 4 — Describe your problems</div>
           <div class="f-group">
@@ -600,7 +793,8 @@ footer{position:relative;z-index:2;background:var(--ink);padding:4rem 3rem 2rem;
             <textarea class="problems-input" id="bProblems" placeholder="e.g. I've been having sharp chest pain for 3 days, feeling breathless and very tired…"></textarea>
           </div>
           <div class="auth-error" id="bErr2" style="margin-top:0.25rem"></div>
-          <button class="action-btn" style="margin-top:0.5rem" onclick="bNext2()">
+
+          <button class="action-btn" style="margin-top:0.5rem" id="bAnalyseBtn" onclick="bNext2()">
             <span id="bAnalyzeLabel">Analyse Symptoms →</span>
           </button>
           <div id="aiAnalysing" class="ai-badge hidden">
@@ -617,6 +811,8 @@ footer{position:relative;z-index:2;background:var(--ink);padding:4rem 3rem 2rem;
             <div class="symptoms-chips" id="symptomChips"></div>
           </div>
           <div id="matchResult" style="margin-top:0.85rem"></div>
+          <!-- ── Disease Brief Panel (shown after analysis) ── -->
+          <div id="diseaseBriefWrap"></div>
           <div class="auth-error" id="bErr3" style="margin-top:0.5rem"></div>
           <button class="action-btn" style="margin-top:0.75rem" id="bConfirmBtn" onclick="bNext3()">Proceed to Payment →</button>
         </div>
@@ -629,6 +825,7 @@ footer{position:relative;z-index:2;background:var(--ink);padding:4rem 3rem 2rem;
           <div class="success-ref" id="bSuccessRef"></div>
           <button class="action-btn" style="margin-top:0.5rem" onclick="showDash()">Back to Dashboard</button>
         </div>
+
       </div>
 
     </div><!-- end portal-body -->
@@ -691,7 +888,6 @@ function showEl(id){document.getElementById(id).classList.remove('hidden');}
 function hideEl(id){document.getElementById(id).classList.add('hidden');}
 function setErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.toggle('show',!!msg);}
 
-// Date/slot helpers
 function dateStr(offset=0){const d=new Date();d.setDate(d.getDate()+offset);return d.toISOString().split('T')[0];}
 function buildSlots(from,to){const s=[],[fh,fm]=from.split(':').map(Number),[th,tm]=to.split(':').map(Number);let c=fh*60+fm,e=th*60+tm;while(c+30<=e){s.push(`${String(Math.floor(c/60)).padStart(2,'0')}:${String(c%60).padStart(2,'0')}`);c+=30;}return s;}
 function fmtTime(hhmm){const[h,m]=hhmm.split(':');const d=new Date();d.setHours(+h,+m);return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
@@ -712,14 +908,12 @@ window.switchTab=function(tab){
   if(tab==='signup') regenerateCreds();
 };
 
-// Generate credentials as user fills email
 let _genId='',_genPass='';
 window.regenerateCreds=function(){
   if(!_genId){_genId=genPatientId();_genPass=genPassword();}
   document.getElementById('genId').textContent=_genId;
   document.getElementById('genPass').textContent=_genPass;
 };
-// Init on load
 _genId=genPatientId();_genPass=genPassword();
 document.getElementById('genId').textContent=_genId;
 document.getElementById('genPass').textContent=_genPass;
@@ -732,40 +926,25 @@ window.doSignUp=async function(){
   const email=document.getElementById('suEmail').value.trim();
   setErr('suError','');
   document.getElementById('suSuccess').classList.remove('show');
-
   if(!name||name.length<2){setErr('suError','Please enter your full name.');return;}
   if(!age||+age<1||+age>120){setErr('suError','Please enter a valid age.');return;}
   if(!phone||phone.length<6){setErr('suError','Please enter a valid phone number.');return;}
   if(!email||!email.includes('@')){setErr('suError','Please enter a valid email address.');return;}
-
   const btn=document.getElementById('suBtnEl');
   btn.disabled=true;btn.textContent='Creating account…';
-
   try{
-    // Check if email already exists
     const existing=await getDocs(query(collection(db,'patients'),where('email','==',email.toLowerCase())));
     if(!existing.empty){setErr('suError','An account with this email already exists. Please sign in.');btn.disabled=false;btn.textContent='Create Account →';return;}
-
     const patientId=_genId, password=_genPass;
     const createdAt=serverTimestamp();
-    await addDoc(collection(db,'patients'),{
-      patientId, name, age:+age, phone, email:email.toLowerCase(),
-      password, createdAt
-    });
-
-    // No email at sign-up — confirmation is sent only after payment
-
+    await addDoc(collection(db,'patients'),{patientId,name,age:+age,phone,email:email.toLowerCase(),password,createdAt});
     const succ=document.getElementById('suSuccess');
     succ.textContent=`Account created! Your ID: ${patientId} · Password: ${password} — saved to email.`;
     succ.classList.add('show');
     btn.textContent='Created! Signing in…';
-    setTimeout(()=>{
-      currentUser={patientId,name,age:+age,phone,email:email.toLowerCase(),password};
-      showDashboard();
-    },1500);
+    setTimeout(()=>{currentUser={patientId,name,age:+age,phone,email:email.toLowerCase(),password};showDashboard();},1500);
   }catch(err){
-    console.error(err);
-    setErr('suError','Something went wrong. Please try again.');
+    console.error(err);setErr('suError','Something went wrong. Please try again.');
     btn.disabled=false;btn.textContent='Create Account →';
   }
 };
@@ -783,8 +962,7 @@ window.doSignIn=async function(){
     if(snap.empty){setErr('siError','Patient ID not found.');btn.disabled=false;btn.textContent='Sign In →';return;}
     const data=snap.docs[0].data();
     if(data.password!==pass){setErr('siError','Incorrect password. Please try again.');btn.disabled=false;btn.textContent='Sign In →';return;}
-    currentUser={...data};
-    showDashboard();
+    currentUser={...data};showDashboard();
   }catch(err){
     console.error(err);setErr('siError','Error connecting. Try again.');
     btn.disabled=false;btn.textContent='Sign In →';
@@ -805,15 +983,11 @@ async function showDashboard(){
   document.getElementById('dashPhone').textContent=currentUser.phone;
   document.getElementById('dashEmail').textContent=currentUser.email;
   await loadAppointments();
-  // Reset booking btn
   const sib=document.getElementById('siBtnEl');if(sib){sib.disabled=false;sib.textContent='Sign In →';}
   const sub=document.getElementById('suBtnEl');if(sub){sub.disabled=false;sub.textContent='Create Account →';}
 }
 
-window.showDash=function(){
-  hideEl('bookingScreen');showEl('dashScreen');
-  loadAppointments();
-};
+window.showDash=function(){hideEl('bookingScreen');showEl('dashScreen');loadAppointments();};
 
 // ── Load Appointments ─────────────────────────────────────────────────────
 async function loadAppointments(){
@@ -831,10 +1005,7 @@ async function loadAppointments(){
           <div><div class="appt-doctor">${a.doctorName||'TBC'}</div><div class="appt-specialty">${a.speciality||'—'}</div></div>
           <div class="appt-status ${(a.status||'pending').toLowerCase()}">${a.status||'Pending'}</div>
         </div>
-        <div class="appt-meta">
-          <span>📅 ${a.date?fmtDate(a.date):'TBC'}</span>
-          <span>🕐 ${a.time?fmtTime(a.time):'TBC'}</span>
-        </div>
+        <div class="appt-meta"><span>📅 ${a.date?fmtDate(a.date):'TBC'}</span><span>🕐 ${a.time?fmtTime(a.time):'TBC'}</span></div>
         <div class="appt-symptom">Symptoms: ${Array.isArray(a.symptoms)?a.symptoms.slice(0,3).join(', '):a.symptom||'—'}</div>
       </div>
     `).join('');
@@ -844,13 +1015,11 @@ async function loadAppointments(){
 // ── Logout ────────────────────────────────────────────────────────────────
 window.doLogout=function(){
   currentUser=null;bookingData={};selectedSlot=null;extractedSymptoms=[];matchedDoctor=null;
-  hideEl('dashScreen');hideEl('bookingScreen');showEl('authScreen');
-  hideEl('logoutBtn');
+  hideEl('dashScreen');hideEl('bookingScreen');showEl('authScreen');hideEl('logoutBtn');
   document.getElementById('headTitle').textContent='Patient Portal';
   document.getElementById('headSub').textContent='● MediCare+ · Secure Access';
   document.getElementById('siId').value='';document.getElementById('siPass').value='';
   setErr('siError','');
-  // Reset sign-up creds
   _genId=genPatientId();_genPass=genPassword();
   document.getElementById('genId').textContent=_genId;
   document.getElementById('genPass').textContent=_genPass;
@@ -861,7 +1030,7 @@ window.startBooking=function(){
   bookingData={};selectedSlot=null;extractedSymptoms=[];matchedDoctor=null;
   hideEl('dashScreen');showEl('bookingScreen');
   showEl('bStep1');hideEl('bStep2');hideEl('bStep3');hideEl('bStep4');
-  // Set min date to tomorrow
+  document.getElementById('diseaseBriefWrap').innerHTML='';
   const tomorrow=new Date();tomorrow.setDate(tomorrow.getDate()+1);
   document.getElementById('bDate').min=tomorrow.toISOString().split('T')[0];
   document.getElementById('bDate').value='';
@@ -887,9 +1056,149 @@ window.bNext1=function(){
   document.getElementById('bProblems').value='';
 };
 
-// ── Grok AI symptom extraction ─────────────────────────────────────────────
+// ── DISEASE BRIEF ─────────────────────────────────────────────────────────
 const WORKER_URL="https://gemini-proxy.subhranilbaul2017.workers.dev";
+const GROQ_WORKER_URL="https://groqda.subhranilbaul2017.workers.dev";
 
+async function getDiseaseBriefData(text){
+  const prompt=`A patient says: "${text}"
+
+List 3 possible medical conditions this could indicate. For each, give:
+1. The condition name
+2. A likelihood percentage (integer, 10-90)
+3. One short sentence why it fits (max 15 words, use "may suggest" or "could indicate")
+4. Two lowercase tags (e.g. cardiac, respiratory, gastric, neurological, infectious, dermal)
+
+Reply ONLY in this exact JSON format, nothing else:
+{"conditions":[{"name":"Condition Name","likelihood":75,"brief":"May suggest X due to Y symptom.","tags":["tag1","tag2"]},{"name":"Condition 2","likelihood":55,"brief":"Could indicate X based on described symptoms.","tags":["tag1","tag2"]},{"name":"Condition 3","likelihood":35,"brief":"May suggest X given the reported symptoms.","tags":["tag1","tag2"]}]}`;
+
+  try{
+    const res = await fetch(GROQ_WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({prompt})
+    });
+    if(!res.ok) throw new Error(`Groq worker HTTP ${res.status}`);
+    const data = await res.json();
+
+    let raw = (data.text || data.response || data.content || '').trim();
+    console.log('[DiseaseBrief] Groq raw response:', raw);
+
+    // Strip markdown fences if present
+    raw = raw.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+
+    // Extract JSON object from anywhere in the response
+    const objMatch = raw.match(/\{[\s\S]*"conditions"[\s\S]*\}/);
+    if(objMatch){
+      const parsed = JSON.parse(objMatch[0]);
+      if(Array.isArray(parsed.conditions) && parsed.conditions.length){
+        return parsed.conditions;
+      }
+    }
+
+    // Try parsing the whole string
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed.conditions) && parsed.conditions.length){
+      return parsed.conditions;
+    }
+    throw new Error('No valid conditions in response');
+
+  }catch(err){
+    console.error('[DiseaseBrief] Groq worker failed:', err);
+    return buildLocalFallback(text);
+  }
+}
+
+// Keyword-based fallback when API is unavailable
+function buildLocalFallback(text){
+  const t = text.toLowerCase();
+  const map = [
+    {kw:['chest pain','chest','heart','palpitation','breathless','shortness of breath'], name:'Cardiac Issue', tags:['cardiac','chest'], brief:'Chest discomfort and breathlessness may suggest a cardiac condition.'},
+    {kw:['headache','head','migraine','dizziness','dizzy','vision'], name:'Migraine / Tension Headache', tags:['neurological','head'], brief:'Recurring head pain could indicate migraine or tension headache.'},
+    {kw:['stomach','abdomen','abdominal','nausea','vomit','diarrhea','bloat','gastric'], name:'Gastrointestinal Disorder', tags:['gastric','digestive'], brief:'Stomach symptoms may suggest a gastrointestinal condition.'},
+    {kw:['cough','cold','fever','throat','sore','sneeze','congestion','flu'], name:'Upper Respiratory Infection', tags:['respiratory','infectious'], brief:'Fever and throat symptoms could indicate an upper respiratory infection.'},
+    {kw:['rash','itch','skin','acne','red','spot'], name:'Dermatological Condition', tags:['dermal','skin'], brief:'Skin changes may suggest a dermatological condition.'},
+    {kw:['joint','back','knee','bone','pain','ache','stiff'], name:'Musculoskeletal Pain', tags:['orthopaedic','pain'], brief:'Joint or muscle pain may suggest a musculoskeletal condition.'},
+    {kw:['anxiety','stress','depressed','mood','sleep','insomnia','tired','fatigue'], name:'Anxiety / Stress Disorder', tags:['mental health','fatigue'], brief:'Fatigue and mood symptoms may suggest anxiety or a stress-related disorder.'},
+    {kw:['urine','urination','kidney','bladder','blood in urine'], name:'Urinary Tract Issue', tags:['urological','kidney'], brief:'Urinary symptoms could indicate a UTI or kidney condition.'},
+  ];
+  const matches = map.filter(m => m.kw.some(k => t.includes(k)));
+  if(!matches.length){
+    return [{name:'General Medical Review', likelihood:70, brief:'Your described symptoms may require a general medical evaluation.', tags:['general','review']}];
+  }
+  return matches.slice(0,3).map((m,i)=>({
+    name: m.name,
+    likelihood: Math.max(30, 75 - i*15),
+    brief: m.brief,
+    tags: m.tags
+  }));
+}
+
+function renderDiseaseBrief(conditions){
+  const wrap=document.getElementById('diseaseBriefWrap');
+
+  if(!conditions || !conditions.length){
+    wrap.innerHTML=`
+      <div class="disease-brief-panel" style="margin-top:0.75rem">
+        <div class="disease-brief-head">
+          <div class="disease-brief-pulse" style="background:var(--muted)"></div>
+          <div class="disease-brief-head-text">AI Preliminary Assessment</div>
+          <div class="disease-brief-head-badge">unavailable</div>
+        </div>
+        <div style="padding:1rem;font-size:0.78rem;color:var(--muted);font-weight:300;font-style:italic;">
+          Could not generate a disease brief. Your doctor will assess you at the appointment.
+        </div>
+      </div>`;
+    return;
+  }
+
+  const cardsHTML=conditions.map((c,i)=>{
+    const pct=Math.max(8,Math.min(95,c.likelihood||50));
+    const tagsHTML=(c.tags||[]).map(t=>`<span class="disease-tag">${t}</span>`).join('');
+    return `
+      <div class="disease-card">
+        <div class="disease-rank">${i+1}</div>
+        <div class="disease-info">
+          <div class="disease-name">${c.name||'Unknown'}</div>
+          <div class="disease-desc">${c.brief||''}</div>
+          <div class="disease-tags">${tagsHTML}</div>
+        </div>
+        <div class="disease-likelihood">
+          <div class="likelihood-label">${pct}%</div>
+          <div class="likelihood-bar-wrap">
+            <div class="likelihood-bar" data-pct="${pct}" style="width:0"></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  wrap.innerHTML=`
+    <div class="disease-brief-panel" style="margin-top:0.75rem">
+      <div class="disease-brief-head">
+        <div class="disease-brief-pulse"></div>
+        <div class="disease-brief-head-text">AI Preliminary Assessment</div>
+        <div class="disease-brief-head-badge">informational only</div>
+      </div>
+      <div class="disease-brief-disclaimer">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Not a diagnosis. Possible conditions based on your description — your doctor will confirm.
+      </div>
+      <div class="disease-cards-list">${cardsHTML}</div>
+      <div class="disease-brief-footer">
+        <span class="disease-brief-footer-note">Powered by Groq · Llama 3</span>
+      </div>
+    </div>`;
+
+  // Animate likelihood bars after paint
+  requestAnimationFrame(()=>{
+    wrap.querySelectorAll('.likelihood-bar').forEach(bar=>{
+      const pct=bar.getAttribute('data-pct');
+      setTimeout(()=>{bar.style.width=pct+'%';},80);
+    });
+  });
+}
+
+// ── AI symptom extraction ─────────────────────────────────────────────────
 async function extractSymptomsAI(problemText){
   const prompt=`You are a medical AI. The patient says: "${problemText}"
 
@@ -914,7 +1223,6 @@ Return only the JSON array:`;
     return arr.filter(s=>SYMPTOMS_LIST.includes(s));
   }catch(e){
     console.error('AI symptom extraction failed:',e);
-    // Fallback: keyword matching
     const lower=problemText.toLowerCase();
     return SYMPTOMS_LIST.filter(s=>{
       const kw=s.toLowerCase().split(/[\s\/]+/);
@@ -928,16 +1236,25 @@ window.bNext2=async function(){
   if(!text||text.length<10){setErr('bErr2','Please describe your symptoms in a bit more detail.');return;}
   setErr('bErr2','');
   bookingData.problemText=text;
-  const analyseBtn=document.getElementById('bAnalyzeLabel').parentElement;
+  const analyseBtn=document.getElementById('bAnalyseBtn');
   analyseBtn.disabled=true;
   document.getElementById('bAnalyzeLabel').textContent='Analysing…';
   showEl('aiAnalysing');
   try{
-    extractedSymptoms=await extractSymptomsAI(text);
-    if(!extractedSymptoms.length) extractedSymptoms=['Fatigue'];// fallback
-    // Render chips
+    // Run symptom extraction + disease brief in parallel
+    const [symptoms, diseaseBriefResult] = await Promise.allSettled([
+      extractSymptomsAI(text),
+      getDiseaseBriefData(text)
+    ]);
+
+    extractedSymptoms = (symptoms.status==='fulfilled' && symptoms.value.length)
+      ? symptoms.value : ['Fatigue'];
+
     document.getElementById('symptomChips').innerHTML=extractedSymptoms.map(s=>`<div class="s-chip">${s}</div>`).join('');
-    // Find doctor
+
+    // Render disease brief panel in step 3
+    const conditions = diseaseBriefResult.status==='fulfilled' ? diseaseBriefResult.value : [];
+
     const result=await findBestSlot(extractedSymptoms,bookingData.date,bookingData.slotPref);
     const matchEl=document.getElementById('matchResult');
     if(result){
@@ -957,6 +1274,8 @@ window.bNext2=async function(){
       </div>`;
     }
     hideEl('bStep2');showEl('bStep3');setErr('bErr3','');
+    // Render disease brief AFTER step 3 is visible so bar animations work
+    renderDiseaseBrief(conditions);
   }catch(e){
     console.error(e);setErr('bErr2','Could not analyse symptoms. Please try again.');
   }finally{
@@ -1005,7 +1324,6 @@ async function findBestSlot(symptoms,preferredDate,slotPref){
       return{doctor:doc,date:preferredDate,time:slot};
     }
   }
-  // Try fallback: any day next 7 days
   for(let day=1;day<=7;day++){
     const tryDate=dateStr(day);
     for(const doc of candidates){
@@ -1019,7 +1337,6 @@ async function findBestSlot(symptoms,preferredDate,slotPref){
 }
 
 // ── Razorpay Payment ──────────────────────────────────────────────────────
-// ⚠️  Replace with your live key from https://dashboard.razorpay.com
 const RAZORPAY_KEY = 'rzp_live_SRCE9sabTGkSGi';
 
 window.bNext3 = function() {
@@ -1028,129 +1345,77 @@ window.bNext3 = function() {
   const doctorName  = matchedDoctor ? matchedDoctor.doctor.name   : 'Unassigned';
   const speciality  = matchedDoctor ? matchedDoctor.doctor.speciality : '—';
 
-  // Disable the confirm button while Razorpay loads
   const confirmBtn = document.getElementById('bConfirmBtn');
   confirmBtn.disabled = true;
   confirmBtn.textContent = 'Opening payment…';
 
   const options = {
     key: RAZORPAY_KEY,
-    amount: 100,           // ₹50 in paise
+    amount: 100,
     currency: 'INR',
     name: 'MediCare+',
     description: `Consultation — ${doctorName} (${speciality})`,
     image: 'https://lh3.googleusercontent.com/pw/AP1GczN5NKp-gdC4g_ZU5tF_XD2rYIjna4kGRsxJjHpZ3puZ7t3UCNrDHc96-gcHWtdEfXqfdenTXg25JZbTt910OceNs6tR_hR7qIcZoySqHWhYs9e5YtuzCrwCTwaQOLR4syZWu2LgCA9TeiccyJDx5NVr=w407-h407-s-no-gm?authuser=0',
-    prefill: {
-      name:  currentUser.name,
-      email: currentUser.email,
-      contact: currentUser.phone || ''
-    },
-    notes: {
-      patient_id:  currentUser.patientId,
-      doctor:      doctorName,
-      appointment: `${apptDate} ${apptTime}`
-    },
+    prefill: {name:currentUser.name,email:currentUser.email,contact:currentUser.phone||''},
+    notes: {patient_id:currentUser.patientId,doctor:doctorName,appointment:`${apptDate} ${apptTime}`},
     theme: { color: '#1f3d2e' },
-
     handler: async function(response) {
-      // Called by Razorpay on successful payment
       const razorpayPaymentId = response.razorpay_payment_id;
       const refId = razorpayPaymentId || ('PAY-' + Date.now().toString(36).toUpperCase());
-
       try {
         await addDoc(collection(db, 'appointments'), {
-          patientId:      currentUser.patientId,
-          patientName:    currentUser.name,
-          name:           currentUser.name,
-          email:          currentUser.email,
-          symptoms:       extractedSymptoms,
-          symptom:        extractedSymptoms[0] || '—',
-          date:           apptDate,
-          time:           apptTime,
-          status:         'Confirmed',
-          doctorName,     speciality,
-          slotPreference: bookingData.slotPref,
-          paymentRef:     refId,
-          razorpayPaymentId,
-          amountPaid:     100,
-          createdAt:      serverTimestamp()
+          patientId:currentUser.patientId,patientName:currentUser.name,name:currentUser.name,
+          email:currentUser.email,symptoms:extractedSymptoms,symptom:extractedSymptoms[0]||'—',
+          date:apptDate,time:apptTime,status:'Confirmed',doctorName,speciality,
+          slotPreference:bookingData.slotPref,paymentRef:refId,razorpayPaymentId,
+          amountPaid:100,createdAt:serverTimestamp()
         });
-
-        // Confirmation email
         try {
-          await emailjs.send('default_service', 'template_smasli7', {
-            to_name:      currentUser.name,
-            name:         currentUser.name,
-            patient_name: currentUser.name,
-            from_name:    'MediCare+',
-            to_email:     currentUser.email,
-            email:        currentUser.email,
-            user_email:   currentUser.email,
-            reply_to:     currentUser.email,
-            doctor:       doctorName,
-            doctor_name:  doctorName,
-            speciality,
-            date:         fmtDate(apptDate),
-            time:         fmtTime(apptTime),
-            symptom:      extractedSymptoms.join(', ')
+          await emailjs.send('default_service','template_smasli7',{
+            to_name:currentUser.name,name:currentUser.name,patient_name:currentUser.name,
+            from_name:'MediCare+',to_email:currentUser.email,email:currentUser.email,
+            user_email:currentUser.email,reply_to:currentUser.email,doctor:doctorName,
+            doctor_name:doctorName,speciality,date:fmtDate(apptDate),time:fmtTime(apptTime),
+            symptom:extractedSymptoms.join(', ')
           });
-        } catch(e) { console.warn('Patient email failed:', e); }
-
-        const doctorEmail = matchedDoctor?.doctor?.personalEmail || null;
-        if (doctorEmail) {
-          try {
-            await emailjs.send('default_service', 'template_936u3an', {
-              to_name:       doctorName,
-              to_email:      doctorEmail,
-              from_name:     'MediCare+',
-              doctor_name:   doctorName,
-              patient_name:  currentUser.name,
-              patient_id:    currentUser.patientId,
-              patient_age:   currentUser.age,
-              patient_phone: currentUser.phone,
-              symptoms:      extractedSymptoms.join(', '),
-              date:          fmtDate(apptDate),
-              time:          fmtTime(apptTime),
-              speciality
-            }, 'b4DyfMQc57sZlO_u1');
-          } catch(e) { console.warn('Doctor email failed:', e); }
+        } catch(e){console.warn('Patient email failed:',e);}
+        const doctorEmail=matchedDoctor?.doctor?.personalEmail||null;
+        if(doctorEmail){
+          try{
+            await emailjs.send('default_service','template_936u3an',{
+              to_name:doctorName,to_email:doctorEmail,from_name:'MediCare+',doctor_name:doctorName,
+              patient_name:currentUser.name,patient_id:currentUser.patientId,patient_age:currentUser.age,
+              patient_phone:currentUser.phone,symptoms:extractedSymptoms.join(', '),
+              date:fmtDate(apptDate),time:fmtTime(apptTime),speciality
+            },'b4DyfMQc57sZlO_u1');
+          }catch(e){console.warn('Doctor email failed:',e);}
         }
-
-        document.getElementById('bSuccessSub').textContent =
+        document.getElementById('bSuccessSub').textContent=
           `Confirmed for ${fmtDate(apptDate)} at ${fmtTime(apptTime)} with ${doctorName}. Check ${currentUser.email} for details.`;
-        document.getElementById('bSuccessRef').textContent =
-          `Razorpay ID: ${refId} · ₹1 paid`;
-        hideEl('bStep3'); showEl('bStep4');
-
-      } catch(err) {
+        document.getElementById('bSuccessRef').textContent=`Razorpay ID: ${refId} · ₹1 paid`;
+        hideEl('bStep3');showEl('bStep4');
+      }catch(err){
         console.error(err);
-        alert('Payment was received but booking could not be saved. Please contact support with your payment ID: ' + refId);
+        alert('Payment was received but booking could not be saved. Please contact support with your payment ID: '+refId);
       }
     },
-
-    modal: {
-      ondismiss: function() {
-        // User closed Razorpay without paying — re-enable button
-        confirmBtn.disabled = false;
-        confirmBtn.textContent = 'Proceed to Payment →';
-      }
+    modal:{
+      ondismiss:function(){confirmBtn.disabled=false;confirmBtn.textContent='Proceed to Payment →';}
     }
   };
 
-  try {
-    const rzp = new window.Razorpay(options);
-    rzp.on('payment.failed', function(response) {
-      console.error('Razorpay payment failed:', response.error);
+  try{
+    const rzp=new window.Razorpay(options);
+    rzp.on('payment.failed',function(response){
+      console.error('Razorpay payment failed:',response.error);
       alert(`Payment failed: ${response.error.description}. Please try again.`);
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = 'Proceed to Payment →';
+      confirmBtn.disabled=false;confirmBtn.textContent='Proceed to Payment →';
     });
     rzp.open();
-  } catch(e) {
-    console.error('Razorpay init error:', e);
+  }catch(e){
+    console.error('Razorpay init error:',e);
     alert('Could not open payment gateway. Please check your Razorpay key and try again.');
-    confirmBtn.disabled = false;
-    confirmBtn.textContent = 'Proceed to Payment →';
+    confirmBtn.disabled=false;confirmBtn.textContent='Proceed to Payment →';
   }
 };
 </script>
