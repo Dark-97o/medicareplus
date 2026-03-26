@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut } from 'lucide-react';
+import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function PatientDashboard() {
@@ -105,19 +105,34 @@ export default function PatientDashboard() {
                 upcoming.map(app => (
                   <motion.div key={app.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-6 rounded-xl border border-(--color-accent-blue)/20 flex justify-between items-center group hover:bg-white/5 transition-colors">
                     <div>
-                      <h3 className="font-serif text-xl font-bold text-white">{app.doctorName}</h3>
-                      <p className="text-sm text-(--color-accent-blue) tracking-wider font-mono mb-2 uppercase">{app.specialization}</p>
+                      <h3 className="font-serif text-xl font-bold text-white mb-1">{app.doctorName}</h3>
+                      <div className="flex items-center gap-3 mb-2">
+                        <p className="text-sm text-(--color-accent-blue) tracking-wider font-mono uppercase">{app.specialization}</p>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-mono tracking-tighter uppercase border ${app.consultationMode === 'online' ? 'bg-(--color-accent-purple)/10 border-(--color-accent-purple)/30 text-(--color-accent-purple)' : 'bg-white/5 border-white/10 text-gray-500'}`}>
+                          {app.consultationMode === 'online' ? 'Online' : 'Offline'}
+                        </span>
+                      </div>
                       <div className="flex gap-4 text-xs text-gray-400">
                         <span className="flex items-center gap-1"><Calendar size={14}/> {app.date}</span>
                         <span className="flex items-center gap-1"><Clock size={14}/> {app.time}</span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => handleCancel(app.id, app.date, app.time)}
-                      className="text-red-400 hover:text-red-300 flex flex-col items-center justify-center gap-2 text-xs uppercase tracking-widest font-bold opacity-70 group-hover:opacity-100 transition-opacity cursor-pointer px-4 py-2 hover:bg-red-500/10 rounded-lg"
-                    >
-                      <XCircle size={24} /> Cancel
-                    </button>
+                    <div className="flex items-center gap-4">
+                      {app.consultationMode === 'online' && app.status === 'upcoming' && (
+                        <button 
+                          onClick={() => window.open(app.meetingLink, '_blank')}
+                          className="px-4 py-2 bg-(--color-accent-purple) text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.3)] cursor-pointer"
+                        >
+                          <Video size={14} /> Join Video Call
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => handleCancel(app.id, app.date, app.time)}
+                        className="text-red-400 hover:text-red-300 flex flex-col items-center justify-center gap-2 text-xs uppercase tracking-widest font-bold opacity-70 group-hover:opacity-100 transition-opacity cursor-pointer px-4 py-2 hover:bg-red-500/10 rounded-lg"
+                      >
+                        <XCircle size={24} /> Cancel
+                      </button>
+                    </div>
                   </motion.div>
                 ))
               )}
