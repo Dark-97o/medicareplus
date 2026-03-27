@@ -330,6 +330,45 @@ export default function BookAppointment() {
 
   const confirmBooking = async () => {
     if (!selectedDoctor || !date || !time) return alert('Please specify the date and time slot.');
+    
+    // DEV BYPASS: Allow creating record without payment on localhost for testing dashboard flow
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (confirm("Detected Dev Environment. Bypass Razorpay for testing?")) {
+        setLoading(true);
+        try {
+          const meetingId = Math.random().toString(36).substring(2, 10).toUpperCase();
+          const meetingLink = consultationMode === 'online' ? `https://meet.jit.si/MedicarePlus_Consult_${meetingId}` : '';
+          const appointmentData = {
+            patientId: user?.uid,
+            patientName: userProfile?.name || user?.email,
+            patientEmail: userProfile?.email || user?.email,
+            doctorId: selectedDoctor.id,
+            doctorName: selectedDoctor.name,
+            specialization: selectedDoctor.speciality,
+            date,
+            time,
+            status: 'upcoming',
+            fees: selectedDoctor.fees,
+            paymentRef: 'DEV_TEST_BYPASS',
+            symptoms,
+            aiAssessment,
+            consultationMode,
+            meetingLink,
+            createdAt: new Date().toISOString(),
+          };
+          console.log('[Booking] Dev Bypass - Saving:', appointmentData);
+          await addDoc(collection(db, 'appointments'), appointmentData);
+          alert("Dev Bypass: Appointment created successfully.");
+          navigate('/patient-dashboard');
+          return;
+        } catch (e: any) { 
+          alert("Dev Bypass Failed: " + e.message); 
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+
     setLoading(true);
 
     const options = {
@@ -340,10 +379,12 @@ export default function BookAppointment() {
       description: `Consultation with ${selectedDoctor.name}`,
       handler: async function (response: any) {
         try {
+          console.log('[Booking] Payment authorized:', response.razorpay_payment_id);
           const razorpayPaymentId = response.razorpay_payment_id;
           const meetingId = Math.random().toString(36).substring(2, 10).toUpperCase();
           const meetingLink = consultationMode === 'online' ? `https://meet.jit.si/MedicarePlus_Consult_${meetingId}` : '';
 
+          console.log('[Booking] Saving to Firestore...');
           await addDoc(collection(db, 'appointments'), {
             patientId: user?.uid,
             patientName: userProfile?.name || user?.email,
@@ -362,6 +403,8 @@ export default function BookAppointment() {
             meetingLink,
             createdAt: new Date().toISOString(),
           });
+          
+          console.log('[Booking] Firestore record created, sending email...');
           await emailjs.send('default_service', 'template_smasli7', {
             to_name: userProfile?.name || 'Patient',
             to_email: userProfile?.email || user?.email,
@@ -370,12 +413,13 @@ export default function BookAppointment() {
             time,
             specialization: selectedDoctor.speciality,
           });
+          
           setLoading(false);
-          alert(`Payment Successful! Reference ID: ${razorpayPaymentId}`);
+          alert(`Success! Appointment confirmed. Reference: ${razorpayPaymentId}`);
           navigate('/patient-dashboard');
-        } catch (err) {
-          console.error('Booking Finalization Failed:', err);
-          alert('Payment verified, but error confirming booking on server.');
+        } catch (err: any) {
+          console.error('[Booking] Fatal Error:', err);
+          alert(`Error confirming booking: ${err.message || 'Unknown error'}`);
           setLoading(false);
         }
       },

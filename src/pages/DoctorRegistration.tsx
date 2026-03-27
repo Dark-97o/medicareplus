@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Stethoscope, Mail, Lock, Building, Award } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import Spline from '@splinetool/react-spline';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function DoctorRegistration() {
   const navigate = useNavigate();
@@ -77,8 +79,19 @@ export default function DoctorRegistration() {
   }
 
   return (
-    <div className="min-h-screen bg-(--color-primary-base) py-24 px-4 md:px-8 text-white flex justify-center">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-screen bg-(--color-primary-base) pt-12 pb-24 px-4 md:px-8 text-white flex justify-center relative overflow-hidden">
+      {/* 3D Background */}
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none scale-110">
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
+            <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+      <div className="absolute inset-0 z-1 bg-gradient-to-b from-(--color-primary-base) via-transparent to-(--color-primary-base) pointer-events-none" />
+
+      <div className="w-full max-w-3xl relative z-10">
+
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-serif font-black mb-2 flex justify-center items-center gap-3"><Stethoscope className="text-(--color-accent-blue)"/> Doctor <span className="text-gradient">Partnership</span></h1>
           <p className="text-gray-400 font-mono text-sm tracking-widest uppercase mt-2">Join the MedicarePlus Network</p>

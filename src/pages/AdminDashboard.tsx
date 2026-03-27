@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Spline from '@splinetool/react-spline';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { ShieldAlert, ArrowRight, Lock, Users, Calendar, Stethoscope, CheckCircle, XCircle, Pencil, Trash2, Eye, ChevronDown, ChevronUp, X, Save } from 'lucide-react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
@@ -30,15 +32,20 @@ function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Ambient glows */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-(--color-accent-blue) rounded-full blur-[160px] opacity-10 pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-(--color-accent-purple) rounded-full blur-[160px] opacity-10 pointer-events-none" />
+    <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center px-4 pt-12 relative overflow-hidden">
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
+            <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-(--color-primary-base) via-transparent to-(--color-primary-base) pointer-events-none" />
 
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="glass-panel w-full max-w-md rounded-2xl border border-(--color-accent-blue)/20 shadow-[0_0_60px_rgba(0,229,255,0.12)] overflow-hidden">
         <div className="h-1 w-full bg-gradient-to-r from-(--color-accent-blue) to-(--color-accent-purple)" />
-        <div className="p-10">
+        <div className="p-10 pt-4">
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 rounded-full bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/30 flex items-center justify-center mb-5 relative">
               <ShieldAlert size={30} className="text-(--color-accent-blue)" />
@@ -308,9 +315,21 @@ function AdminPanel() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050B14] text-white">
+    <div className="min-h-screen bg-[#050B14] text-white relative overflow-hidden">
+      {/* Abstract Background Spline */}
+      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none h-full overflow-hidden">
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/20" />}>
+            <Spline scene="https://prod.spline.design/vwfRpoawpJ6f8SRL/scene.splinecode" />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050B14] pointer-events-none" />
+      
+      <div className="relative z-10 h-full flex flex-col pt-12">
+
       {/* Top Bar */}
-      <div className="sticky top-0 z-30 bg-[#050B14]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-10 py-4 flex items-center justify-between">
+      <div className="sticky top-16 z-30 bg-[#050B14]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-10 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/30 flex items-center justify-center">
             <ShieldAlert size={20} className="text-(--color-accent-blue)" />
@@ -375,6 +394,7 @@ function AdminPanel() {
             </motion.div>
           </AnimatePresence>
         )}
+      </div>
       </div>
 
       {/* Edit Modal */}

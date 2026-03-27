@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Spline from '@splinetool/react-spline';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { useAuth, type UserProfile } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, doc, updateDoc, orderBy, addDoc } from 'firebase/firestore';
-import { Mail, Calendar, CheckCircle, XCircle, Clock, Stethoscope, Lock, FileText, Activity, Phone, Award, Building, User, ChevronRight, Video } from 'lucide-react';
+import { collection, query, where, getDocs, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { Mail, Calendar, CheckCircle, XCircle, Clock, Stethoscope, Lock, FileText, Activity, Phone, Award, Building, User, ChevronRight, Video, LogOut } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
 const SPECIALITIES = ["General Physician", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry", "Urology", "Radiology", "Endocrinology"];
@@ -80,16 +81,22 @@ export default function DoctorDashboard() {
     if (!user || userProfile?.role !== 'doctor') return;
     setFetching(true);
     try {
-      const q = query(collection(db, 'appointments'), where('doctorId', '==', user.uid), orderBy('createdAt', 'desc'));
+      const q = query(collection(db, 'appointments'), where('doctorId', '==', user.uid));
       const snap = await getDocs(q);
-      setAppointments(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Sort client-side to bypass index requirement
+      const sorted = data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setAppointments(sorted);
       
       // Also fetch doctor availability
       const dDoc = await getDocs(query(collection(db, 'doctors'), where('email', '==', userProfile.email)));
       if (!dDoc.empty) {
         setAvailability(dDoc.docs[0].data().availability || {});
       }
-    } catch (err) { console.error(err); }
+    } catch (err: any) { 
+      console.error('[Dashboard] Fetch Error:', err); 
+      alert(`Failed to load appointments: ${err.message || 'Check Firestore index/permissions'}`);
+    }
     finally { setFetching(false); }
   };
 
@@ -156,31 +163,47 @@ export default function DoctorDashboard() {
   /* ─── AUTH SCREEN ─── */
   if (!user || userProfile?.role !== 'doctor') {
     if (success) return (
-      <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center p-4">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-          className="glass-panel p-10 rounded-2xl border border-green-500/20 text-center max-w-lg">
+      <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center p-4 pt-16 relative overflow-hidden">
+        {/* DNA Spline for Professional Login */}
+        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+          <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
+            <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
+              <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-(--color-primary-base) via-transparent to-(--color-primary-base) pointer-events-none" />
+
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel w-full max-w-md p-10 rounded-2xl border border-white/5 shadow-2xl relative z-10">
           <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Activity size={40} className="text-green-400" />
           </div>
           <h2 className="text-3xl font-serif font-black text-white mb-4">Application Submitted!</h2>
           <p className="text-gray-400 leading-relaxed mb-6">Your credentials are under Admin review. You'll be able to log in once approved.</p>
-          <div className="w-full h-1 bg-white/10 rounded overflow-hidden">
+          <div className="w-full h-1 bg-white/10 rounded overflow-hidden mb-8">
             <motion.div className="h-full bg-green-400" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 4.5 }} />
           </div>
+          <button onClick={signOut} className="w-full py-4 border border-white/10 rounded-xl text-xs font-mono uppercase tracking-[0.2em] text-gray-400 hover:bg-white/5 hover:text-white transition-all flex items-center justify-center gap-3">
+            <LogOut size={16} /> Sign Out / Terminal Reset
+          </button>
         </motion.div>
       </div>
     );
 
     return (
-      <div className="min-h-screen bg-(--color-primary-base) relative overflow-hidden flex items-center justify-center">
-        {/* Spline 3D Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+      <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center p-4 pt-16 relative overflow-hidden">
+        {/* Spline 3D DNA Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+          <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
+            <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
+              <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+            </Suspense>
+          </ErrorBoundary>
           <div className="absolute inset-0 bg-gradient-to-r from-(--color-primary-base) via-(--color-primary-base)/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-(--color-primary-base) via-transparent to-(--color-primary-base)/40" />
         </div>
 
-        <div className="relative z-10 w-full flex items-center justify-center py-16 px-4">
+        <div className="relative z-10 w-full flex items-center justify-center pt-4 pb-16 px-4">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-2xl">
 
@@ -375,20 +398,31 @@ export default function DoctorDashboard() {
   const concluded = appointments.filter(a => a.status === 'concluded').length;
 
   return (
-    <div className="min-h-screen bg-[#050B14] text-white">
+    <div className="min-h-screen bg-[#050B14] text-white relative overflow-hidden">
+      {/* Abstract Dashboard Spline */}
+      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none flex items-center justify-center">
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/20" />}>
+            <Spline scene="https://prod.spline.design/vwfRpoawpJ6f8SRL/scene.splinecode" />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050B14] pointer-events-none" />
+      
+      <div className="relative z-10 pt-12">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-30 bg-[#050B14]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-10 py-4 flex items-center justify-between">
+      <div className="sticky top-16 z-30 bg-[#050B14]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-10 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/30 flex items-center justify-center">
             <Stethoscope size={20} className="text-(--color-accent-blue)" />
           </div>
           <div>
-            <p className="font-serif font-bold text-white text-lg leading-none">Dr. {userProfile.name?.replace('Dr. ', '')}</p>
-            <p className="text-gray-400 text-xs mt-0.5 font-mono">{userProfile.address}</p>
+            <p className="font-serif font-bold text-white text-lg leading-none">Hello, Dr. {userProfile.name?.replace('Dr. ', '')}</p>
+            <p className="text-gray-400 text-xs mt-1.5 font-mono">{userProfile.address}</p>
           </div>
         </div>
-        <button onClick={signOut} className="px-4 py-2 border border-white/10 rounded-full text-xs uppercase tracking-widest hover:bg-white/5 transition-colors text-gray-400 hover:text-white">
-          Lock Terminal
+        <button onClick={signOut} className="px-5 py-2.5 border border-red-500/20 rounded-xl text-[10px] uppercase font-bold tracking-widest hover:bg-red-500 hover:text-white transition-all text-red-400 flex items-center gap-2">
+          <LogOut size={14} /> Sign Out
         </button>
       </div>
 
@@ -589,6 +623,7 @@ export default function DoctorDashboard() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

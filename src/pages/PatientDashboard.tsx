@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import Spline from '@splinetool/react-spline';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video } from 'lucide-react';
@@ -75,8 +77,18 @@ export default function PatientDashboard() {
   const past = appointments.filter(a => a.status !== 'upcoming');
 
   return (
-    <div className="min-h-screen bg-(--color-primary-base) text-white py-24 px-8 md:px-16 w-full">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-(--color-primary-base) text-white pt-12 pb-12 px-8 md:px-16 w-full relative overflow-hidden">
+      {/* Abstract Background Spline */}
+      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none flex items-center justify-center">
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/20" />}>
+            <Spline scene="https://prod.spline.design/vwfRpoawpJ6f8SRL/scene.splinecode" />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-(--color-primary-base) via-transparent to-(--color-primary-base) pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
           <div>
             <h1 className="text-4xl font-serif font-black mb-2">Patient <span className="text-gradient">Portal</span></h1>

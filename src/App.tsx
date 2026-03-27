@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
 import PatientDashboard from './pages/PatientDashboard';
 import BookAppointment from './pages/BookAppointment';
+import DoctorRegistration from './pages/DoctorRegistration';
 
 export default function App() {
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-(--color-primary-base) text-(--color-text-main) font-sans relative overflow-x-hidden selection:bg-(--color-accent-blue) selection:text-white">
       {/* Immersive Dark Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav h-[80px] flex items-center justify-between px-8 md:px-16">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav h-16 flex items-center justify-between px-8 md:px-16">
         <Link to="/" className="font-serif text-2xl font-bold tracking-wide flex items-center gap-2 group">
           MediCare
           <span className="text-gradient font-black group-hover:drop-shadow-[0_0_15px_rgba(0,229,255,0.8)] transition-all">+</span>
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/doctor" element={<DoctorDashboard />} />
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/book-appointment" element={<BookAppointment />} />
+          <Route path="/doctor-registration" element={<DoctorRegistration />} />
         </Routes>
       </main>
     </div>

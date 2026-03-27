@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, User, Phone, MapPin, Calendar, Droplet, UserCheck } from 'lucide-react';
 import { collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
+import Spline from '@splinetool/react-spline';
 import { db } from '../lib/firebase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import type { UserProfile } from '../contexts/AuthContext';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -94,7 +96,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      {isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 md:p-10">
         <motion.div 
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -104,16 +107,36 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-md bg-(--color-primary-base) border border-white/10 rounded-2xl shadow-2xl overflow-hidden glass-panel"
+          className="relative w-full max-w-2xl bg-(--color-primary-base) border border-white/10 rounded-2xl shadow-2xl overflow-hidden glass-panel flex flex-col md:flex-row h-[600px]"
         >
-          <div className="flex items-center justify-between p-6 border-b border-white/5">
-            <h2 className="text-2xl font-serif font-black text-white">
-              {isLogin ? 'Patient Access' : 'Create Profile'}
-            </h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-              <X size={20} />
-            </button>
+          {/* 3D Visual Column */}
+          <div className="hidden md:block w-1/2 relative bg-black/40 border-r border-white/5 overflow-hidden">
+            <div className="absolute inset-0 opacity-80">
+              <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/60 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>}>
+                <Suspense fallback={<div className="absolute inset-0 bg-black/60 flex items-center justify-center"><div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>}>
+                  <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+                </Suspense>
+              </ErrorBoundary>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-(--color-primary-base) via-transparent to-transparent" />
+            <div className="relative z-10 p-8 flex flex-col justify-end h-full">
+              <h3 className="text-xl font-serif font-bold text-white mb-2">Secure Access</h3>
+              <p className="text-xs text-gray-400 font-mono tracking-wider uppercase leading-relaxed">
+                MedicarePlus Biometric Encryption Enabled.<br/>
+                Global Medical Registry v2.0
+              </p>
+            </div>
           </div>
+
+          <div className="w-full md:w-1/2 flex flex-col h-full overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <h2 className="text-2xl font-serif font-black text-white">
+                {isLogin ? 'Patient Access' : 'Create Profile'}
+              </h2>
+              <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+                <X size={20} />
+              </button>
+            </div>
 
           <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
             {error && (
@@ -208,8 +231,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {isLogin ? "Need an account? New Patient Registration →" : "Already registered? Patient Sign In →"}
             </button>
           </form>
+          </div>
         </motion.div>
       </div>
+      )}
     </AnimatePresence>
   );
 }
