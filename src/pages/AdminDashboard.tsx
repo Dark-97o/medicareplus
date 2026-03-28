@@ -2,17 +2,19 @@ import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Spline from '@splinetool/react-spline';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { ShieldAlert, ArrowRight, Lock, Users, Calendar, Stethoscope, CheckCircle, XCircle, Pencil, Trash2, Eye, ChevronDown, ChevronUp, X, Save } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Lock, Eye, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query } from 'firebase/firestore';
 
 /* ─── TYPES ─── */
-type TabId = 'doctors' | 'patients' | 'bookings';
+type TabId = 'doctors' | 'patients' | 'bookings' | 'enquiries' | 'messages';
 
 /* ─── ADMIN LOGIN ─── */
 function AdminLogin() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -51,28 +53,28 @@ function AdminLogin() {
               <ShieldAlert size={30} className="text-(--color-accent-blue)" />
               <div className="absolute inset-0 border border-(--color-accent-blue)/20 rounded-full animate-ping" />
             </div>
-            <h2 className="text-2xl font-serif font-black text-white mb-1">Admin Console</h2>
-            <p className="text-gray-400 text-xs tracking-[0.2em] uppercase font-mono">Authorised Personnel Only</p>
+            <h2 className="text-2xl font-serif font-black text-white mb-1">{t('admin.console')}</h2>
+            <p className="text-gray-400 text-xs tracking-[0.2em] uppercase font-mono">{t('admin.auth_only')}</p>
           </div>
 
           {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm text-center flex items-center gap-2"><Lock size={14}/>{error}</div>}
 
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">Admin Email</label>
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">{t('admin.email')}</label>
               <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-sm focus:border-(--color-accent-blue) focus:outline-none focus:ring-1 focus:ring-(--color-accent-blue)/30 transition-all"
                 placeholder="admin@medicareplus.com" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">Access Key</label>
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">{t('admin.access_key')}</label>
               <input type="password" required value={password} onChange={e => setPassword(e.target.value)}
                 className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 text-sm focus:border-(--color-accent-blue) focus:outline-none focus:ring-1 focus:ring-(--color-accent-blue)/30 transition-all font-mono tracking-widest"
                 placeholder="••••••••" />
             </div>
             <button type="submit" disabled={loading}
               className="w-full mt-2 py-4 bg-gradient-to-r from-(--color-accent-blue) to-(--color-accent-purple) text-black rounded-xl font-bold tracking-widest uppercase hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
-              {loading ? <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <><span>Establish Secure Uplink</span><ArrowRight size={16}/></>}
+              {loading ? <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <><span className="uppercase tracking-widest">{t('admin.uplink')}</span><ArrowRight size={16}/></>}
             </button>
           </form>
         </div>
@@ -83,6 +85,7 @@ function AdminLogin() {
 
 /* ─── EDIT MODAL ─── */
 function EditModal({ item, onSave, onClose, collection: col }: { item: any; onSave: (id: string, data: any) => void; onClose: () => void; collection: string; }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState<any>({ ...item });
   const excluded = ['id', 'createdAt', 'appointments'];
   const fields = Object.keys(form).filter(k => !excluded.includes(k));
@@ -93,7 +96,7 @@ function EditModal({ item, onSave, onClose, collection: col }: { item: any; onSa
       <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="relative z-10 w-full max-w-2xl glass-panel border border-(--color-accent-blue)/30 rounded-2xl p-6 max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2"><Pencil size={18} className="text-(--color-accent-blue)" /> Edit {col === 'doctors' ? 'Doctor' : col === 'users' ? 'Patient' : 'Booking'}</h3>
+          <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2"><Pencil size={18} className="text-(--color-accent-blue)" /> {t('admin.edit')} {col === 'doctors' ? t('admin.doctor') : col === 'users' ? t('admin.patient') : t('admin.booking')}</h3>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors"><X size={18} /></button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -123,9 +126,9 @@ function EditModal({ item, onSave, onClose, collection: col }: { item: any; onSa
           ))}
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5">
-          <button onClick={onClose} className="px-5 py-2.5 border border-white/10 rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-white/5 transition-colors">Cancel</button>
+          <button onClick={onClose} className="px-5 py-2.5 border border-white/10 rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-white/5 transition-colors">{t('admin.cancel')}</button>
           <button onClick={() => onSave(item.id, form)} className="px-5 py-2.5 bg-(--color-accent-blue) text-black rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-white transition-colors flex items-center gap-2">
-            <Save size={14} /> Save Changes
+            <Plus size={14} /> {t('admin.save')}
           </button>
         </div>
       </motion.div>
@@ -135,13 +138,14 @@ function EditModal({ item, onSave, onClose, collection: col }: { item: any; onSa
 
 /* ─── DOCTOR TABLE ─── */
 function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState<string | null>(null);
   const pending = doctors.filter((d: any) => d.status === 'pending');
   const approved = doctors.filter((d: any) => d.status !== 'pending');
 
   const StatusBadge = ({ status }: { status: string }) => (
     <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border ${status === 'approved' ? 'bg-green-500/20 text-green-300 border-green-500/30' : status === 'pending' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>
-      {status}
+      {status === 'approved' ? t('admin.status_approved') : status === 'pending' ? t('admin.status_pending') : t('admin.status_declined')}
     </span>
   );
 
@@ -160,13 +164,13 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {d.status === 'pending' && (<>
-            <button onClick={() => onApprove(d.id)} className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-xs font-bold uppercase flex items-center gap-1"><CheckCircle size={12} /> Approve</button>
-            <button onClick={() => onDecline(d.id)} className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs font-bold uppercase flex items-center gap-1"><XCircle size={12} /> Decline</button>
+            <button onClick={() => onApprove(d.id)} className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-xs font-bold uppercase flex items-center gap-1"><CheckCircle size={12} /> {t('admin.approve')}</button>
+            <button onClick={() => onDecline(d.id)} className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all text-xs font-bold uppercase flex items-center gap-1"><XCircle size={12} /> {t('admin.decline')}</button>
           </>)}
           <button onClick={() => onEdit(d)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
           <button onClick={() => onDelete(d.id, 'doctors')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
           <button onClick={() => setExpanded(expanded === d.id ? null : d.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors">
-            {expanded === d.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {expanded === d.id ? <Plus size={14} /> : <Plus size={14} />}
           </button>
         </div>
       </div>
@@ -190,30 +194,31 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
     <div className="space-y-6">
       {pending.length > 0 && (
         <div>
-          <h3 className="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" /> Pending Applications ({pending.length})</h3>
+          <h3 className="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" /> {t('admin.pending_applications')} ({pending.length})</h3>
           <div className="space-y-2">{pending.map((d: any) => <Row key={d.id} d={d} />)}</div>
         </div>
       )}
       {approved.length > 0 && (
         <div>
-          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Active Physicians ({approved.length})</h3>
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">{t('admin.active_physicians')} ({approved.length})</h3>
           <div className="space-y-2">{approved.map((d: any) => <Row key={d.id} d={d} />)}</div>
         </div>
       )}
-      {doctors.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">No doctors found.</div>}
+      {doctors.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">{t('admin.no_doctors_found')}</div>}
     </div>
   );
 }
 
 /* ─── PATIENT TABLE ─── */
 function PatientTable({ patients, onEdit, onDelete }: any) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      {patients.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">No patients found.</div>}
+      {patients.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">{t('admin.no_patients_found')}</div>}
       {patients.map((p: any) => (
         <div key={p.id} className="glass-panel border border-white/5 rounded-xl p-4 flex items-center gap-4 hover:border-white/10 transition-colors">
           <div className="w-10 h-10 rounded-full bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center shrink-0">
-            <Users size={16} className="text-(--color-accent-purple)" />
+            <User size={16} className="text-(--color-accent-purple)" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-white">{p.name}</p>
@@ -232,9 +237,10 @@ function PatientTable({ patients, onEdit, onDelete }: any) {
 
 /* ─── BOOKING TABLE ─── */
 function BookingTable({ bookings, onEdit, onDelete }: any) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      {bookings.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">No bookings found.</div>}
+      {bookings.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">{t('admin.no_bookings_found')}</div>}
       {bookings.map((b: any) => (
         <div key={b.id} className="glass-panel border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 hover:border-white/10 transition-colors">
           <div className="flex-1 min-w-0">
@@ -256,27 +262,100 @@ function BookingTable({ bookings, onEdit, onDelete }: any) {
   );
 }
 
+/* ─── ENQUIRY TABLE ─── */
+function EnquiryTable({ enquiries, onDelete, onStatusChange }: any) {
+  return (
+    <div className="space-y-2">
+      {enquiries.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">No enquiries found.</div>}
+      {enquiries.map((e: any) => (
+        <div key={e.id} className="glass-panel border border-white/5 rounded-xl p-4 flex items-center gap-4 hover:border-white/10 transition-colors">
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${e.status === 'pending' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-green-500/10 text-green-400'}`}>
+            <Phone size={16} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-white">{e.name}</p>
+            <p className="text-xs text-gray-400 font-mono">{e.phone} · Preferred: {e.preferredTime}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {e.status === 'pending' && (
+              <button 
+                onClick={() => onStatusChange(e.id, 'contacted')}
+                className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-[10px] font-bold uppercase"
+              >
+                Mark Contacted
+              </button>
+            )}
+            <button onClick={() => onDelete(e.id, 'enquiries')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors">
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── MESSAGE TABLE ─── */
+function MessageTable({ messages, onDelete }: any) {
+  return (
+    <div className="space-y-4">
+      {messages.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">No messages found.</div>}
+      {messages.map((m: any) => (
+        <div key={m.id} className="glass-panel border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors group">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center text-(--color-accent-purple)">
+                <Mail size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-lg">{m.name}</h4>
+                <p className="text-xs text-gray-400 font-mono">{m.email} · {m.phone}</p>
+              </div>
+            </div>
+            <button onClick={() => onDelete(m.id, 'contacts')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors">
+              <Trash2 size={16} />
+            </button>
+          </div>
+          <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-300 leading-relaxed italic">
+            "{m.message}"
+          </div>
+          <div className="mt-4 text-[10px] font-mono text-gray-600 uppercase tracking-widest">
+            Received: {m.createdAt?.toDate ? m.createdAt.toDate().toLocaleString() : 'Just now'}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ─── ADMIN PANEL ─── */
 function AdminPanel() {
+  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>('doctors');
   const [doctors, setDoctors] = useState<any[]>([]);
   const [patients, setPatients] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [enquiries, setEnquiries] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [editItem, setEditItem] = useState<{ item: any; col: string } | null>(null);
 
   const loadAll = async () => {
     setLoadingData(true);
     try {
-      const [docSnap, patSnap, bookSnap] = await Promise.all([
+      const [docSnap, patSnap, bookSnap, enqSnap, msgSnap] = await Promise.all([
         getDocs(collection(db, 'doctors')),
         getDocs(collection(db, 'users')),
-        getDocs(query(collection(db, 'appointments'), orderBy('createdAt', 'desc')))
+        getDocs(query(collection(db, 'appointments'), orderBy('createdAt', 'desc'))),
+        getDocs(query(collection(db, 'enquiries'), orderBy('createdAt', 'desc'))),
+        getDocs(query(collection(db, 'contacts'), orderBy('createdAt', 'desc')))
       ]);
       setDoctors(docSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setPatients(patSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setBookings(bookSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setEnquiries(enqSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setMessages(msgSnap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (err) { console.error(err); }
     finally { setLoadingData(false); }
   };
@@ -308,10 +387,17 @@ function AdminPanel() {
     loadAll();
   };
 
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    await updateDoc(doc(db, 'enquiries', id), { status: newStatus });
+    loadAll();
+  };
+
   const tabs: { id: TabId; label: string; icon: any; count: number; badge?: number }[] = [
-    { id: 'doctors', label: 'Physicians', icon: Stethoscope, count: doctors.length, badge: doctors.filter(d => d.status === 'pending').length },
-    { id: 'patients', label: 'Patients', icon: Users, count: patients.length },
-    { id: 'bookings', label: 'Appointments', icon: Calendar, count: bookings.length },
+    { id: 'doctors', label: t('admin.physicians'), icon: Stethoscope, count: doctors.length, badge: doctors.filter(d => d.status === 'pending').length },
+    { id: 'patients', label: t('admin.patients'), icon: User, count: patients.length },
+    { id: 'bookings', label: t('admin.appointments'), icon: Calendar, count: bookings.length },
+    { id: 'enquiries', label: 'Enquiries', icon: Phone, count: enquiries.length, badge: enquiries.filter(e => e.status === 'pending').length },
+    { id: 'messages', label: 'Messages', icon: Mail, count: messages.length },
   ];
 
   return (
@@ -335,16 +421,16 @@ function AdminPanel() {
             <ShieldAlert size={20} className="text-(--color-accent-blue)" />
           </div>
           <div>
-            <p className="font-serif font-bold text-white text-lg leading-none">Global Command</p>
+            <p className="font-serif font-bold text-white text-lg leading-none">{t('admin.global_command')}</p>
             <p className="text-gray-400 text-xs mt-0.5 font-mono">{user?.email}</p>
           </div>
           <div className="ml-3 flex items-center gap-1.5 px-3 py-1 bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/20 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-(--color-accent-blue) animate-pulse" />
-            <span className="font-mono text-[0.6rem] uppercase tracking-widest text-(--color-accent-blue)">System Online</span>
+            <span className="font-mono text-[0.6rem] uppercase tracking-widest text-(--color-accent-blue)">{t('admin.system_online')}</span>
           </div>
         </div>
         <button onClick={signOut} className="px-4 py-2 border border-red-500/30 text-red-400 bg-red-500/5 hover:bg-red-500/10 rounded-xl text-xs font-mono uppercase tracking-widest transition-all">
-          Terminate Session
+          {t('admin.terminate_session')}
         </button>
       </div>
 
@@ -391,6 +477,12 @@ function AdminPanel() {
               {activeTab === 'bookings' && (
                 <BookingTable bookings={bookings} onEdit={(b: any) => setEditItem({ item: b, col: 'appointments' })} onDelete={handleDelete} />
               )}
+              {activeTab === 'enquiries' && (
+                <EnquiryTable enquiries={enquiries} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+              )}
+              {activeTab === 'messages' && (
+                <MessageTable messages={messages} onDelete={handleDelete} />
+              )}
             </motion.div>
           </AnimatePresence>
         )}
@@ -409,7 +501,8 @@ function AdminPanel() {
 
 /* ─── DEFAULT EXPORT ─── */
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
-  if (loading) return <div className="h-screen flex items-center justify-center text-(--color-accent-blue) animate-pulse font-mono uppercase tracking-widest text-xs">Initializing Secure Channel...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center text-(--color-accent-blue) animate-pulse font-mono uppercase tracking-widest text-xs">{t('admin.initializing_secure_channel')}</div>;
   return user ? <AdminPanel /> : <AdminLogin />;
 }

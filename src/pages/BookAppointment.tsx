@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
-import { ArrowLeft, Brain, User, CheckCircle, Activity, Zap, CreditCard, Stethoscope, Search, AlertTriangle, Sparkles, Building } from 'lucide-react';
+import { ArrowLeft, Brain, User, CheckCircle, Zap, Stethoscope, Sparkles, Clock, ArrowRight, ShieldCheck, MapPin, Calendar } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import { useTranslation } from 'react-i18next';
+
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface Condition {
@@ -138,6 +140,7 @@ function LikelihoodBar({ pct, urgency }: { pct: number; urgency: string }) {
 
 // ─── Disease Assessment Panel Component ─────────────────────────────────────
 function DiseaseAssessmentPanel({ conditions, isAI }: { conditions: Condition[]; isAI: boolean }) {
+  const { t } = useTranslation();
   const urgencyColor = (u: string) =>
     u === 'high' ? 'text-red-400 bg-red-500/10 border-red-500/20' :
     u === 'moderate' ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20' :
@@ -153,18 +156,10 @@ function DiseaseAssessmentPanel({ conditions, isAI }: { conditions: Condition[];
       {/* Header */}
       <div className="flex items-center gap-3 px-5 py-3.5 bg-white/4 border-b border-white/8">
         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="font-mono text-[0.6rem] uppercase tracking-widest text-gray-400">AI Preliminary Assessment</span>
+        <span className="font-mono text-[0.6rem] uppercase tracking-widest text-gray-400">{t('booking.assessment.preliminary')}</span>
         <span className="ml-auto font-mono text-[0.55rem] uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/8 text-gray-500">
-          {isAI ? 'Groq · Llama 3' : 'Local Engine'}
+          {isAI ? 'Groq · Llama 3' : t('booking.assessment.local_engine')}
         </span>
-      </div>
-
-      {/* Disclaimer */}
-      <div className="flex items-start gap-2 px-5 py-2.5 bg-yellow-400/5 border-b border-yellow-400/15">
-        <AlertTriangle size={12} className="text-yellow-500 flex-shrink-0 mt-0.5" />
-        <p className="text-[0.7rem] text-yellow-600/80 font-light leading-relaxed">
-          Not a diagnosis. Possible conditions based on your description — your doctor will confirm.
-        </p>
       </div>
 
       {/* Conditions list */}
@@ -203,9 +198,9 @@ function DiseaseAssessmentPanel({ conditions, isAI }: { conditions: Condition[];
 
       {/* Footer */}
       <div className="flex items-center justify-between px-5 py-3 bg-white/2 border-t border-white/5">
-        <span className="text-[0.65rem] text-gray-600 font-light">Informational only</span>
+        <span className="text-[0.65rem] text-gray-600 font-light">{t('booking.assessment.informational_only')}</span>
         <span className="flex items-center gap-1 text-[0.6rem] text-gray-600 font-mono uppercase tracking-wider">
-          <Zap size={9} className="text-yellow-500" /> Powered by Groq Llama 3
+          <Zap size={9} className="text-yellow-500" /> {t('booking.assessment.powered_by')}
         </span>
       </div>
     </motion.div>
@@ -214,8 +209,11 @@ function DiseaseAssessmentPanel({ conditions, isAI }: { conditions: Condition[];
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function BookAppointment() {
+  const { t } = useTranslation();
   const { user, userProfile } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isCheckupMode = searchParams.get('mode') === 'checkup';
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -237,7 +235,38 @@ export default function BookAppointment() {
   useEffect(() => {
     if (!user) navigate('/');
     emailjs.init('nEbb9aPtYh8imCD0M');
-  }, [user, navigate]);
+
+    if (isCheckupMode && !symptoms) {
+      setSymptoms('General Health Checkup & Basic Screening');
+      // Automatically trigger analysis for checkup
+      const checkupSymptoms = 'General Health Checkup & Basic Screening';
+      setLoading(true);
+      
+      const local = buildLocalAssessment(checkupSymptoms);
+      setSpecialization('General Physician');
+      setConditions(local.conditions);
+      
+      // Query for doctors
+      const fetchCheckupDoctors = async () => {
+        try {
+          const docQuery = query(
+            collection(db, 'doctors'),
+            where('speciality', '==', 'General Physician'),
+            where('status', '==', 'approved')
+          );
+          const snap = await getDocs(docQuery);
+          const matched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setDoctors(matched);
+          setStep(2);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchCheckupDoctors();
+    }
+  }, [user, navigate, isCheckupMode]);
 
   // Simple spec triage for plain-text AI response
   const localTriage = (text: string): { spec: string; brief: string } => {
@@ -449,113 +478,100 @@ export default function BookAppointment() {
   return (
     <div className="min-h-screen bg-(--color-primary-base) text-white font-sans py-24 px-8 md:px-16 flex justify-center">
       <div className="w-full max-w-4xl relative z-10">
-
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-12">
+        <div className="flex items-center gap-6 mb-12">
           <button
             onClick={() => step > 1 ? setStep(step - 1) : navigate('/patient-dashboard')}
-            className="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-white/10"
+            className="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-white/10 group"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
           </button>
           <div>
-            <h1 className="text-3xl md:text-4xl font-serif font-black flex items-center gap-3">
-              Intelligent <span className="text-gradient">Booking</span>
-            </h1>
-            <p className="text-(--color-text-muted) font-mono tracking-widest uppercase text-[0.65rem] mt-1">Step {step} of 3</p>
+            <h1 className="text-3xl font-serif font-black">{t('booking.title')}</h1>
+            <div className="px-4 py-1.5 bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/20 rounded-full text-[10px] font-mono tracking-widest text-(--color-accent-blue) uppercase mt-2 inline-block">
+              {t('booking.step', { current: step })}
+            </div>
           </div>
         </div>
 
-        {/* Steps Content */}
-        <div className="glass-panel p-8 md:p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="glass-panel p-8 md:p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden min-h-[500px]">
           <AnimatePresence mode="wait">
-
-            {/* STEP 1: AI Triage Input */}
             {step === 1 && (
-              <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
-                <div className="flex items-start gap-4 mb-2">
-                  <div className="w-12 h-12 rounded-xl bg-(--color-accent-blue)/10 flex items-center justify-center text-(--color-accent-blue) border border-(--color-accent-blue)/20 flex-shrink-0">
-                    <Brain size={24} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-serif font-bold text-white mb-1">Describe Your Symptoms</h2>
-                    <p className="text-sm text-gray-400 font-light leading-relaxed">Our Groq-powered Llama 3 engine will analyze your condition, predict possible conditions, and instantly route you to the correct specialist.</p>
-                  </div>
-                </div>
-
-                <form onSubmit={analyzeSymptoms} className="flex flex-col gap-4">
+              <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                <div className="relative z-10">
+                  <h2 className="text-xl font-serif font-bold mb-4 flex items-center gap-2"><Sparkles className="text-(--color-accent-blue)"/> {t('booking.symptoms.title')}</h2>
+                  <p className="text-gray-400 text-sm mb-6 leading-relaxed">{t('booking.symptoms.desc')}</p>
+                  
                   <textarea
                     value={symptoms}
                     onChange={(e) => setSymptoms(e.target.value)}
-                    required
-                    placeholder="e.g., I've been experiencing severe migraines for the past three days accompanied by nausea and sensitivity to light..."
-                    className="w-full h-40 bg-black/40 border border-white/10 rounded-xl p-6 text-sm text-white focus:outline-none focus:border-(--color-accent-blue) resize-none transition-colors"
+                    placeholder={t('booking.symptoms.placeholder')}
+                    className="w-full bg-black/40 border border-white/10 rounded-xl p-6 text-sm focus:border-(--color-accent-blue) focus:outline-none focus:ring-1 focus:ring-(--color-accent-blue)/30 transition-all min-h-[150px] font-mono"
                   />
-
-                  <button type="submit" disabled={loading || !symptoms.trim()} className="w-full md:w-auto self-end py-4 px-8 bg-white text-black rounded-lg font-bold text-sm tracking-widest uppercase hover:bg-gray-200 transition-colors disabled:opacity-50 flex justify-center items-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer">
-                    {loading
-                      ? <><span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /><span>Analysing…</span></>
-                      : <><Search size={18} /> Run AI Triage</>
-                    }
+                  
+                  <button
+                    onClick={analyzeSymptoms}
+                    disabled={loading || !symptoms.trim()}
+                    className="w-full mt-6 py-4 bg-(--color-accent-blue) text-black rounded-xl font-bold tracking-widest uppercase hover:bg-white transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,229,255,0.2)]"
+                  >
+                    {loading ? <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <><Brain size={18}/> {t('booking.symptoms.cta')}</>}
                   </button>
-                </form>
+                </div>
               </motion.div>
             )}
 
-            {/* STEP 2: AI Assessment + Doctor Selection */}
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-8">
-
-                {/* Triage result banner */}
-                <div className="p-5 rounded-xl bg-gradient-to-br from-(--color-accent-purple)/10 to-transparent border border-(--color-accent-purple)/30 flex gap-4 items-start relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-(--color-accent-purple)" />
-                  <Activity className="text-(--color-accent-purple) flex-shrink-0 mt-1" size={22} />
-                  <div>
-                    <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-1.5 font-mono flex items-center gap-2">
-                      Triage Result
-                      <span className="px-2 py-0.5 rounded bg-(--color-accent-purple)/20 text-[0.6rem]">{specialization}</span>
-                      {isGroqPowered && <span className="flex items-center gap-1 text-yellow-400 text-[0.6rem]"><Sparkles size={9} />Groq AI</span>}
-                    </h3>
-                    <p className="text-sm text-gray-300 font-light leading-relaxed">{aiAssessment}</p>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-panel border border-(--color-accent-blue)/30 bg-(--color-accent-blue)/5 p-8 rounded-2xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-(--color-accent-blue)">{t('booking.triage.result')}</h3>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-black/50 border border-white/10 rounded-full">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-[10px] font-mono uppercase text-gray-400">{isGroqPowered ? t('booking.triage.ai') : t('booking.triage.local_engine')}</span>
+                    </div>
                   </div>
-                </div>
+                  
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-(--color-accent-blue)/20 border border-(--color-accent-blue)/30 flex items-center justify-center shrink-0">
+                      <Brain size={24} className="text-(--color-accent-blue)" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">{t('booking.triage.engine_desc')}</p>
+                      <p className="text-xl font-serif font-bold text-white leading-tight">{specialization}</p>
+                    </div>
+                  </div>
 
-                {/* ── AI Disease Assessment Panel ── */}
+                  <p className="text-xs text-gray-500 italic leading-relaxed mb-6 border-l-2 border-white/10 pl-4">{t('booking.triage.disclaimer')}</p>
+                </motion.div>
+
                 {conditions.length > 0 && (
                   <div>
                     <h2 className="text-base font-serif font-bold text-white mb-4 flex items-center gap-2">
                       <Brain size={18} className="text-(--color-accent-purple)" />
-                      Predicted Conditions
+                      {t('booking.assessment.predicted_conditions')}
                     </h2>
                     <DiseaseAssessmentPanel conditions={conditions} isAI={isGroqPowered} />
                   </div>
                 )}
 
-                {/* Doctor selection */}
                 <div>
-                  <h2 className="text-xl font-serif font-bold text-white mb-6 flex items-center gap-2">
-                    <Stethoscope className="text-(--color-accent-blue)" /> Available Specialists
-                  </h2>
-
+                  <h2 className="text-xl font-serif font-bold mb-6 flex items-center gap-2"><Stethoscope className="text-(--color-accent-blue)"/> {t('booking.doctors.title')} - <span className="text-(--color-accent-blue)">{specialization}</span></h2>
+                  
                   {doctors.length === 0 ? (
-                    <div className="p-8 border border-red-500/20 bg-red-500/10 rounded-xl text-center">
-                      <p className="text-red-400 font-mono text-sm uppercase tracking-widest">No matching specialists found in database.</p>
-                      <p className="text-gray-400 text-xs mt-2">Please register a doctor with specialization: <span className="text-white font-bold">{specialization}</span></p>
+                    <div className="p-12 border border-white/5 rounded-2xl text-center bg-white/5 glass-panel">
+                      <p className="text-gray-400 mb-2">{t('booking.doctors.none')}</p>
+                      <p className="text-xs text-gray-500 uppercase tracking-widest">{t('booking.doctors.register_desc')} {specialization}</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {doctors.map(doc => (
-                        <div
-                          key={doc.id}
-                          onClick={() => setSelectedDoctor(doc)}
-                          className={`p-6 rounded-xl border cursor-pointer transition-all duration-300 ${selectedDoctor?.id === doc.id ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) shadow-[0_0_20px_rgba(0,229,255,0.15)] scale-[1.02]' : 'bg-black/30 border-white/5 hover:border-white/20'}`}
-                        >
+                        <div key={doc.id} onClick={() => setSelectedDoctor(doc)}
+                          className={`p-6 rounded-xl border cursor-pointer transition-all duration-300 ${selectedDoctor?.id === doc.id ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) shadow-[0_0_20px_rgba(0,229,255,0.15)] scale-[1.02]' : 'bg-black/30 border-white/5 hover:border-white/20'}`}>
                           <h3 className="font-serif text-lg font-bold">{doc.name}</h3>
                           <p className="text-xs text-gray-400 font-mono tracking-widest uppercase mb-4">{doc.hospital}</p>
                           <div className="flex justify-between items-end border-t border-white/5 pt-4">
                             <div>
-                              <p className="text-xs text-gray-500">Experience: <span className="text-gray-300">{doc.experience}</span></p>
-                              <p className="text-xs text-gray-500 mt-1">Consultation: <span className="text-(--color-accent-blue) font-bold">₹{doc.fees}</span></p>
+                              <p className="text-xs text-gray-500">{t('doctor.auth.experience')}: <span className="text-gray-300">{doc.experience}</span></p>
+                              <p className="text-xs text-gray-500 mt-1">{t('doctor.auth.consultation_fee')}: <span className="text-(--color-accent-blue) font-bold">₹{doc.fees}</span></p>
                             </div>
                             {selectedDoctor?.id === doc.id && <CheckCircle size={20} className="text-(--color-accent-blue)" />}
                           </div>
@@ -565,96 +581,64 @@ export default function BookAppointment() {
                   )}
                 </div>
 
-                <button onClick={() => setStep(3)} disabled={!selectedDoctor} className="w-full md:w-auto self-end py-4 px-8 bg-(--color-accent-blue) text-black rounded-lg font-bold text-sm tracking-widest uppercase hover:bg-white transition-colors disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.3)] mt-4">
-                  Proceed to Slots
+                <button onClick={() => setStep(3)} disabled={!selectedDoctor} className="w-full mt-4 py-4 bg-(--color-accent-blue) text-black rounded-xl font-bold tracking-widest uppercase hover:bg-white transition-all disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.3)]">
+                  {t('booking.doctors.cta')} <ArrowRight size={14} className="ml-2 inline-block"/>
                 </button>
               </motion.div>
             )}
 
-            {/* STEP 3: Slot & Payment */}
             {step === 3 && selectedDoctor && (
               <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-8">
-
                 <div className="flex justify-between items-center p-6 bg-black/40 rounded-xl border border-white/5">
                   <div>
                     <h3 className="font-serif text-xl font-bold">{selectedDoctor.name}</h3>
                     <p className="text-xs text-(--color-accent-blue) font-mono tracking-widest uppercase">{selectedDoctor.speciality} • ₹{selectedDoctor.fees}</p>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border-2 border-(--color-accent-blue) flex items-center justify-center">
-                    <User size={24} className="text-gray-400" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-gray-500">
+                    <User size={24} />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Mode Selection */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="md:col-span-2">
-                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-3 block">Consultation Type</label>
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">{t('booking.slots.type')}</h3>
                     <div className="flex gap-4">
-                      <button 
-                        onClick={() => setConsultationMode('offline')}
-                        className={`flex-1 p-4 rounded-xl border transition-all duration-300 flex items-center justify-center gap-3 ${consultationMode === 'offline' ? 'bg-(--color-accent-blue)/20 border-(--color-accent-blue) text-white shadow-[0_0_15px_rgba(0,229,255,0.1)]' : 'bg-black/40 border-white/10 text-gray-400 hover:border-white/20'}`}
-                      >
-                        <Building size={18} />
-                        <span className="text-sm font-bold tracking-widest uppercase">In-Person (Offline)</span>
+                      <button onClick={() => setConsultationMode('offline')} className={`flex-1 p-4 rounded-xl border flex items-center justify-center gap-3 transition-all ${consultationMode === 'offline' ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) text-(--color-accent-blue)' : 'bg-white/5 border-white/10 text-gray-500 hover:border-white/20'}`}>
+                        <MapPin size={16}/> <span className="text-xs font-bold uppercase tracking-wider">{t('booking.slots.in_person')}</span>
                       </button>
-                      <button 
-                        onClick={() => setConsultationMode('online')}
-                        className={`flex-1 p-4 rounded-xl border transition-all duration-300 flex items-center justify-center gap-3 ${consultationMode === 'online' ? 'bg-(--color-accent-purple)/20 border-(--color-accent-purple) text-white shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-black/40 border-white/10 text-gray-400 hover:border-white/20'}`}
-                      >
-                        <Zap size={18} className="text-yellow-400" />
-                        <span className="text-sm font-bold tracking-widest uppercase">Virtual (Online Video)</span>
+                      <button onClick={() => setConsultationMode('online')} className={`flex-1 p-4 rounded-xl border flex items-center justify-center gap-3 transition-all ${consultationMode === 'online' ? 'bg-(--color-accent-purple)/10 border-(--color-accent-purple) text-(--color-accent-purple)' : 'bg-white/5 border-white/10 text-gray-500 hover:border-white/20'}`}>
+                        <Brain size={16}/> <span className="text-xs font-bold uppercase tracking-wider">{t('booking.slots.virtual')}</span>
                       </button>
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">Select Date</label>
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-(--color-accent-blue) transition-colors"
-                    />
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><Calendar size={14}/> {t('booking.slots.date')}</h3>
+                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all" />
                   </div>
+
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider mb-2 block">Select Time Slot</label>
-                    <select
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-(--color-accent-blue) transition-colors appearance-none"
-                    >
-                      <option value="" disabled>Choose an available slot</option>
-                      {(() => {
-                        if (!date || !selectedDoctor) return null;
-                        const dayName = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
-                        const slots = selectedDoctor.availability?.[dayName] || selectedDoctor.availableSlots || [];
-                        if (slots.length === 0) return <option disabled>No slots for this day</option>;
-                        return slots.map((slot: string) => (
-                          <option key={slot} value={slot}>{slot}</option>
-                        ));
-                      })()}
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><Clock size={14}/> {t('booking.slots.time')}</h3>
+                    <select value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all appearance-none">
+                      <option value="">{t('booking.slots.choose_slot')}</option>
+                      {selectedDoctor.availability?.[new Date(date).toLocaleDateString('en-US', { weekday: 'long' })]?.map((slot: string) => (
+                        <option key={slot} value={slot}>{slot}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
 
-                <div className="border-t border-white/10 mt-6 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                  <div className="flex items-center gap-3 text-sm text-gray-400 font-mono">
-                    <CreditCard size={20} className="text-green-400" />
-                    Secure Razorpay Checkout
+                <div className="border-t border-white/5 mt-4 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-widest font-bold">
+                    <ShieldCheck size={18} className="text-green-400" />
+                    {t('booking.payment.secure_checkout')}
                   </div>
-                  <button
-                    onClick={confirmBooking}
-                    disabled={loading || !date || !time}
-                    className="w-full md:w-auto py-4 px-10 bg-green-500 text-black rounded-lg font-black text-sm tracking-widest uppercase hover:bg-green-400 transition-colors disabled:opacity-50 flex justify-center items-center gap-3 shadow-[0_0_20px_rgba(34,197,94,0.3)] cursor-pointer"
-                  >
-                    {loading ? <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : `Pay ₹${selectedDoctor.fees} & Confirm`}
+                  <button onClick={confirmBooking} disabled={!date || !time || loading} className="w-full md:w-auto py-5 px-10 bg-(--color-accent-blue) text-black rounded-xl font-black tracking-widest uppercase hover:bg-white transition-all disabled:opacity-20 flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(0,229,255,0.2)] cursor-pointer">
+                    {loading ? <span className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <>{t('booking.slots.cta', { fee: selectedDoctor.fees })} <ArrowRight size={20}/></>}
                   </button>
                 </div>
-
               </motion.div>
             )}
-
           </AnimatePresence>
         </div>
       </div>

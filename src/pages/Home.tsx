@@ -1,11 +1,18 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Spline from '@splinetool/react-spline';
-import { ArrowRight, Activity, ShieldCheck, Zap, Stethoscope, Clock, HeartPulse } from 'lucide-react';
+import { ArrowRight, Activity, Zap, Stethoscope, Clock, HeartPulse } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ErrorBoundary from '../components/ErrorBoundary';
 import AuthModal from '../components/AuthModal';
+import ContactUs from '../components/ContactUs';
+import HospitalCarousel from '../components/HospitalCarousel';
+import Testimonials from '../components/Testimonials';
+// Social icons removed to fix Vite export error
 
 export default function Home() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { scrollYProgress } = useScroll();
   const [newsData, setNewsData] = useState<any[]>([]);
@@ -36,7 +43,9 @@ export default function Home() {
 
       {/* Fixed Sticky Spline 3D Integration for Scrollytelling */}
       <div className="fixed inset-0 z-0 h-[100vh] w-full pointer-events-auto">
-        <Spline scene="https://prod.spline.design/0GYABY-8AcVvARmw/scene.splinecode" />
+        <ErrorBoundary fallback={<div className="w-full h-full bg-black/50" />}>
+          <Spline scene="https://prod.spline.design/0GYABY-8AcVvARmw/scene.splinecode" />
+        </ErrorBoundary>
         {/* Dark overlay to ensure text contrast during scroll */}
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-(--color-primary-base) to-transparent pointer-events-none" />
         <div className="absolute inset-y-0 left-0 w-full md:w-3/4 bg-gradient-to-r from-(--color-primary-base) via-(--color-primary-base)/70 to-transparent pointer-events-none" />
@@ -51,18 +60,18 @@ export default function Home() {
           {/* Floating Specialization Pills */}
           <div className="absolute inset-0 pointer-events-none z-0 hidden lg:block overflow-hidden">
             {[
-              { spec: "Neurology", top: "15%", right: "10%" },
-              { spec: "Cardiology", top: "30%", right: "25%" },
-              { spec: "Orthopedics", top: "45%", right: "8%" },
-              { spec: "Pediatrics", top: "60%", right: "30%" },
-              { spec: "Oncology", top: "75%", right: "15%" },
-              { spec: "Dermatology", top: "20%", right: "35%" },
-              { spec: "Endocrinology", top: "85%", right: "40%" },
-              { spec: "Psychiatry", top: "40%", right: "45%" },
-              { spec: "Urology", top: "10%", right: "20%" },
-              { spec: "Radiology", top: "55%", right: "20%" },
-              { spec: "Pathology", top: "70%", right: "45%" },
-              { spec: "Surgery", top: "85%", right: "5%" },
+              { spec: t('specialities.neurology'), top: "15%", right: "10%" },
+              { spec: t('specialities.cardiology'), top: "30%", right: "25%" },
+              { spec: t('specialities.orthopedics'), top: "45%", right: "8%" },
+              { spec: t('specialities.pediatrics'), top: "60%", right: "30%" },
+              { spec: t('specialities.oncology'), top: "75%", right: "15%" },
+              { spec: t('specialities.dermatology'), top: "20%", right: "35%" },
+              { spec: t('specialities.endocrinology'), top: "85%", right: "40%" },
+              { spec: t('specialities.psychiatry'), top: "40%", right: "45%" },
+              { spec: t('specialities.urology'), top: "10%", right: "20%" },
+              { spec: t('specialities.radiology'), top: "55%", right: "20%" },
+              { spec: t('specialities.pathology'), top: "70%", right: "45%" },
+              { spec: t('specialities.surgery'), top: "85%", right: "5%" },
             ].map((pill, i) => (
               <motion.div
                 key={pill.spec}
@@ -96,16 +105,16 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full border border-(--color-accent-blue)/30 bg-(--color-accent-blue)/10 backdrop-blur-md shadow-[0_0_20px_rgba(0,229,255,0.2)]">
               <span className="w-2 h-2 rounded-full bg-(--color-accent-blue) animate-pulse shadow-[0_0_10px_var(--color-accent-blue)]" />
-              <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-(--color-accent-blue) drop-shadow-md">Pink City's Premium Care Engine</span>
+              <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-(--color-accent-blue) drop-shadow-md">{t('hero.badge')}</span>
             </div>
             
             <h1 className="font-serif text-6xl md:text-8xl font-black leading-[1.05] tracking-tight mb-6 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
-              The Future of <br />
-              <span className="text-gradient drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">Jaipur Healthcare.</span>
+              {t('hero.title_prefix')} <br />
+              <span className="text-gradient drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">{t('hero.title_highlight')}</span>
             </h1>
             
             <p className="text-sm md:text-base text-gray-200 font-light leading-relaxed max-w-xl mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-              Experience the pinnacle of medical technology in Rajasthan. Powered by hyper-local intelligent symptom matching and an ultra-secure, seamless booking architecture for patients across Jaipur.
+              {t('hero.description')}
             </p>
             
             <div className="flex flex-col sm:flex-row items-center gap-6 mb-12">
@@ -114,17 +123,28 @@ export default function Home() {
                 <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-blue) to-(--color-accent-purple) opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-purple) to-(--color-accent-blue) opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
                 <span className="relative text-white font-semibold text-xs uppercase tracking-[0.15em] flex items-center gap-3">
-                  Book Appointment <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  {t('hero.book_now')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </span>
+              </button>
+              
+              {/* Health Checkup Button */}
+              <button 
+                onClick={() => navigate('/book-appointment?mode=checkup')}
+                className="relative group px-10 py-5 rounded-md flex items-center gap-3 w-full sm:w-auto justify-center overflow-hidden border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
+              >
+                <span className="relative text-(--color-accent-blue) font-bold text-xs uppercase tracking-[0.15em] flex items-center gap-3">
+                  <Activity size={16} />
+                  Health Checkup
                 </span>
               </button>
               
               <a href="#metrics" className="text-xs font-semibold uppercase tracking-widest text-gray-300 hover:text-(--color-accent-blue) transition-colors flex items-center gap-2 group drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] bg-black/30 border border-white/5 px-6 py-4 rounded-md backdrop-blur-md hover:bg-black/50">
-                Explore Scale <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                {t('hero.explore')} <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
               </a>
             </div>
             
             <p onClick={() => navigate('/doctor')} className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit flex items-center gap-2 mt-4 bg-black/20 p-2 rounded border border-transparent hover:border-(--color-accent-blue)/30">
-              <Stethoscope size={14} /> Healthcare Provider Gateway
+              <Stethoscope size={14} /> {t('hero.physician_gateway')}
             </p>
           </motion.div>
 
@@ -140,10 +160,10 @@ export default function Home() {
             style={{ perspective: 1200 }}
           >
             {[
-              { icon: Stethoscope, num: "100", suffix: "+", label: "Top Specialists", color: "text-(--color-accent-blue)" },
-              { icon: HeartPulse, num: "99", suffix: "%", label: "Patient Satisfaction", color: "text-(--color-accent-purple)" },
-              { icon: Clock, num: "<2", suffix: "m", label: "Avg Booking Time", color: "text-(--color-text-main)" },
-              { icon: Zap, num: "Min.", suffix: "", label: "Booking Charges", color: "text-(--color-accent-blue)" }
+              { icon: Stethoscope, num: "100", suffix: "+", label: t('metrics.specialists'), color: "text-(--color-accent-blue)" },
+              { icon: HeartPulse, num: "99", suffix: "%", label: t('metrics.satisfaction'), color: "text-(--color-accent-purple)" },
+              { icon: Clock, num: "<2", suffix: "m", label: t('metrics.booking_time'), color: "text-(--color-text-main)" },
+              { icon: Zap, num: "Min.", suffix: "", label: t('metrics.charges'), color: "text-(--color-accent-blue)" }
             ].map((metric, idx) => (
               <motion.div 
                 key={metric.label}
@@ -173,16 +193,16 @@ export default function Home() {
             viewport={{ once: true }}
             className="mb-16 flex flex-col items-center text-center"
           >
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">Jaipur Health <span className="text-gradient">Intelligence</span></h2>
+            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">{t('home.intelligence.title')} <span className="text-gradient">{t('home.intelligence.highlight')}</span></h2>
             <p className="text-(--color-text-muted) max-w-2xl text-sm leading-relaxed">
-              Real-time localized health alerts and preventive measures aggregated from our network of 50+ regional hospitals directly to your portal.
+              {t('home.intelligence.desc')}
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {loadingNews ? (
               <div className="col-span-3 text-center py-12 text-(--color-text-muted) animate-pulse font-mono text-sm tracking-widest uppercase">
-                Fetching Real-time Intelligence...
+                {t('home.intelligence.fetching')}
               </div>
             ) : newsData.length > 0 ? (
               newsData.map((article, idx) => (
@@ -201,7 +221,7 @@ export default function Home() {
                       <Activity size={20} className="text-(--color-accent-blue)" />
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-[0.6rem] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-gray-400">{article.source_id || "Alert"}</span>
+                      <span className="text-[0.6rem] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-gray-400">{article.source_id || t('home.intelligence.alert')}</span>
                       <span className="text-[0.6rem] font-mono uppercase tracking-widest text-(--color-text-muted)">
                         {new Date(article.pubDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </span>
@@ -210,55 +230,82 @@ export default function Home() {
                   
                   <h3 className="text-xl font-serif font-semibold text-white leading-tight mt-2 line-clamp-3" title={article.title}>{article.title}</h3>
                   <p className="text-(--color-text-muted) font-light leading-relaxed text-sm flex-grow line-clamp-4" title={article.description}>
-                    {article.description || "No specific details reported. Click 'Read Report' to view the full advisory."}
+                    {article.description || t('home.intelligence.no_details')}
                   </p>
                   
                   <a href={article.link} target="_blank" rel="noreferrer" className="mt-4 pt-4 border-t border-white/10 flex items-center text-xs font-semibold uppercase tracking-widest text-(--color-accent-purple) group-hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit">
-                    Read Report <ArrowRight size={14} className="ml-2 group-hover:translate-x-2 transition-transform" />
+                    {t('home.intelligence.read_report')} <ArrowRight size={14} className="ml-2 group-hover:translate-x-2 transition-transform" />
                   </a>
                 </motion.div>
               ))
             ) : (
               <div className="col-span-3 text-center py-12 text-(--color-text-muted) font-mono text-sm tracking-widest uppercase">
-                No active health alerts in your region.
+                {t('home.intelligence.no_alerts')}
               </div>
             )}
           </div>
         </section>
 
-        {/* Existing Scrollytelling Features */}
-        <section id="details" className="py-24 px-8 md:px-16 container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ perspective: 1200 }}>
-            {[
-              { icon: Zap, title: "Instant Assignment", desc: "No more waiting. Our AI determines your specialty needs immediately." },
-              { icon: Activity, title: "Realtime Availability", desc: "Doctors' schedules are dynamically synced through our ultra-low latency infrastructure." },
-              { icon: ShieldCheck, title: "Encrypted Records", desc: "Your medical data stays private with military-grade end-to-end encryption." }
-            ].map((feat, idx) => (
-              <motion.div 
-                key={feat.title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ rotateX: 10, rotateY: -10, scale: 1.05, z: 50, transition: { duration: 0.3 } }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.8, delay: idx * 0.2 }}
-                className="glass-panel p-10 rounded-2xl flex flex-col gap-5 border border-transparent hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] hover:border-(--color-accent-blue)/30 transition-shadow duration-500 transform-gpu cursor-default"
-              >
-                <div className="w-14 h-14 rounded-xl bg-(--color-primary-highlight) flex items-center justify-center text-(--color-text-main) group-hover:text-(--color-accent-blue) border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] group-hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all">
-                  <feat.icon size={26} />
-                </div>
-                <h3 className="text-xl font-serif font-semibold text-white">{feat.title}</h3>
-                <p className="text-(--color-text-muted) font-light leading-relaxed text-sm">{feat.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+        {/* Hospitals Carousel */}
+        <ErrorBoundary fallback={null}>
+          <HospitalCarousel />
+        </ErrorBoundary>
 
-        {/* Tech Footer Strip */}
-        <div className="border-t border-white/5 py-8 text-center bg-(--color-primary-base)/80 backdrop-blur-xl mt-20">
-          <p className="font-mono text-[0.6rem] tracking-[0.2em] text-(--color-text-muted) uppercase">
-            Powered by React • framer-motion • Spline • Firebase
-          </p>
-        </div>
+        <Testimonials />
+
+        {/* Contact Us Section */}
+        <ErrorBoundary fallback={null}>
+          <ContactUs />
+        </ErrorBoundary>
+
+        {/* Enhanced Footer */}
+        <footer className="border-t border-white/5 pt-20 pb-12 px-8 md:px-16 bg-black/40 backdrop-blur-3xl relative z-20 overflow-hidden">
+          <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="col-span-1 md:col-span-2 space-y-6">
+              <h3 className="text-2xl font-serif font-black text-white tracking-widest">
+                Medicare<span className="text-(--color-accent-blue)">+</span>
+              </h3>
+              <p className="text-(--color-text-muted) max-w-sm text-sm leading-relaxed">
+                Pioneering the future of digital healthcare in Rajasthan. Our platform connects you with the best medical experts using cutting-edge technology and a compassionate approach.
+              </p>
+              <div className="flex items-center gap-4">
+                {[Activity, Activity, Activity, Activity].map((Icon, i) => (
+                  <a key={i} href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-(--color-accent-blue) hover:border-(--color-accent-blue)/40 transition-all">
+                    <Icon size={18} />
+                  </a>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-purple)">Quick Links</h4>
+              <ul className="space-y-3 text-sm text-(--color-text-muted)">
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Book Appointment</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Find a Doctor</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Emergency Services</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Health Packages</li>
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-blue)">Legal</h4>
+              <ul className="space-y-3 text-sm text-(--color-text-muted)">
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Privacy Policy</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Terms of Service</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">Refund Policy</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-8 text-center">
+            <p className="font-mono text-[0.6rem] tracking-[0.2em] text-(--color-text-muted) uppercase">
+              © 2026 MedicarePlus. INNOVATIVE. CONNECTED. COMPASSIONATE. All Rights Reserved.
+            </p>
+            <p className="font-mono text-[0.5rem] tracking-[0.1em] text-gray-700 uppercase mt-2">
+              Powered by Advanced Health Systems • Jaipur Region
+            </p>
+          </div>
+        </footer>
         
       </div>
       

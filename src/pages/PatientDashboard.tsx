@@ -7,8 +7,11 @@ import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function PatientDashboard() {
+
+  const { t } = useTranslation();
   const { userProfile, user, signOut } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -91,15 +94,15 @@ export default function PatientDashboard() {
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
           <div>
-            <h1 className="text-4xl font-serif font-black mb-2">Patient <span className="text-gradient">Portal</span></h1>
-            <p className="text-gray-400 font-light">Welcome back, {userProfile?.name || 'Patient'}</p>
+            <h1 className="text-4xl font-serif font-black mb-2">{t('patient.portal')}</h1>
+            <p className="text-gray-400 font-light">{t('patient.welcome')} {userProfile?.name || t('admin.patient')}</p>
           </div>
           <div className="flex gap-4">
             <button onClick={() => navigate('/book-appointment')} className="bg-(--color-accent-blue) text-black px-6 py-3 rounded font-bold uppercase tracking-widest text-xs hover:bg-white transition-colors cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.3)]">
-              Book New Appointment
+              {t('patient.book_new')}
             </button>
             <button onClick={handleSignOut} className="px-5 py-3 rounded border border-white/10 hover:bg-white/5 transition-colors cursor-pointer text-xs uppercase tracking-widest font-semibold flex items-center gap-2 text-gray-300">
-              <LogOut size={16} /> Sign Out
+              <LogOut size={16} /> {t('patient.sign_out')}
             </button>
           </div>
         </div>
@@ -107,11 +110,11 @@ export default function PatientDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Upcoming */}
           <div>
-            <h2 className="text-2xl font-serif mb-6 flex items-center gap-3"><Activity className="text-(--color-accent-blue)"/> Upcoming Appointments</h2>
+            <h2 className="text-2xl font-serif mb-6 flex items-center gap-3"><Activity className="text-(--color-accent-blue)"/> {t('patient.upcoming')}</h2>
             <div className="flex flex-col gap-4">
               {upcoming.length === 0 ? (
                 <div className="p-8 border border-white/5 rounded-xl text-center bg-white/5 glass-panel">
-                  <p className="text-gray-500 font-mono text-sm">No scheduled appointments.</p>
+                  <p className="text-gray-500 font-mono text-sm">{t('patient.no_upcoming')}</p>
                 </div>
               ) : (
                 upcoming.map(app => (
@@ -121,7 +124,7 @@ export default function PatientDashboard() {
                       <div className="flex items-center gap-3 mb-2">
                         <p className="text-sm text-(--color-accent-blue) tracking-wider font-mono uppercase">{app.specialization}</p>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono tracking-tighter uppercase border ${app.consultationMode === 'online' ? 'bg-(--color-accent-purple)/10 border-(--color-accent-purple)/30 text-(--color-accent-purple)' : 'bg-white/5 border-white/10 text-gray-500'}`}>
-                          {app.consultationMode === 'online' ? 'Online' : 'Offline'}
+                          {app.consultationMode === 'online' ? t('patient.online') : t('patient.offline')}
                         </span>
                       </div>
                       <div className="flex gap-4 text-xs text-gray-400">
@@ -135,14 +138,14 @@ export default function PatientDashboard() {
                           onClick={() => window.open(app.meetingLink, '_blank')}
                           className="px-4 py-2 bg-(--color-accent-purple) text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.3)] cursor-pointer"
                         >
-                          <Video size={14} /> Join Video Call
+                          <Video size={14} /> {t('doctor.appointments.video')}
                         </button>
                       )}
                       <button 
                         onClick={() => handleCancel(app.id, app.date, app.time)}
                         className="text-red-400 hover:text-red-300 flex flex-col items-center justify-center gap-2 text-xs uppercase tracking-widest font-bold opacity-70 group-hover:opacity-100 transition-opacity cursor-pointer px-4 py-2 hover:bg-red-500/10 rounded-lg"
                       >
-                        <XCircle size={24} /> Cancel
+                        <XCircle size={24} /> {t('patient.cancel')}
                       </button>
                     </div>
                   </motion.div>
@@ -153,11 +156,11 @@ export default function PatientDashboard() {
 
           {/* Past */}
           <div>
-            <h2 className="text-2xl font-serif mb-6 flex items-center gap-3 text-gray-400"><Clock className="text-gray-500"/> History & Records</h2>
+            <h2 className="text-2xl font-serif mb-6 flex items-center gap-3 text-gray-400"><Clock className="text-gray-500"/> {t('patient.history')}</h2>
             <div className="flex flex-col gap-4">
               {past.length === 0 ? (
                 <div className="p-8 border border-white/5 rounded-xl text-center bg-transparent">
-                  <p className="text-gray-500 font-mono text-sm">No past records found.</p>
+                  <p className="text-gray-500 font-mono text-sm">{t('patient.no_history')}</p>
                 </div>
               ) : (
                 past.map(app => (
@@ -172,7 +175,7 @@ export default function PatientDashboard() {
                         onClick={() => handleRebook(app.doctorId)}
                         className="text-(--color-accent-blue) hover:text-white flex flex-col items-center gap-1 justify-center text-xs uppercase tracking-widest font-bold cursor-pointer hover:bg-white/10 px-4 py-2 rounded-lg transition-colors"
                       >
-                        <RefreshCw size={20} /> Rebook
+                        <RefreshCw size={20} /> {t('patient.rebook')}
                       </button>
                     )}
                   </motion.div>
