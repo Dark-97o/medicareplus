@@ -565,15 +565,26 @@ export default function BookAppointment() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {doctors.map(doc => (
                         <div key={doc.id} onClick={() => setSelectedDoctor(doc)}
-                          className={`p-6 rounded-xl border cursor-pointer transition-all duration-300 ${selectedDoctor?.id === doc.id ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) shadow-[0_0_20px_rgba(0,229,255,0.15)] scale-[1.02]' : 'bg-black/30 border-white/5 hover:border-white/20'}`}>
-                          <h3 className="font-serif text-lg font-bold">{doc.name}</h3>
-                          <p className="text-xs text-gray-400 font-mono tracking-widest uppercase mb-4">{doc.hospital}</p>
-                          <div className="flex justify-between items-end border-t border-white/5 pt-4">
-                            <div>
-                              <p className="text-xs text-gray-500">{t('doctor.auth.experience')}: <span className="text-gray-300">{doc.experience}</span></p>
-                              <p className="text-xs text-gray-500 mt-1">{t('doctor.auth.consultation_fee')}: <span className="text-(--color-accent-blue) font-bold">₹{doc.fees}</span></p>
+                          className={`p-6 rounded-xl border cursor-pointer transition-all duration-300 flex gap-4 items-start ${selectedDoctor?.id === doc.id ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) shadow-[0_0_20px_rgba(0,229,255,0.15)] scale-[1.02]' : 'bg-black/30 border-white/5 hover:border-white/20'}`}>
+                          <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 overflow-hidden shrink-0">
+                            {doc.imageUrl ? (
+                              <img src={doc.imageUrl} alt={doc.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-600">
+                                <User size={24} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-serif text-lg font-bold">{doc.name}</h3>
+                            <p className="text-xs text-gray-400 font-mono tracking-widest uppercase mb-4">{doc.hospital}</p>
+                            <div className="flex justify-between items-end border-t border-white/5 pt-4">
+                              <div>
+                                <p className="text-xs text-gray-500">{t('doctor.auth.experience')}: <span className="text-gray-300">{doc.experience}</span></p>
+                                <p className="text-xs text-gray-500 mt-1">{t('doctor.auth.consultation_fee')}: <span className="text-(--color-accent-blue) font-bold">₹{doc.fees}</span></p>
+                              </div>
+                              {selectedDoctor?.id === doc.id && <CheckCircle size={20} className="text-(--color-accent-blue)" />}
                             </div>
-                            {selectedDoctor?.id === doc.id && <CheckCircle size={20} className="text-(--color-accent-blue)" />}
                           </div>
                         </div>
                       ))}
@@ -594,8 +605,12 @@ export default function BookAppointment() {
                     <h3 className="font-serif text-xl font-bold">{selectedDoctor.name}</h3>
                     <p className="text-xs text-(--color-accent-blue) font-mono tracking-widest uppercase">{selectedDoctor.speciality} • ₹{selectedDoctor.fees}</p>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-gray-500">
-                    <User size={24} />
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-gray-500 overflow-hidden shrink-0">
+                    {selectedDoctor.imageUrl ? (
+                      <img src={selectedDoctor.imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={32} />
+                    )}
                   </div>
                 </div>
 

@@ -7,6 +7,9 @@ import DoctorDashboard from './pages/DoctorDashboard';
 import PatientDashboard from './pages/PatientDashboard';
 import BookAppointment from './pages/BookAppointment';
 import DoctorRegistration from './pages/DoctorRegistration';
+import LabDashboard from './pages/LabDashboard';
+import LabBooking from './pages/LabBooking';
+import LabRegistration from './pages/LabRegistration';
 import Consultation from './pages/Consultation';
 import LanguageSelector from './components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +60,20 @@ export default function App() {
               {t('nav.doctor')}
             </span>
           </Link>
+          <Link to="/lab" className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300">
+            <span className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-full border border-white/10 group-hover:border-(--color-accent-blue)/50 transition-colors" />
+            <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-blue)/0 via-(--color-accent-blue)/20 to-(--color-accent-blue)/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+            <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-text-muted) group-hover:text-white transition-colors">
+              {t('nav.lab')}
+            </span>
+          </Link>
+          <Link to="/lab-booking" className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300">
+            <span className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-full border border-white/10 group-hover:border-(--color-accent-purple)/50 transition-colors" />
+            <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-purple)/0 via-(--color-accent-purple)/20 to-(--color-accent-purple)/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+            <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-text-muted) group-hover:text-white transition-colors">
+              Book Lab Test
+            </span>
+          </Link>
           
           <div className="relative">
             <button 
@@ -86,6 +103,9 @@ export default function App() {
           <Route path="/patient-dashboard" element={<PatientDashboard />} />
           <Route path="/book-appointment" element={<BookAppointment />} />
           <Route path="/doctor-registration" element={<DoctorRegistration />} />
+          <Route path="/lab" element={<LabDashboard />} />
+          <Route path="/lab-booking" element={<LabBooking />} />
+          <Route path="/lab-registration" element={<LabRegistration />} />
           <Route path="/consultation/:roomID" element={<Consultation />} />
         </Routes>
       </main>

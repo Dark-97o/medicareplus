@@ -57,7 +57,7 @@ export default function QuickEnquiry({ isOpen: externalOpen, onClose: externalCl
           initial={{ opacity: 0, scale: 0.95, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
-          className="absolute top-full right-0 mt-4 z-[100] w-[320px] glass-panel p-6 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10"
+          className="absolute top-full right-0 mt-4 z-[100] w-[320px] bg-zinc-900/95 backdrop-blur-xl p-6 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20"
         >
           <div className="flex justify-between items-start mb-6">
             <div>

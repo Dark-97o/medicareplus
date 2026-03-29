@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query } from 'firebase/firestore';
 
 /* ─── TYPES ─── */
-type TabId = 'doctors' | 'patients' | 'bookings' | 'enquiries' | 'messages';
+type TabId = 'doctors' | 'patients' | 'bookings' | 'labs' | 'lab_bookings' | 'enquiries' | 'messages';
 
 /* ─── ADMIN LOGIN ─── */
 function AdminLogin() {
@@ -152,8 +152,8 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
   const Row = ({ d }: { d: any }) => (
     <div className="glass-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-colors">
       <div className="p-4 flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/20 flex items-center justify-center shrink-0 overflow-hidden">
-          {d.imageUrl ? <img src={d.imageUrl} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} /> : <Stethoscope size={18} className="text-(--color-accent-blue)" />}
+        <div className="w-16 h-16 rounded-full bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/20 flex items-center justify-center shrink-0 overflow-hidden">
+          {d.imageUrl ? <img src={d.imageUrl} alt="" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} /> : <Stethoscope size={24} className="text-(--color-accent-blue)" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -205,6 +205,94 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
         </div>
       )}
       {doctors.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">{t('admin.no_doctors_found')}</div>}
+    </div>
+  );
+}
+
+/* ─── LAB TABLE ─── */
+function LabTable({ labs, onDelete, onApprove, onDecline }: any) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const pending = labs.filter((l: any) => l.status === 'pending');
+  const approved = labs.filter((l: any) => l.status !== 'pending');
+
+  const Row = ({ l }: { l: any }) => (
+    <div className="glass-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-colors">
+      <div className="p-4 flex items-center gap-4">
+        <div className="w-16 h-16 rounded-xl bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center shrink-0 overflow-hidden">
+          {l.imageUrl ? <img src={l.imageUrl} alt="" className="w-full h-full object-cover" /> : <FlaskConical size={24} className="text-(--color-accent-purple)" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-bold text-white truncate">{l.labName}</span>
+            <span className={`px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-full border ${l.status === 'approved' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'}`}>{l.status}</span>
+          </div>
+          <p className="text-xs text-gray-400 font-mono mt-0.5">Specialist: {l.name} · {l.hospital}</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {l.status === 'pending' && (<>
+            <button onClick={() => onApprove(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-[10px] font-bold uppercase">Approve</button>
+            <button onClick={() => onDecline(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase">Decline</button>
+          </>)}
+          <button onClick={() => onDelete(l.id, 'lab_doctors')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
+          <button onClick={() => setExpanded(expanded === l.id ? null : l.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors"><Plus size={14} /></button>
+        </div>
+      </div>
+      <AnimatePresence>
+        {expanded === l.id && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-white/5 bg-black/20 p-4 grid grid-cols-2 md:grid-cols-3 gap-4 text-[10px] font-mono">
+            <div><p className="text-gray-500 uppercase mb-1">Email</p><p className="text-white">{l.email}</p></div>
+            <div><p className="text-gray-500 uppercase mb-1">Registration</p><p className="text-white">{new Date(l.createdAt).toLocaleDateString()}</p></div>
+            <div><p className="text-gray-500 uppercase mb-1">Role</p><p className="text-(--color-accent-purple)">Lab Specialist</p></div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {pending.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-3 flex items-center gap-2">Pending Lab Approvals ({pending.length})</h3>
+          {pending.map((l: any) => <Row key={l.id} l={l} />)}
+        </div>
+      )}
+      <div className="space-y-2">
+        <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">Registered Laboratories ({approved.length})</h3>
+        {approved.map((l: any) => <Row key={l.id} l={l} />)}
+      </div>
+    </div>
+  );
+}
+
+/* ─── LAB BOOKING TABLE ─── */
+function LabBookingTable({ bookings, onDelete }: any) {
+  return (
+    <div className="space-y-2">
+      {bookings.length === 0 && <div className="text-center py-20 text-gray-600 font-mono text-xs uppercase tracking-widest">No lab transactions recorded.</div>}
+      {bookings.map((b: any) => (
+        <div key={b.id} className="glass-panel border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 hover:border-white/10 transition-colors">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className="font-bold text-white uppercase tracking-tight">{b.patientName}</span>
+              <span className="text-gray-500 font-mono text-[10px]"> booked </span>
+              <span className="text-(--color-accent-purple) font-bold">{b.testName}</span>
+              <span className={`ml-2 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-full border ${b.status === 'confirmed' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}`}>{b.status}</span>
+            </div>
+            <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{b.date} · {b.hospitalName} · ₹{b.charges} (Paid)</p>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="text-right">
+                <p className="text-[8px] text-gray-600 font-mono uppercase">Reference ID</p>
+                <p className="text-[10px] text-gray-400 font-mono truncate max-w-[100px]">{b.paymentId}</p>
+             </div>
+             <button onClick={() => onDelete(b.id, 'lab_bookings')} className="p-2 hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors">
+               <Trash2 size={14} />
+             </button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -336,6 +424,8 @@ function AdminPanel() {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [patients, setPatients] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
+  const [labs, setLabs] = useState<any[]>([]);
+  const [labBookings, setLabBookings] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -344,18 +434,22 @@ function AdminPanel() {
   const loadAll = async () => {
     setLoadingData(true);
     try {
-      const [docSnap, patSnap, bookSnap, enqSnap, msgSnap] = await Promise.all([
+      const [docSnap, patSnap, bookSnap, enqSnap, msgSnap, labSnap, lBkSnap] = await Promise.all([
         getDocs(collection(db, 'doctors')),
         getDocs(collection(db, 'users')),
         getDocs(query(collection(db, 'appointments'), orderBy('createdAt', 'desc'))),
         getDocs(query(collection(db, 'enquiries'), orderBy('createdAt', 'desc'))),
-        getDocs(query(collection(db, 'contacts'), orderBy('createdAt', 'desc')))
+        getDocs(query(collection(db, 'contacts'), orderBy('createdAt', 'desc'))),
+        getDocs(collection(db, 'lab_doctors')),
+        getDocs(query(collection(db, 'lab_bookings'), orderBy('createdAt', 'desc')))
       ]);
       setDoctors(docSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setPatients(patSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setBookings(bookSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setEnquiries(enqSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setMessages(msgSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLabs(labSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLabBookings(lBkSnap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (err) { console.error(err); }
     finally { setLoadingData(false); }
   };
@@ -377,13 +471,13 @@ function AdminPanel() {
     loadAll();
   };
 
-  const handleApprove = async (id: string) => {
-    await updateDoc(doc(db, 'doctors', id), { status: 'approved' });
+  const handleApprove = async (id: string, col: string = 'doctors') => {
+    await updateDoc(doc(db, col, id), { status: 'approved' });
     loadAll();
   };
 
-  const handleDecline = async (id: string) => {
-    await updateDoc(doc(db, 'doctors', id), { status: 'rejected' });
+  const handleDecline = async (id: string, col: string = 'doctors') => {
+    await updateDoc(doc(db, col, id), { status: 'rejected' });
     loadAll();
   };
 
@@ -396,6 +490,8 @@ function AdminPanel() {
     { id: 'doctors', label: t('admin.physicians'), icon: Stethoscope, count: doctors.length, badge: doctors.filter(d => d.status === 'pending').length },
     { id: 'patients', label: t('admin.patients'), icon: User, count: patients.length },
     { id: 'bookings', label: t('admin.appointments'), icon: Calendar, count: bookings.length },
+    { id: 'labs', label: 'Labs', icon: FlaskConical, count: labs.length, badge: labs.filter(l => l.status === 'pending').length },
+    { id: 'lab_bookings', label: 'Lab Orders', icon: Activity, count: labBookings.length },
     { id: 'enquiries', label: 'Enquiries', icon: Phone, count: enquiries.length, badge: enquiries.filter(e => e.status === 'pending').length },
     { id: 'messages', label: 'Messages', icon: Mail, count: messages.length },
   ];
@@ -436,30 +532,29 @@ function AdminPanel() {
 
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
           {tabs.map(t => (
-            <div key={t.id} className={`glass-panel p-5 rounded-2xl border flex items-center gap-4 cursor-pointer transition-all duration-300 ${activeTab === t.id ? 'border-(--color-accent-blue)/40 shadow-[0_0_20px_rgba(0,229,255,0.1)]' : 'border-white/5 hover:border-white/10'}`} onClick={() => setActiveTab(t.id)}>
+            <div key={t.id} className={`glass-panel p-5 rounded-2xl border flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 relative ${activeTab === t.id ? 'border-(--color-accent-blue)/40 shadow-[0_0_20px_rgba(0,229,255,0.1)]' : 'border-white/5 hover:border-white/10'}`} onClick={() => setActiveTab(t.id)}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${activeTab === t.id ? 'bg-(--color-accent-blue)/20 border border-(--color-accent-blue)/30' : 'bg-white/5 border border-white/10'}`}>
                 <t.icon size={20} className={activeTab === t.id ? 'text-(--color-accent-blue)' : 'text-gray-400'} />
               </div>
-              <div>
+              <div className="text-center">
                 <div className="text-3xl font-serif font-black text-white">{t.count}</div>
-                <div className="text-xs text-gray-400 uppercase tracking-widest font-mono">{t.label}</div>
+                <div className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">{t.label}</div>
               </div>
-              {t.badge && t.badge > 0 ? <span className="ml-auto bg-yellow-400 text-black text-xs font-black px-2 py-0.5 rounded-full">{t.badge}</span> : null}
+              {t.badge && t.badge > 0 ? <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-black/20">{t.badge}</span> : null}
             </div>
           ))}
         </div>
 
         {/* Tab nav */}
         <div className="flex border-b border-white/5 mb-8">
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)}
-              className={`flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest transition-all border-b-2 ${activeTab === t.id ? 'border-(--color-accent-blue) text-(--color-accent-blue)' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>
-              <t.icon size={14} /> {t.label}
-              {t.badge && t.badge > 0 ? <span className="bg-yellow-400 text-black text-[10px] font-black px-1.5 rounded-full">{t.badge}</span> : null}
-            </button>
-          ))}
+            {tabs.map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 whitespace-nowrap ${activeTab === t.id ? 'border-(--color-accent-blue) text-(--color-accent-blue)' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>
+                <t.icon size={12} /> {t.label}
+              </button>
+            ))}
         </div>
 
         {/* Content */}
@@ -479,6 +574,12 @@ function AdminPanel() {
               )}
               {activeTab === 'enquiries' && (
                 <EnquiryTable enquiries={enquiries} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+              )}
+              {activeTab === 'labs' && (
+                <LabTable labs={labs} onDelete={handleDelete} onApprove={handleApprove} onDecline={handleDecline} />
+              )}
+              {activeTab === 'lab_bookings' && (
+                <LabBookingTable bookings={labBookings} onDelete={handleDelete} />
               )}
               {activeTab === 'messages' && (
                 <MessageTable messages={messages} onDelete={handleDelete} />

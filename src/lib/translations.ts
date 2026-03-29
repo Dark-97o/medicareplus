@@ -3,12 +3,13 @@ export const translations = {
     nav: {
       admin: "Admin",
       doctor: "Doctor",
+      lab: "Lab",
       home: "Home"
     },
     hero: {
       badge: "Pink City's Premium Care Engine",
       title_prefix: "The Future of",
-      title_highlight: "Jaipur Healthcare.",
+      title_highlight: "Jaipur Health.",
       description: "Experience the pinnacle of medical technology in Rajasthan. Powered by hyper-local intelligent symptom matching and an ultra-secure, seamless booking architecture for patients across Jaipur.",
       book_now: "Book Appointment",
       explore: "Explore Scale",
@@ -175,6 +176,19 @@ export const translations = {
         }
       }
     },
+    lab: {
+      portal: "Lab & Diagnostics",
+      auth: "Lab Specialist Access",
+      register: "Register Laboratory",
+      tests: "Manage Test Catalog",
+      bookings: "Lab Appointments",
+      book_test: "Book Lab Test",
+      hospital: "Testing Center",
+      charges: "Test Charges",
+      select_test: "Select Laboratory Test",
+      confirm: "Confirm & Pay",
+      registration_pending: "Your Laboratory registration is pending Admin approval."
+    },
     patient: {
       portal: "Patient Portal",
       welcome: "Welcome back,",
@@ -236,6 +250,7 @@ export const translations = {
     nav: {
       admin: "एडमिन",
       doctor: "डॉक्टर",
+      lab: "लैब",
       home: "होम"
     },
     hero: {
@@ -407,6 +422,19 @@ export const translations = {
           desc: "आपका मेडिकल डेटा सैन्य-स्तर के एंड-टू-एंड एन्क्रिप्शन के साथ निजी रहता है।"
         }
       }
+    },
+    lab: {
+      portal: "लैब और डायग्नोस्टिक्स",
+      auth: "लैब विशेषज्ञ एक्सेस",
+      register: "प्रयोगशाला पंजीकृत करें",
+      tests: "परीक्षण सूची प्रबंधित करें",
+      bookings: "लैब अपॉइंटमेंट",
+      book_test: "लैब टेस्ट बुक करें",
+      hospital: "परीक्षण केंद्र",
+      charges: "परीक्षण शुल्क",
+      select_test: "लैब टेस्ट चुनें",
+      confirm: "पुष्टि करें और भुगतान करें",
+      registration_pending: "आपकी प्रयोगशाला पंजीकरण एडमिन की मंजूरी के लिए लंबित है।"
     },
     patient: {
       portal: "मरीज पोर्टल",

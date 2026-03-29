@@ -8,6 +8,7 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import AuthModal from '../components/AuthModal';
 import ContactUs from '../components/ContactUs';
 import HospitalCarousel from '../components/HospitalCarousel';
+import QuickGuide from '../components/QuickGuide';
 import Testimonials from '../components/Testimonials';
 // Social icons removed to fix Vite export error
 
@@ -55,7 +56,7 @@ export default function Home() {
       <div className="relative z-10 font-sans">
       
         {/* Hero Section */}
-        <section className="min-h-[100vh] flex flex-col justify-center px-8 md:px-16 pb-12 pt-32 relative">
+        <section className="h-screen flex flex-col justify-center px-8 md:px-16 pb-6 pt-20 relative">
           
           {/* Floating Specialization Pills */}
           <div className="absolute inset-0 pointer-events-none z-0 hidden lg:block overflow-hidden">
@@ -103,26 +104,26 @@ export default function Home() {
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="max-w-3xl relative"
           >
-            <div className="inline-flex items-center gap-3 mb-6 px-4 py-2 rounded-full border border-(--color-accent-blue)/30 bg-(--color-accent-blue)/10 backdrop-blur-md shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+            <div className="inline-flex items-center gap-3 mb-4 px-4 py-2 rounded-full border border-(--color-accent-blue)/30 bg-(--color-accent-blue)/10 backdrop-blur-md shadow-[0_0_20px_rgba(0,229,255,0.2)]">
               <span className="w-2 h-2 rounded-full bg-(--color-accent-blue) animate-pulse shadow-[0_0_10px_var(--color-accent-blue)]" />
               <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-(--color-accent-blue) drop-shadow-md">{t('hero.badge')}</span>
             </div>
             
-            <h1 className="font-serif text-6xl md:text-8xl font-black leading-[1.05] tracking-tight mb-6 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+            <h1 className="font-serif text-6xl md:text-7xl font-black leading-[1.05] tracking-tight mb-4 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
               {t('hero.title_prefix')} <br />
               <span className="text-gradient drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">{t('hero.title_highlight')}</span>
             </h1>
             
-            <p className="text-sm md:text-base text-gray-200 font-light leading-relaxed max-w-xl mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-              {t('hero.description')}
+            <p className="text-base text-gray-300 font-light leading-relaxed max-w-md mb-5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              Jaipur's most trusted platform — book appointments, health checkups & lab tests instantly.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center gap-6 mb-12">
-              {/* Enhanced Enter Clinic Button */}
-              <button onClick={() => setIsAuthOpen(true)} className="relative group px-10 py-5 rounded-md flex items-center gap-3 w-full sm:w-auto justify-center overflow-hidden border border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer">
+            <div className="flex flex-col items-start gap-3 mb-5 max-w-[300px]">
+              {/* Book Appointment Button */}
+              <button onClick={() => setIsAuthOpen(true)} className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer">
                 <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-blue) to-(--color-accent-purple) opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-purple) to-(--color-accent-blue) opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
-                <span className="relative text-white font-semibold text-xs uppercase tracking-[0.15em] flex items-center gap-3">
+                <span className="relative text-white font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
                   {t('hero.book_now')} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                 </span>
               </button>
@@ -130,60 +131,40 @@ export default function Home() {
               {/* Health Checkup Button */}
               <button 
                 onClick={() => navigate('/book-appointment?mode=checkup')}
-                className="relative group px-10 py-5 rounded-md flex items-center gap-3 w-full sm:w-auto justify-center overflow-hidden border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
+                className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-white/10 cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
               >
-                <span className="relative text-(--color-accent-blue) font-bold text-xs uppercase tracking-[0.15em] flex items-center gap-3">
+                <span className="relative text-(--color-accent-blue) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
                   <Activity size={16} />
                   Health Checkup
                 </span>
               </button>
               
-              <a href="#metrics" className="text-xs font-semibold uppercase tracking-widest text-gray-300 hover:text-(--color-accent-blue) transition-colors flex items-center gap-2 group drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] bg-black/30 border border-white/5 px-6 py-4 rounded-md backdrop-blur-md hover:bg-black/50">
-                {t('hero.explore')} <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+              {/* Lab Test Button */}
+              <button 
+                onClick={() => navigate('/lab-booking')}
+                className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-(--color-accent-purple)/30 cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
+              >
+                <span className="relative text-(--color-accent-purple) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
+                  <HeartPulse size={16} />
+                  Book Lab Test
+                </span>
+              </button>
+
+              <a href="#metrics" className="text-xs font-semibold uppercase tracking-widest text-gray-500 hover:text-(--color-accent-blue) transition-colors flex items-center gap-2 group mt-1">
+                {t('hero.explore')} <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
             
-            <p onClick={() => navigate('/doctor')} className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit flex items-center gap-2 mt-4 bg-black/20 p-2 rounded border border-transparent hover:border-(--color-accent-blue)/30">
-              <Stethoscope size={14} /> {t('hero.physician_gateway')}
+            <p onClick={() => navigate('/doctor')} className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit flex items-center gap-2 bg-black/20 px-2 py-1.5 rounded border border-transparent hover:border-(--color-accent-blue)/30">
+              <Stethoscope size={13} /> {t('hero.physician_gateway')}
             </p>
           </motion.div>
 
+
         </section>
 
-        {/* Metrics Section */}
-        <section id="metrics" className="py-24 px-8 md:px-16 container mx-auto relative z-20">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
-            style={{ perspective: 1200 }}
-          >
-            {[
-              { icon: Stethoscope, num: "100", suffix: "+", label: t('metrics.specialists'), color: "text-(--color-accent-blue)" },
-              { icon: HeartPulse, num: "99", suffix: "%", label: t('metrics.satisfaction'), color: "text-(--color-accent-purple)" },
-              { icon: Clock, num: "<2", suffix: "m", label: t('metrics.booking_time'), color: "text-(--color-text-main)" },
-              { icon: Zap, num: "Min.", suffix: "", label: t('metrics.charges'), color: "text-(--color-accent-blue)" }
-            ].map((metric, idx) => (
-              <motion.div 
-                key={metric.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                whileHover={{ rotateX: 10, rotateY: -10, scale: 1.05, z: 50, transition: { duration: 0.3 } }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="glass-panel p-6 md:p-8 rounded-2xl flex flex-col items-center justify-center text-center gap-4 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)] hover:border-(--color-accent-blue)/30 transition-all duration-500 transform-gpu group relative overflow-hidden cursor-default"
-              >
-                <div className={`absolute top-0 right-0 w-32 h-32 bg-current opacity-5 blur-[50px] rounded-full ${metric.color}`} />
-                <metric.icon size={32} className={`${metric.color} mb-2 group-hover:scale-110 transition-transform`} />
-                <h3 className="font-serif text-4xl md:text-5xl font-black text-white whitespace-nowrap">
-                  {metric.num}<span className={metric.color}>{metric.suffix}</span>
-                </h3>
-                <p className="font-mono text-[0.6rem] md:text-xs uppercase tracking-widest text-(--color-text-muted)">{metric.label}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </section>
+
+        <QuickGuide />
 
         {/* Local News/Articles Section */}
         <section className="py-24 px-8 md:px-16 container mx-auto">
@@ -193,8 +174,10 @@ export default function Home() {
             viewport={{ once: true }}
             className="mb-16 flex flex-col items-center text-center"
           >
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-6">{t('home.intelligence.title')} <span className="text-gradient">{t('home.intelligence.highlight')}</span></h2>
-            <p className="text-(--color-text-muted) max-w-2xl text-sm leading-relaxed">
+            <h2 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tight leading-[1.1] mb-6">
+              {t('home.intelligence.title')} <span className="text-gradient">{t('home.intelligence.highlight')}</span>
+            </h2>
+            <p className="text-gray-200 max-w-3xl text-sm md:text-base leading-relaxed font-medium">
               {t('home.intelligence.desc')}
             </p>
           </motion.div>
@@ -259,27 +242,27 @@ export default function Home() {
         </ErrorBoundary>
 
         {/* Enhanced Footer */}
-        <footer className="border-t border-white/5 pt-20 pb-12 px-8 md:px-16 bg-black/40 backdrop-blur-3xl relative z-20 overflow-hidden">
-          <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-1 md:col-span-2 space-y-6">
-              <h3 className="text-2xl font-serif font-black text-white tracking-widest">
+        <footer className="border-t border-white/5 pt-12 pb-8 px-8 md:px-16 bg-black/40 backdrop-blur-3xl relative z-20 overflow-hidden text-sm">
+          <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div className="col-span-1 md:col-span-2 space-y-4">
+              <h3 className="text-xl font-serif font-black text-white tracking-wider">
                 Medicare<span className="text-(--color-accent-blue)">+</span>
               </h3>
-              <p className="text-(--color-text-muted) max-w-sm text-sm leading-relaxed">
+              <p className="text-(--color-text-muted) max-w-sm text-xs leading-relaxed">
                 Pioneering the future of digital healthcare in Rajasthan. Our platform connects you with the best medical experts using cutting-edge technology and a compassionate approach.
               </p>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {[Activity, Activity, Activity, Activity].map((Icon, i) => (
-                  <a key={i} href="#" className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-(--color-accent-blue) hover:border-(--color-accent-blue)/40 transition-all">
-                    <Icon size={18} />
+                  <a key={i} href="#" className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-gray-400 hover:text-(--color-accent-blue) hover:border-(--color-accent-blue)/40 transition-all">
+                    <Icon size={16} />
                   </a>
                 ))}
               </div>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-purple)">Quick Links</h4>
-              <ul className="space-y-3 text-sm text-(--color-text-muted)">
+              <ul className="space-y-2 text-xs text-(--color-text-muted)">
                 <li className="hover:text-white transition-colors cursor-pointer capitalize">Book Appointment</li>
                 <li className="hover:text-white transition-colors cursor-pointer capitalize">Find a Doctor</li>
                 <li className="hover:text-white transition-colors cursor-pointer capitalize">Emergency Services</li>
@@ -287,9 +270,9 @@ export default function Home() {
               </ul>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-blue)">Legal</h4>
-              <ul className="space-y-3 text-sm text-(--color-text-muted)">
+              <ul className="space-y-2 text-xs text-(--color-text-muted)">
                 <li className="hover:text-white transition-colors cursor-pointer capitalize">Privacy Policy</li>
                 <li className="hover:text-white transition-colors cursor-pointer capitalize">Terms of Service</li>
                 <li className="hover:text-white transition-colors cursor-pointer capitalize">Refund Policy</li>
@@ -297,11 +280,11 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-8 text-center">
+          <div className="border-t border-white/5 pt-6 text-center">
             <p className="font-mono text-[0.6rem] tracking-[0.2em] text-(--color-text-muted) uppercase">
               © 2026 MedicarePlus. INNOVATIVE. CONNECTED. COMPASSIONATE. All Rights Reserved.
             </p>
-            <p className="font-mono text-[0.5rem] tracking-[0.1em] text-gray-700 uppercase mt-2">
+            <p className="font-mono text-[0.5rem] tracking-[0.1em] text-gray-700 uppercase mt-1">
               Powered by Advanced Health Systems • Jaipur Region
             </p>
           </div>

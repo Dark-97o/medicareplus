@@ -11,7 +11,7 @@ export interface UserProfile {
   address: string;
   gender: string;
   bloodGroup: string;
-  role: 'patient' | 'doctor' | 'admin';
+  role: 'patient' | 'doctor' | 'admin' | 'lab';
 }
 
 interface AuthContextType {
@@ -53,18 +53,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         setLoading(false);
       } else {
-        // No Firebase Auth user — fall back to localStorage (patient/doctor sessions)
-        const stored = localStorage.getItem('medicare_patient_session');
-        if (stored) {
+        // No Firebase Auth user — check for specialized sessions
+        const patientSession = localStorage.getItem('medicare_patient_session');
+        const labSession = localStorage.getItem('medicare_lab_session');
+        
+        if (patientSession) {
           try {
-            const session = JSON.parse(stored);
+            const session = JSON.parse(patientSession);
             setUser({ uid: session.id, email: session.email });
             setUserProfile(session);
-          } catch {
-            localStorage.removeItem('medicare_patient_session');
-            setUser(null);
-            setUserProfile(null);
-          }
+          } catch { localStorage.removeItem('medicare_patient_session'); }
+        } else if (labSession) {
+          try {
+            const session = JSON.parse(labSession);
+            setUser({ uid: session.id, email: session.email });
+            setUserProfile(session);
+          } catch { localStorage.removeItem('medicare_lab_session'); }
         } else {
           setUser(null);
           setUserProfile(null);
@@ -78,7 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (profile: UserProfile, uid: string) => {
     setUser({ uid, email: profile.email });
     setUserProfile(profile);
-    localStorage.setItem('medicare_patient_session', JSON.stringify({ ...profile, id: uid }));
+    const storageKey = profile.role === 'lab' ? 'medicare_lab_session' : 'medicare_patient_session';
+    localStorage.setItem(storageKey, JSON.stringify({ ...profile, id: uid }));
   };
 
   const signOut = async () => {
@@ -86,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setUserProfile(null);
     localStorage.removeItem('medicare_patient_session');
+    localStorage.removeItem('medicare_lab_session');
   };
 
   return (

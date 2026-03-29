@@ -27,17 +27,17 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-12 relative overflow-hidden">
       <div className="container mx-auto px-8 md:px-16">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-          <div className="max-w-2xl">
-            <p className="text-(--color-accent-blue) font-mono text-[0.6rem] uppercase tracking-[0.4em] mb-4">Patient Perspectives</p>
-            <h2 className="font-serif text-4xl md:text-6xl font-black tracking-[-0.03em] uppercase">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-8">
+          <div className="max-w-3xl">
+            <p className="text-(--color-accent-blue) font-mono text-[0.7rem] uppercase tracking-[0.5em] mb-4">Patient Perspectives</p>
+            <h2 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tight leading-[1.1] mb-6">
               Real Patients <br />
               <span className="text-gradient">Real Stories</span>
             </h2>
           </div>
-          <p className="text-(--color-text-muted) max-w-xs text-sm leading-relaxed opacity-60">
+          <p className="text-gray-200 max-w-sm text-base md:text-lg leading-relaxed font-medium opacity-80 mb-2">
             Join 10,000+ patients who found their perfect healthcare path with our advanced network.
           </p>
         </div>
