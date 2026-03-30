@@ -40,7 +40,11 @@ export default function LabBooking() {
         const approvedLabIds = labSnap.docs.map(doc => doc.id);
 
         if (approvedLabIds.length > 0) {
-          const testQ = query(collection(db, 'lab_tests'), where('labId', 'in', approvedLabIds));
+          const testQ = query(
+            collection(db, 'lab_tests'), 
+            where('status', '==', 'approved'),
+            where('labId', 'in', approvedLabIds)
+          );
           const testSnap = await getDocs(testQ);
           setTests(testSnap.docs.map(d => ({ id: d.id, ...d.data() })));
         }
@@ -151,31 +155,38 @@ export default function LabBooking() {
                 <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-(--color-accent-purple) border-t-transparent rounded-full animate-spin" /></div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredTests.map(test => (
-                    <motion.div 
-                      key={test.id} 
-                      onClick={() => setSelectedTest(test)}
-                      className={`glass-panel p-6 rounded-3xl border transition-all cursor-pointer group ${selectedTest?.id === test.id ? 'border-(--color-accent-purple) bg-(--color-accent-purple)/5 shadow-[0_0_30px_rgba(168,85,247,0.15)] scale-[1.02]' : 'border-white/5 hover:border-white/20'}`}
-                    >
-                      <div className="w-full h-32 rounded-2xl bg-white/5 mb-4 overflow-hidden relative">
-                         {test.imageUrl ? (
-                           <img src={test.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                         ) : (
-                           <div className="w-full h-full flex items-center justify-center text-gray-800"><FlaskConical size={32} /></div>
-                         )}
-                         <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[8px] font-bold uppercase tracking-widest text-white border border-white/10">
-                            {test.category}
-                         </div>
-                      </div>
-                      <h3 className="font-serif text-xl font-bold mb-1">{test.name}</h3>
-                      <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-4 flex items-center gap-1.5"><Building size={12}/> {test.hospitalName}</p>
-                      
-                      <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
-                        <span className="text-(--color-accent-purple) font-black font-mono">₹{test.charges}</span>
-                        {selectedTest?.id === test.id && <CheckCircle size={20} className="text-(--color-accent-purple)" />}
-                      </div>
-                    </motion.div>
-                  ))}
+                  {filteredTests.length === 0 ? (
+                    <div className="col-span-full py-20 text-center glass-panel rounded-3xl border border-white/5">
+                      <Search size={48} className="mx-auto text-gray-700 mb-4 opacity-50" />
+                      <p className="text-gray-500 font-mono text-xs uppercase tracking-[0.2em]">{t('lab.no_tests_found') || 'No approved tests found in the catalog.'}</p>
+                    </div>
+                  ) : (
+                    filteredTests.map(test => (
+                      <motion.div 
+                        key={test.id} 
+                        onClick={() => setSelectedTest(test)}
+                        className={`glass-panel p-6 rounded-3xl border transition-all cursor-pointer group ${selectedTest?.id === test.id ? 'border-(--color-accent-purple) bg-(--color-accent-purple)/5 shadow-[0_0_30px_rgba(168,85,247,0.15)] scale-[1.02]' : 'border-white/5 hover:border-white/20'}`}
+                      >
+                        <div className="w-full h-32 rounded-2xl bg-white/5 mb-4 overflow-hidden relative">
+                           {test.imageUrl ? (
+                             <img src={test.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                           ) : (
+                             <div className="w-full h-full flex items-center justify-center text-gray-800"><FlaskConical size={32} /></div>
+                           )}
+                           <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[8px] font-bold uppercase tracking-widest text-white border border-white/10">
+                              {test.category}
+                           </div>
+                        </div>
+                        <h3 className="font-serif text-xl font-bold mb-1">{test.name}</h3>
+                        <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-4 flex items-center gap-1.5"><Building size={12}/> {test.hospitalName}</p>
+                        
+                        <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
+                          <span className="text-(--color-accent-purple) font-black font-mono">₹{test.charges}</span>
+                          {selectedTest?.id === test.id && <CheckCircle size={20} className="text-(--color-accent-purple)" />}
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
                 </div>
               )}
 

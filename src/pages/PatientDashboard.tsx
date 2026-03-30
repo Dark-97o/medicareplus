@@ -90,7 +90,7 @@ export default function PatientDashboard() {
   const past = appointments.filter(a => a.status !== 'upcoming');
 
   return (
-    <div className="min-h-screen bg-(--color-primary-base) text-white pt-12 pb-12 px-8 md:px-16 w-full relative overflow-hidden">
+    <div className="min-h-screen bg-(--color-primary-base) text-white pt-36 pb-12 px-8 md:px-16 w-full relative overflow-hidden">
       {/* Abstract Background Spline */}
       <div className="absolute inset-0 z-0 opacity-60 pointer-events-none flex items-center justify-center">
         <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>

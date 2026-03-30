@@ -8,17 +8,35 @@ import { useAuth } from '../contexts/AuthContext';
 import type { UserProfile } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
-import { Mail, Calendar, CheckCircle, Clock, FlaskConical, Lock, FileText, Activity, Building, LogOut, Plus, Trash2, Edit3, Image as ImageIcon } from 'lucide-react';
+import { Mail, Calendar, Clock, FlaskConical, Lock, Activity, LogOut, Plus, Trash2, Image as ImageIcon, ArrowRight, ChevronRight, CheckCircle, XCircle } from 'lucide-react';
 
 export default function LabDashboard() {
   const { t } = useTranslation();
-  const { user, userProfile, signOut } = useAuth();
+  const { user, userProfile, signOut, login } = useAuth();
   const navigate = useNavigate();
   
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  
+  const [regData, setRegData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    phone: '',
+    address: '',
+    hospitalName: '',
+    specialization: '',
+    imageUrl: '',
+    licenseUrl: ''
+  });
+
   const [tab, setTab] = useState<'bookings' | 'tests' | 'security'>('bookings');
   const [bookings, setBookings] = useState<any[]>([]);
   const [tests, setTests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showAddTest, setShowAddTest] = useState(false);
   const [newTest, setNewTest] = useState({
     name: '',
@@ -29,15 +47,13 @@ export default function LabDashboard() {
   const [newPassword, setNewPassword] = useState('');
 
   const fetchData = async () => {
-    if (!user) return;
+    if (!user || userProfile?.role !== 'lab') return;
     setLoading(true);
     try {
-      // Fetch bookings for this lab
       const bQ = query(collection(db, 'lab_bookings'), where('labId', '==', user.uid));
       const bSnap = await getDocs(bQ);
       setBookings(bSnap.docs.map(d => ({ id: d.id, ...d.data() })));
 
-      // Fetch tests registered by this lab
       const tQ = query(collection(db, 'lab_tests'), where('labId', '==', user.uid));
       const tSnap = await getDocs(tQ);
       setTests(tSnap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -49,8 +65,54 @@ export default function LabDashboard() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [user]);
+    if (user && userProfile?.role === 'lab') {
+      fetchData();
+    }
+  }, [user, userProfile]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const q = query(collection(db, 'lab_doctors'), where('email', '==', loginEmail), where('password', '==', loginPassword));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        throw new Error(t('doctor.auth.invalid_credentials') || "Invalid lab credentials.");
+      }
+      const labData = snap.docs[0].data() as any;
+      if (labData.status !== 'approved') {
+        throw new Error(t('doctor.auth.application_pending') || "Registration pending admin approval.");
+      }
+      login({ ...labData, role: 'lab' } as UserProfile, snap.docs[0].id);
+    } catch (err: any) {
+      setError(err.message || "Login failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const q = query(collection(db, 'lab_doctors'), where('email', '==', regData.email));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        throw new Error(t('doctor.auth.email_registered') || "Email already registered.");
+      }
+      await addDoc(collection(db, 'lab_doctors'), {
+        ...regData,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      });
+      setSuccess(true);
+      setTimeout(() => { setSuccess(false); setAuthMode('login'); }, 4500);
+    } catch (err: any) {
+      setError(err.message || "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddTest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +123,7 @@ export default function LabDashboard() {
         labId: user.uid,
         labName: userProfile?.name || 'Lab Specialist',
         hospitalName: userProfile?.address || 'Associated Hospital',
+        status: 'approved', // Auto-approve for verified labs
         createdAt: new Date().toISOString()
       });
       setShowAddTest(false);
@@ -95,6 +158,164 @@ export default function LabDashboard() {
     navigate('/');
   };
 
+  /* ─── AUTH SCREEN ─── */
+  if (success) return (
+    <div className="min-h-screen bg-[#050B14] flex items-center justify-center p-4 pt-16 relative overflow-hidden">
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
+            <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050B14] via-transparent to-[#050B14] pointer-events-none" />
+
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-panel w-full max-w-md p-10 rounded-2xl border border-white/5 shadow-2xl relative z-10">
+        <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Activity size={40} className="text-green-400" />
+        </div>
+        <h2 className="text-3xl font-serif font-black text-white mb-4 text-center">{t('lab.auth.application_submitted') || 'Protocol Initiated'}</h2>
+        <p className="text-gray-400 leading-relaxed mb-6 text-center">{t('lab.auth.application_review_message') || 'Your laboratory credential application is under central review. Access will be granted once verification is complete.'}</p>
+        <div className="w-full h-1 bg-white/10 rounded overflow-hidden mb-8">
+          <motion.div className="h-full bg-green-400" initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 4.5 }} />
+        </div>
+        <button onClick={handleSignOut} className="w-full py-4 border border-white/10 rounded-xl text-xs font-mono uppercase tracking-[0.2em] text-gray-400 hover:bg-white/5 hover:text-white transition-all flex items-center justify-center gap-3">
+          <LogOut size={16} /> {t('common.reset') || 'TERMINATE SESSION'}
+        </button>
+      </motion.div>
+    </div>
+  );
+
+  if (!user || userProfile?.role !== 'lab') {
+    return (
+      <div className="min-h-screen bg-[#050B14] flex items-center justify-center p-4 pt-16 relative overflow-hidden">
+        {/* Spline 3D Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+          <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
+            <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
+              <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
+            </Suspense>
+          </ErrorBoundary>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050B14] via-[#050B14]/60 to-transparent" />
+        </div>
+
+        <div className="relative z-10 w-full flex items-center justify-center pt-4 pb-16 px-4">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-2xl">
+
+            {/* Header badge */}
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-(--color-accent-purple)/30 bg-(--color-accent-purple)/10 backdrop-blur-md">
+                <FlaskConical size={16} className="text-(--color-accent-purple)" />
+                <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-(--color-accent-purple)">Lab Management Gateway</span>
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-2xl border border-(--color-accent-purple)/20 shadow-[0_0_60px_rgba(168,85,247,0.1)] overflow-hidden backdrop-blur-xl">
+              {/* Tab switcher */}
+              <div className="flex border-b border-white/10">
+                <button onClick={() => setAuthMode('login')}
+                  className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all duration-300 ${authMode === 'login' ? 'bg-(--color-accent-purple)/15 text-(--color-accent-purple) border-b-2 border-(--color-accent-purple)' : 'text-gray-500 hover:text-gray-300'}`}>
+                  Access Portal
+                </button>
+                <button onClick={() => setAuthMode('register')}
+                  className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all duration-300 ${authMode === 'register' ? 'bg-(--color-accent-purple)/15 text-(--color-accent-purple) border-b-2 border-(--color-accent-purple)' : 'text-gray-500 hover:text-gray-300'}`}>
+                  Provider Enrollment
+                </button>
+              </div>
+
+              {error && (
+                <div className="mx-8 mt-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm text-center">
+                  {error}
+                </div>
+              )}
+
+              <AnimatePresence mode="wait">
+                {authMode === 'login' ? (
+                  <motion.div key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.3 }} className="p-8 md:p-10">
+                    <div className="text-center mb-8">
+                      <div className="w-16 h-16 bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/30 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+                        <Lock size={28} className="text-(--color-accent-purple)" />
+                        <div className="absolute inset-0 border border-(--color-accent-purple)/20 rounded-full animate-ping" />
+                      </div>
+                      <h2 className="text-2xl font-serif font-black text-white mb-1">Diagnostic Terminal</h2>
+                      <p className="text-gray-400 text-xs tracking-widest uppercase">Secure authentication required</p>
+                    </div>
+                    <form onSubmit={handleLogin} className="flex flex-col gap-5">
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">Registered Email</label>
+                        <div className="relative">
+                          <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                          <input type="email" required value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 pl-12 text-sm focus:border-(--color-accent-purple) focus:outline-none transition-all"
+                            placeholder="admin@lab-jaipur.com" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">Security Hash</label>
+                        <div className="relative">
+                          <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                          <input type="password" required value={loginPassword} onChange={e => setLoginPassword(e.target.value)}
+                            className="w-full bg-black/40 border border-white/10 rounded-xl p-3.5 pl-12 text-sm focus:border-(--color-accent-purple) focus:outline-none transition-all"
+                            placeholder="••••••••" />
+                        </div>
+                      </div>
+                      <button type="submit" disabled={loading}
+                        className="w-full mt-2 py-4 bg-gradient-to-r from-(--color-accent-purple) to-(--color-accent-blue) text-white rounded-xl font-bold tracking-widest uppercase hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+                        {loading ? <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <>Sync Credentials <ArrowRight size={16}/></>}
+                      </button>
+                    </form>
+                  </motion.div>
+                ) : (
+                  <motion.div key="register" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }} className="p-8 md:p-10">
+                    <form onSubmit={handleRegister} className="flex flex-col gap-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs text-gray-400 uppercase block mb-1.5">Laboratory Name</label>
+                          <input required value={regData.name} onChange={e => setRegData({...regData, name: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none" placeholder="City Diagnostics" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-400 uppercase block mb-1.5">Contact Phone</label>
+                          <input required value={regData.phone} onChange={e => setRegData({...regData, phone: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none" placeholder="+91..." />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase block mb-1.5">Official Email</label>
+                        <input required type="email" value={regData.email} onChange={e => setRegData({...regData, email: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none" placeholder="jaipur@lab.com" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase block mb-1.5">Security Password</label>
+                        <input required type="password" value={regData.password} onChange={e => setRegData({...regData, password: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none" placeholder="••••••••" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase block mb-1.5">Hospital Affiliation</label>
+                        <input required value={regData.hospitalName} onChange={e => setRegData({...regData, hospitalName: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none" placeholder="Pink City Medical Center" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase block mb-1.5">Physical Address</label>
+                        <textarea required value={regData.address} onChange={e => setRegData({...regData, address: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none min-h-[80px]" placeholder="Full address in Jaipur..." />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 uppercase block mb-1.5">Certification / License Link</label>
+                        <input required value={regData.licenseUrl} onChange={e => setRegData({...regData, licenseUrl: e.target.value})} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-purple) focus:outline-none" placeholder="ISO / NABL Certificate URL" />
+                      </div>
+                      <button type="submit" disabled={loading}
+                        className="w-full mt-4 py-4 bg-gradient-to-r from-(--color-accent-purple) to-(--color-accent-blue) text-white rounded-xl font-bold tracking-widest uppercase hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
+                        {loading ? <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : 'Enroll Laboratory'}
+                      </button>
+                    </form>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#050B14] text-white relative overflow-hidden">
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
@@ -122,7 +343,7 @@ export default function LabDashboard() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-10">
-          <div className="flex gap-8 border-b border-white/5 mb-10 overflow-x-auto">
+          <div className="flex gap-8 border-b border-white/5 mb-10 overflow-x-auto overflow-y-hidden scrollbar-hide">
             <button onClick={() => setTab('bookings')} className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${tab === 'bookings' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
               Patient Bookings
               {tab === 'bookings' && <motion.div layoutId="lab-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--color-accent-purple)" />}
@@ -174,10 +395,10 @@ export default function LabDashboard() {
                         {book.status !== 'completed' && (
                           <div className="mt-6 pt-4 border-t border-white/5 flex gap-2">
                              <button onClick={() => handleUpdateBooking(book.id, 'completed')} className="flex-1 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all">
-                               Finalize Test
+                                Finalize Test
                              </button>
                              <button onClick={() => handleUpdateBooking(book.id, 'cancelled')} className="px-4 py-3 bg-red-500/5 text-red-500/60 hover:text-red-400 transition-colors uppercase font-bold text-[8px] tracking-widest">
-                               Cancel
+                                Cancel
                              </button>
                           </div>
                         )}

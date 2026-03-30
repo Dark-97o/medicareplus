@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'hi', name: 'Hindi', flag: '🇮🇳' }
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'rj', name: 'Rajasthani', flag: '🚩' }
 ];
 
 export default function LanguageSelector() {

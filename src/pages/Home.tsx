@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import Spline from '@splinetool/react-spline';
-import { ArrowRight, Activity, Zap, Stethoscope, Clock, HeartPulse } from 'lucide-react';
+import { ArrowRight, Activity, Stethoscope, HeartPulse } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -150,9 +150,6 @@ export default function Home() {
                 </span>
               </button>
 
-              <a href="#metrics" className="text-xs font-semibold uppercase tracking-widest text-gray-500 hover:text-(--color-accent-blue) transition-colors flex items-center gap-2 group mt-1">
-                {t('hero.explore')} <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
-              </a>
             </div>
             
             <p onClick={() => navigate('/doctor')} className="text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit flex items-center gap-2 bg-black/20 px-2 py-1.5 rounded border border-transparent hover:border-(--color-accent-blue)/30">
@@ -167,24 +164,24 @@ export default function Home() {
         <QuickGuide />
 
         {/* Local News/Articles Section */}
-        <section className="py-24 px-8 md:px-16 container mx-auto">
+        <section className="py-8 px-8 md:px-16 container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-16 flex flex-col items-center text-center"
+            className="mb-4 flex flex-col items-center text-center"
           >
-            <h2 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tight leading-[1.1] mb-6">
+            <h2 className="font-serif text-3xl md:text-4xl font-black uppercase tracking-tight leading-[1.1] mb-4">
               {t('home.intelligence.title')} <span className="text-gradient">{t('home.intelligence.highlight')}</span>
             </h2>
-            <p className="text-gray-200 max-w-3xl text-sm md:text-base leading-relaxed font-medium">
+            <p className="text-gray-400 max-w-2xl text-xs leading-relaxed font-medium">
               {t('home.intelligence.desc')}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {loadingNews ? (
-              <div className="col-span-3 text-center py-12 text-(--color-text-muted) animate-pulse font-mono text-sm tracking-widest uppercase">
+              <div className="col-span-3 text-center py-8 text-(--color-text-muted) animate-pulse font-mono text-[10px] tracking-widest uppercase">
                 {t('home.intelligence.fetching')}
               </div>
             ) : newsData.length > 0 ? (
@@ -194,35 +191,35 @@ export default function Home() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.6, delay: idx * 0.2 }}
-                  className="group relative glass-panel p-8 rounded-2xl flex flex-col gap-6 hover:-translate-y-2 transition-transform duration-500 overflow-hidden"
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="group relative glass-panel p-6 rounded-2xl flex flex-col gap-4 hover:-translate-y-2 transition-transform duration-500 overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-(--color-accent-blue) to-(--color-accent-purple) opacity-0 group-hover:opacity-100 transition-opacity" />
                   
                   <div className="flex items-center justify-between pointer-events-none">
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:bg-(--color-accent-blue)/10 border-(--color-accent-blue)/20 transition-colors">
-                      <Activity size={20} className="text-(--color-accent-blue)" />
+                    <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 group-hover:bg-(--color-accent-blue)/10 border-(--color-accent-blue)/20 transition-colors">
+                      <Activity size={18} className="text-(--color-accent-blue)" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[0.6rem] font-mono uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-gray-400">{article.source_id || t('home.intelligence.alert')}</span>
-                      <span className="text-[0.6rem] font-mono uppercase tracking-widest text-(--color-text-muted)">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[0.55rem] font-mono uppercase tracking-widest px-1.5 py-0.5 rounded bg-white/5 text-gray-500">{article.source_id || t('home.intelligence.alert')}</span>
+                      <span className="text-[0.55rem] font-mono uppercase tracking-widest text-gray-600">
                         {new Date(article.pubDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </span>
                     </div>
                   </div>
                   
-                  <h3 className="text-xl font-serif font-semibold text-white leading-tight mt-2 line-clamp-3" title={article.title}>{article.title}</h3>
-                  <p className="text-(--color-text-muted) font-light leading-relaxed text-sm flex-grow line-clamp-4" title={article.description}>
+                  <h3 className="text-lg font-serif font-semibold text-white leading-tight mt-1 line-clamp-2" title={article.title}>{article.title}</h3>
+                  <p className="text-gray-400 font-light leading-relaxed text-xs flex-grow line-clamp-3" title={article.description}>
                     {article.description || t('home.intelligence.no_details')}
                   </p>
                   
-                  <a href={article.link} target="_blank" rel="noreferrer" className="mt-4 pt-4 border-t border-white/10 flex items-center text-xs font-semibold uppercase tracking-widest text-(--color-accent-purple) group-hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit">
-                    {t('home.intelligence.read_report')} <ArrowRight size={14} className="ml-2 group-hover:translate-x-2 transition-transform" />
+                  <a href={article.link} target="_blank" rel="noreferrer" className="mt-2 pt-3 border-t border-white/5 flex items-center text-[10px] font-semibold uppercase tracking-[0.2em] text-(--color-accent-purple) group-hover:text-(--color-accent-blue) transition-colors cursor-pointer w-fit">
+                    {t('home.intelligence.read_report')} <ArrowRight size={12} className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </motion.div>
               ))
             ) : (
-              <div className="col-span-3 text-center py-12 text-(--color-text-muted) font-mono text-sm tracking-widest uppercase">
+              <div className="col-span-3 text-center py-8 text-(--color-text-muted) font-mono text-[10px] tracking-widest uppercase">
                 {t('home.intelligence.no_alerts')}
               </div>
             )}
