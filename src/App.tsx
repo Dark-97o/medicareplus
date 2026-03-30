@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Lenis from 'lenis';
 import Home from './pages/Home';
@@ -43,7 +43,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-(--color-primary-base) text-(--color-text-main) font-sans relative overflow-x-hidden selection:bg-(--color-accent-blue) selection:text-white">
       {/* Immersive Dark Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 h-20 flex items-center justify-between px-8 md:px-16 bg-black/40 backdrop-blur-3xl border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-[10001] h-20 flex items-center justify-between px-8 md:px-16 bg-black/40 backdrop-blur-3xl border-b border-white/5">
         <Link to="/" className="flex items-center gap-2 group">
           <Logo />
         </Link>
@@ -94,7 +94,7 @@ export default function App() {
       </nav>
 
       {/* Application Routes */}
-      <main className="relative z-10">
+      <main className="relative">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
@@ -104,6 +104,7 @@ export default function App() {
           <Route path="/doctor-registration" element={<DoctorRegistration />} />
           <Route path="/lab" element={<LabDashboard />} />
           <Route path="/lab-booking" element={<LabBooking />} />
+          <Route path="/login" element={<Navigate to="/" replace />} />
           <Route path="/lab-registration" element={<LabRegistration />} />
           <Route path="/consultation/:roomID" element={<Consultation />} />
         </Routes>

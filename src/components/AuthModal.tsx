@@ -97,17 +97,17 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 md:p-10">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-10 pointer-events-none">
         <motion.div 
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto"
           onClick={onClose}
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl bg-(--color-primary-base) border border-white/10 rounded-2xl shadow-2xl overflow-hidden glass-panel flex flex-col md:flex-row h-[600px]"
+          className="relative w-full max-w-2xl bg-(--color-primary-base) border border-white/10 rounded-2xl shadow-2xl overflow-hidden glass-panel flex flex-col md:flex-row h-fit pointer-events-auto max-h-[90vh]"
         >
           {/* 3D Visual Column */}
           <div className="hidden md:block w-1/2 relative bg-black/40 border-r border-white/5 overflow-hidden">
@@ -119,26 +119,26 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </ErrorBoundary>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-(--color-primary-base) via-transparent to-transparent" />
-            <div className="relative z-10 p-8 flex flex-col justify-end h-full">
-              <h3 className="text-xl font-serif font-bold text-white mb-2">Secure Access</h3>
-              <p className="text-xs text-gray-400 font-mono tracking-wider uppercase leading-relaxed">
-                MedicarePlus Biometric Encryption Enabled.<br/>
-                Global Medical Registry v2.0
+            <div className="relative z-10 p-6 flex flex-col justify-end h-full">
+              <h3 className="text-lg font-serif font-bold text-white mb-1">Secure Access</h3>
+              <p className="text-[9px] text-gray-400 font-mono tracking-wider uppercase leading-tight">
+                MedicarePlus Biometric Encryption<br/>
+                Global Registry v2.0
               </p>
             </div>
           </div>
 
           <div className="w-full md:w-1/2 flex flex-col h-full overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b border-white/5">
-              <h2 className="text-2xl font-serif font-black text-white">
+            <div className="flex items-center justify-between p-4 px-6 border-b border-white/5">
+              <h2 className="text-xl font-serif font-black text-white">
                 {isLogin ? 'Patient Access' : 'Create Profile'}
               </h2>
-              <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-                <X size={20} />
+              <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                <X size={18} />
               </button>
             </div>
 
-          <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 max-h-[70vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-3 max-h-[75vh] overflow-y-auto custom-scrollbar scrollbar-thin">
             {error && (
               <div className="p-3 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
                 {error}
@@ -150,33 +150,33 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs text-gray-400 uppercase tracking-wider">Full Name</label>
-                    <div className="relative mt-1">
-                      <User size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                      <input name="name" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue)" placeholder="Rahul Sharma" />
+                    <div className="relative">
+                      <User size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                      <input name="name" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) placeholder:text-gray-600 transition-all" placeholder="Rahul Sharma" />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider">Phone</label>
-                    <div className="relative mt-1">
-                      <Phone size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                      <input name="phone" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue)" placeholder="+91 9xxxx" />
+                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Phone</label>
+                    <div className="relative">
+                      <Phone size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                      <input name="phone" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) placeholder:text-gray-600 transition-all font-mono" placeholder="+91 9xxxx" />
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider">Age</label>
-                    <div className="relative mt-1">
-                      <Calendar size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                      <input name="age" type="number" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue)" placeholder="32" />
+                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Age</label>
+                    <div className="relative">
+                      <Calendar size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                      <input name="age" type="number" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) placeholder:text-gray-600 transition-all" placeholder="32" />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider">Gender</label>
-                    <div className="relative mt-1">
-                      <UserCheck size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                      <select name="gender" onChange={handleChange} value={formData.gender} className="w-full bg-[#0a0f1a] border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue) appearance-none">
+                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Gender</label>
+                    <div className="relative">
+                      <UserCheck size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                      <select name="gender" onChange={handleChange} value={formData.gender} className="w-full bg-[#0a0f1a] border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) appearance-none cursor-pointer">
                         <option>Male</option>
                         <option>Female</option>
                         <option>Other</option>
@@ -187,39 +187,41 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider">Blood Group</label>
-                    <div className="relative mt-1">
-                      <Droplet size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                      <select name="bloodGroup" onChange={handleChange} value={formData.bloodGroup} className="w-full bg-[#0a0f1a] border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue) appearance-none">
+                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Blood Group</label>
+                    <div className="relative">
+                      <Droplet size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                      <select name="bloodGroup" onChange={handleChange} value={formData.bloodGroup} className="w-full bg-[#0a0f1a] border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) appearance-none cursor-pointer">
                         <option>O+</option><option>O-</option><option>A+</option><option>A-</option>
                         <option>B+</option><option>B-</option><option>AB+</option><option>AB-</option>
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-400 uppercase tracking-wider">Address</label>
-                    <div className="relative mt-1">
-                      <MapPin size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                      <input name="address" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue)" placeholder="Malviya Nagar" />
+                    <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Residency</label>
+                    <div className="relative">
+                      <MapPin size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                      <input name="address" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) placeholder:text-gray-600 transition-all font-sans" placeholder="Malviya Nagar" />
                     </div>
                   </div>
                 </div>
               </>
             )}
 
-            <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider">Email</label>
-              <div className="relative mt-1">
-                <Mail size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                <input name="email" type="email" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue)" placeholder="patient@example.com" />
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Email Address</label>
+                <div className="relative">
+                  <Mail size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                  <input name="email" type="email" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) placeholder:text-gray-600 transition-all" placeholder="patient@example.com" />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider">Password</label>
-              <div className="relative mt-1">
-                <Lock size={16} className="absolute left-3 top-1/2 -mt-2 text-gray-500" />
-                <input name="password" type="password" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded my-1 pl-10 pr-3 py-2 text-sm text-white focus:outline-none focus:border-(--color-accent-blue)" placeholder="••••••••" />
+              <div>
+                <label className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Secure Password</label>
+                <div className="relative">
+                  <Lock size={14} className="absolute left-3 top-1/2 -mt-1.7 text-gray-500" />
+                  <input name="password" type="password" onChange={handleChange} required className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-(--color-accent-blue) placeholder:text-gray-600 transition-all font-serif" placeholder="••••••••" />
+                </div>
               </div>
             </div>
 

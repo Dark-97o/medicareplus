@@ -1,4 +1,4 @@
-﻿export const translations = {
+export const translations = {
   en: {
     nav: {
       admin: "Admin",
@@ -191,6 +191,7 @@
       hospital: "Testing Center",
       charges: "Test Charges",
       select_test: "Select Laboratory Test",
+      catalog_desc: "ADVANCED DIAGNOSTIC CATALOG V2.0",
       confirm: "Confirm & Pay",
       registration_pending: "Your Laboratory registration is pending Admin approval.",
       no_tests_found: "No approved tests found in the catalog."

@@ -107,49 +107,26 @@ export default function LabBooking() {
   };
 
   return (
-    <div className="min-h-screen bg-(--color-primary-base) text-white pt-24 pb-24 relative overflow-hidden">
-      {/* 3D Visual */}
-      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-        <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
-          <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
-            <Spline scene="https://prod.spline.design/i9Vv6M9PZcZ8P9vL/scene.splinecode" />
-          </Suspense>
-        </ErrorBoundary>
+    <div className="min-h-screen bg-(--color-primary-base) text-white pt-44 pb-8 relative overflow-hidden">
+      {/* Premium Gradient Visual (Replacing corrupted Spline) */}
+      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[80%] h-[70%] bg-(--color-accent-purple) rounded-full blur-[200px] opacity-10 animate-pulse" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[80%] h-[70%] bg-(--color-accent-blue) rounded-full blur-[200px] opacity-10 animate-pulse" />
       </div>
 
       <div className="max-w-5xl mx-auto px-6 relative z-10">
         
-        {/* Progress Tracker */}
-        <div className="flex justify-center mb-16">
-          <div className="flex items-center gap-4">
-            {[1, 2, 3].map(s => (
-              <div key={s} className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black ${step >= s ? 'bg-(--color-accent-purple) text-white shadow-[0_0_20px_rgba(168,85,247,0.4)]' : 'bg-white/5 text-gray-600 border border-white/5'}`}>
-                  {step > s ? <CheckCircle size={20} /> : s}
-                </div>
-                {s < 3 && <div className={`w-12 h-0.5 rounded-full ${step > s ? 'bg-(--color-accent-purple)' : 'bg-white/5'}`} />}
-              </div>
-            ))}
-          </div>
-        </div>
+
 
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="text-center mb-12">
-                <h1 className="text-4xl font-serif font-black mb-4 uppercase tracking-tighter">{t('lab.select_test')}</h1>
-                <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.3em]">{t('lab.catalog_desc')}</p>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-serif font-black mb-2 uppercase tracking-tighter">{t('lab.select_test')}</h1>
+                <p className="text-gray-500 font-mono text-[9px] uppercase tracking-[0.2em]">{t('lab.catalog_desc') || 'ADVANCED DIAGNOSTIC CATALOG V2.0'}</p>
               </div>
 
-              <div className="relative mb-10 max-w-xl mx-auto">
-                <Search size={18} className="absolute left-4 top-1/2 -mt-2.2 text-gray-500" />
-                <input 
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search for blood tests, MRI, X-ray..." 
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-sm focus:border-(--color-accent-purple) focus:outline-none transition-all"
-                />
-              </div>
+
 
               {loading ? (
                 <div className="flex justify-center py-20"><div className="w-10 h-10 border-2 border-(--color-accent-purple) border-t-transparent rounded-full animate-spin" /></div>
@@ -158,31 +135,54 @@ export default function LabBooking() {
                   {filteredTests.length === 0 ? (
                     <div className="col-span-full py-20 text-center glass-panel rounded-3xl border border-white/5">
                       <Search size={48} className="mx-auto text-gray-700 mb-4 opacity-50" />
-                      <p className="text-gray-500 font-mono text-xs uppercase tracking-[0.2em]">{t('lab.no_tests_found') || 'No approved tests found in the catalog.'}</p>
+                      <p className="text-gray-500 font-mono text-xs uppercase tracking-[0.2em] mb-6">{t('lab.no_tests_found') || 'No approved tests found in the catalog.'}</p>
+                      <button 
+                        onClick={async () => {
+                          setLoading(true);
+                          const { addDoc, collection } = await import('firebase/firestore');
+                          const labDoc = await addDoc(collection(db, 'lab_doctors'), {
+                            name: "Dr. Alok Verma",
+                            labName: "Verma Diagnostics",
+                            hospital: "Apollo Jaipur",
+                            email: "alok@verma.com",
+                            status: "approved",
+                            createdAt: new Date().toISOString()
+                          });
+                          const tests = [
+                            { name: "Full Body Checkup", category: "General", charges: 2999, labId: labDoc.id, labName: "Verma Diagnostics", hospitalName: "Apollo Jaipur", status: "approved", imageUrl: "https://images.unsplash.com/photo-1579152276503-60506663f721?w=800" },
+                            { name: "Diabetes Panel", category: "Pathology", charges: 850, labId: labDoc.id, labName: "Verma Diagnostics", hospitalName: "Apollo Jaipur", status: "approved", imageUrl: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=800" }
+                          ];
+                          for (const t of tests) await addDoc(collection(db, 'lab_tests'), t);
+                          window.location.reload();
+                        }}
+                        className="px-6 py-3 bg-(--color-accent-purple)/10 text-(--color-accent-purple) border border-(--color-accent-purple)/30 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-(--color-accent-purple) hover:text-white transition-all cursor-pointer"
+                      >
+                        Initialize Sample Catalog
+                      </button>
                     </div>
                   ) : (
                     filteredTests.map(test => (
                       <motion.div 
                         key={test.id} 
                         onClick={() => setSelectedTest(test)}
-                        className={`glass-panel p-6 rounded-3xl border transition-all cursor-pointer group ${selectedTest?.id === test.id ? 'border-(--color-accent-purple) bg-(--color-accent-purple)/5 shadow-[0_0_30px_rgba(168,85,247,0.15)] scale-[1.02]' : 'border-white/5 hover:border-white/20'}`}
+                        className={`glass-panel p-4 rounded-2xl border transition-all cursor-pointer group ${selectedTest?.id === test.id ? 'border-(--color-accent-purple) bg-(--color-accent-purple)/5 shadow-[0_0_25px_rgba(168,85,247,0.1)] scale-[1.01]' : 'border-white/5 hover:border-white/20'}`}
                       >
-                        <div className="w-full h-32 rounded-2xl bg-white/5 mb-4 overflow-hidden relative">
+                        <div className="w-full h-24 rounded-xl bg-white/5 mb-3 overflow-hidden relative">
                            {test.imageUrl ? (
                              <img src={test.imageUrl} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                            ) : (
-                             <div className="w-full h-full flex items-center justify-center text-gray-800"><FlaskConical size={32} /></div>
+                             <div className="w-full h-full flex items-center justify-center text-gray-700 bg-white/5"><FlaskConical size={24} className="shrink-0" /></div>
                            )}
-                           <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 backdrop-blur-md rounded text-[8px] font-bold uppercase tracking-widest text-white border border-white/10">
+                           <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded text-[6px] font-bold uppercase tracking-widest text-white border border-white/10">
                               {test.category}
                            </div>
                         </div>
-                        <h3 className="font-serif text-xl font-bold mb-1">{test.name}</h3>
-                        <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase mb-4 flex items-center gap-1.5"><Building size={12}/> {test.hospitalName}</p>
+                        <h3 className="font-serif text-lg font-bold mb-0.5 leading-tight">{test.name}</h3>
+                        <p className="text-[9px] text-gray-500 font-mono tracking-widest uppercase mb-3 flex items-center gap-1.5"><Building size={10}/> {test.hospitalName}</p>
                         
-                        <div className="flex justify-between items-center border-t border-white/5 pt-4 mt-auto">
-                          <span className="text-(--color-accent-purple) font-black font-mono">₹{test.charges}</span>
-                          {selectedTest?.id === test.id && <CheckCircle size={20} className="text-(--color-accent-purple)" />}
+                        <div className="flex justify-between items-center border-t border-white/5 pt-2.5 mt-auto">
+                          <span className="text-(--color-accent-purple) font-black font-mono text-sm">₹{test.charges}</span>
+                          {selectedTest?.id === test.id && <CheckCircle size={16} className="text-(--color-accent-purple)" />}
                         </div>
                       </motion.div>
                     ))

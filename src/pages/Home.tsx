@@ -4,6 +4,7 @@ import Spline from '@splinetool/react-spline';
 import { ArrowRight, Activity, Stethoscope, HeartPulse } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import ErrorBoundary from '../components/ErrorBoundary';
 import AuthModal from '../components/AuthModal';
 import ContactUs from '../components/ContactUs';
@@ -15,6 +16,7 @@ import Testimonials from '../components/Testimonials';
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { scrollYProgress } = useScroll();
   const [newsData, setNewsData] = useState<any[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
@@ -141,7 +143,7 @@ export default function Home() {
               
               {/* Lab Test Button */}
               <button 
-                onClick={() => navigate('/lab-booking')}
+                onClick={() => user ? navigate('/lab-booking') : setIsAuthOpen(true)}
                 className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-(--color-accent-purple)/30 cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
               >
                 <span className="relative text-(--color-accent-purple) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">

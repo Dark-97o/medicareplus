@@ -90,7 +90,7 @@ export default function PatientDashboard() {
   const past = appointments.filter(a => a.status !== 'upcoming');
 
   return (
-    <div className="min-h-screen bg-(--color-primary-base) text-white pt-36 pb-12 px-8 md:px-16 w-full relative overflow-hidden">
+    <div className="min-h-screen bg-(--color-primary-base) text-white pt-44 pb-12 px-8 md:px-16 w-full relative overflow-hidden">
       {/* Abstract Background Spline */}
       <div className="absolute inset-0 z-0 opacity-60 pointer-events-none flex items-center justify-center">
         <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>
@@ -156,7 +156,7 @@ export default function PatientDashboard() {
                             <img src={app.doctorImageUrl} alt={app.doctorName} className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-700">
-                               <Activity size={24} />
+                               <Activity size={24} className="shrink-0" />
                             </div>
                           )}
                         </div>
@@ -257,7 +257,7 @@ export default function PatientDashboard() {
                         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-mono">{lab.hospitalName}</p>
                       </div>
                       <div className="w-10 h-10 rounded-lg bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center text-(--color-accent-purple)">
-                        <Activity size={20} />
+                        <Activity size={20} className="shrink-0" />
                       </div>
                     </div>
                     <div className="space-y-3 mb-6">
