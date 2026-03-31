@@ -567,7 +567,7 @@ function AdminPanel() {
 
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Stats Row */}
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
           {tabs.map(t => (
             <div key={t.id} className={`glass-panel p-5 rounded-2xl border flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 relative ${activeTab === t.id ? 'border-(--color-accent-blue)/40 shadow-[0_0_20px_rgba(0,229,255,0.1)]' : 'border-white/5 hover:border-white/10'}`} onClick={() => setActiveTab(t.id)}>
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${activeTab === t.id ? 'bg-(--color-accent-blue)/20 border border-(--color-accent-blue)/30' : 'bg-white/5 border border-white/10'}`}>
@@ -583,10 +583,10 @@ function AdminPanel() {
         </div>
 
         {/* Tab nav */}
-        <div className="flex border-b border-white/5 mb-8">
+        <div className="flex border-b border-white/5 mb-8 overflow-x-auto scrollbar-hide">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 whitespace-nowrap ${activeTab === t.id ? 'border-(--color-accent-blue) text-(--color-accent-blue)' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>
+                className={`flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border-b-2 whitespace-nowrap shrink-0 ${activeTab === t.id ? 'border-(--color-accent-blue) text-(--color-accent-blue)' : 'border-transparent text-gray-500 hover:text-gray-300'}`}>
                 <t.icon size={12} /> {t.label}
               </button>
             ))}

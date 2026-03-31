@@ -111,7 +111,7 @@ export default function Home() {
               <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-(--color-accent-blue) drop-shadow-md">{t('hero.badge')}</span>
             </div>
             
-            <h1 className="font-serif text-6xl md:text-7xl font-black leading-[1.05] tracking-tight mb-4 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-4 text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
               {t('hero.title_prefix')} <br />
               <span className="text-gradient drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">{t('hero.title_highlight')}</span>
             </h1>
@@ -263,13 +263,13 @@ export default function Home() {
 
         {/* Enhanced Footer */}
         <footer className="border-t border-white/5 pt-12 pb-8 px-8 md:px-16 bg-black/40 backdrop-blur-3xl relative z-20 overflow-hidden text-sm">
-          <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="col-span-1 md:col-span-2 space-y-4">
+          <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <div className="col-span-1 sm:col-span-2 space-y-4">
               <h3 className="text-xl font-serif font-black text-white tracking-wider">
                 Medicare<span className="text-(--color-accent-blue)">+</span>
               </h3>
               <p className="text-(--color-text-muted) max-w-sm text-xs leading-relaxed">
-                Pioneering the future of digital healthcare in Rajasthan. Our platform connects you with the best medical experts using cutting-edge technology and a compassionate approach.
+                {t('footer.about_desc')}
               </p>
               <div className="flex items-center gap-3">
                 {[Activity, Activity, Activity, Activity].map((Icon, i) => (
@@ -281,31 +281,31 @@ export default function Home() {
             </div>
             
             <div className="space-y-4">
-              <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-purple)">Quick Links</h4>
+              <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-purple)">{t('footer.links.quick')}</h4>
               <ul className="space-y-2 text-xs text-(--color-text-muted)">
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Book Appointment</li>
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Find a Doctor</li>
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Emergency Services</li>
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Health Packages</li>
+                <li onClick={() => navigate('/book-appointment')} className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.book')}</li>
+                <li onClick={() => navigate('/book-appointment')} className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.find')}</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.emergency')}</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.packages')}</li>
               </ul>
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-blue)">Legal</h4>
+              <h4 className="text-[0.6rem] font-mono uppercase tracking-[0.3em] text-(--color-accent-blue)">{t('footer.links.legal')}</h4>
               <ul className="space-y-2 text-xs text-(--color-text-muted)">
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Privacy Policy</li>
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Terms of Service</li>
-                <li className="hover:text-white transition-colors cursor-pointer capitalize">Refund Policy</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.privacy')}</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.terms')}</li>
+                <li className="hover:text-white transition-colors cursor-pointer capitalize">{t('footer.links.refund')}</li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-6 text-center">
-            <p className="font-mono text-[0.6rem] tracking-[0.2em] text-(--color-text-muted) uppercase">
-              © 2026 MedicarePlus. INNOVATIVE. CONNECTED. COMPASSIONATE. All Rights Reserved.
+          <div className="border-t border-white/5 pt-6 text-center px-4">
+            <p className="font-mono text-[0.55rem] sm:text-[0.6rem] tracking-[0.1em] sm:tracking-[0.2em] text-(--color-text-muted) uppercase">
+              {t('footer.copyright')}
             </p>
-            <p className="font-mono text-[0.5rem] tracking-[0.1em] text-gray-700 uppercase mt-1">
-              Powered by Advanced Health Systems • Jaipur Region
+            <p className="font-mono text-[0.45rem] sm:text-[0.5rem] tracking-[0.1em] text-gray-700 uppercase mt-2">
+              {t('footer.powered_by')}
             </p>
           </div>
         </footer>

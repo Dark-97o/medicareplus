@@ -9,7 +9,7 @@ export const translations = {
     },
     hero: {
       badge: "Jaipur's Trusted Healthcare Partner",
-      title_prefix: "The Pink City's Reliable,",
+      title_prefix: "The Pink Citys ,",
       title_highlight: "Medical Network.",
       description: "Experience world-class medical care in Jaipur. Instant specialist matching and secure, seamless booking for every patient.",
       book_now: "Book Appointment",
@@ -170,20 +170,85 @@ export const translations = {
         no_details: "Click 'View Details' for the full health advisory.",
         read_report: "View Details"
       },
-      features: {
-        instant: {
-          title: "Quick Matching",
-          desc: "Our system automatically identifies the best specialist for your needs."
+      hospitals: {
+        title: "Engaged with",
+        highlight: "Jaipur's Finest",
+        subtitle: "Network of 50+ Top Tier Medical Institutions",
+        location: "Jaipur"
+      },
+      guide: {
+        badge: "Patient Onboarding",
+        title: "Healing Starts",
+        highlight: "In Three Steps",
+        desc: "Our advanced clinical OS simplifies the journey from symptoms to recovery. Experience healthcare at the speed of thought.",
+        support_title: "Live Support Active",
+        support_desc: "Aura-AI is monitoring your clinical journey.",
+        steps: {
+          triage: { title: "AI Triage", desc: "Describe symptoms to our intelligent clinical engine." },
+          match: { title: "Specialist Match", desc: "Get matched with the top-tier specialists instantly." },
+          booking: { title: "Secure Booking", desc: "Confirm your slot with one-tap encrypted booking." }
         },
-        realtime: {
-          title: "Live Schedules",
-          desc: "Book directly into your doctor's calendar with real-time availability."
+        metrics: {
+          patients: "Patients",
+          doctors: "Doctors",
+          hospitals: "Hospitals",
+          support: "Support",
+          booking: "Booking",
+          latency: "Latency",
+          tech: "Tech",
+          lab_tests: "Lab Tests"
+        }
+      },
+      testimonials: {
+        badge: "Patient Perspectives",
+        title: "Real Patients",
+        highlight: "Real Stories",
+        subtitle: "Join 10,000+ patients who found their perfect healthcare path with our advanced network.",
+        items: {
+          rajesh: { role: "Heart Surgery Patient", content: "The care I received at Jaipur Heart Institute through MedicarePlus was exceptional. The booking process was seamless, and the coordination was perfect." },
+          priya: { role: "Orthopedic Patient", content: "Found the best specialist for my knee surgery. The platform's triage tool really helped me understand which specialist I needed to see first." },
+          amit: { role: "Health Checkup", content: "The annual executive checkup was arranged so efficiently. No waiting times, direct access to top doctors. Highly recommended clinical service." }
+        }
+      },
+      contact: {
+        badge: "Get In Touch",
+        title: "Connect with our",
+        highlight: "Healthcare Experts",
+        desc: "Have questions about our services, specialists, or corporate partnerships? Drop us a message and we'll get back to you within 24 hours.",
+        emergency: "Emergency 24x7",
+        email_support: "Email Support",
+        form: {
+          name: "Full Name",
+          phone: "Phone Number",
+          email: "Email Address",
+          message: "Message",
+          placeholder_name: "John Doe",
+          placeholder_message: "How can we help?",
+          cta: "Send Message",
+          sending: "Sending..."
         },
-        encrypted: {
-          title: "Private & Secure",
-          desc: "Your medical history is protected with industry-leading encryption."
+        success: {
+          title: "Message Sent Successfully",
+          desc: "Thank you for reaching out. We've received your inquiry and will respond via email shortly.",
+          cta: "Send Another Message"
         }
       }
+    },
+    footer: {
+      about_desc: "Pioneering the future of digital healthcare in Rajasthan. Our platform connects you with the best medical experts using cutting-edge technology and a compassionate approach.",
+      links: {
+        quick: "Quick Links",
+        legal: "Legal",
+        book: "Book Appointment",
+        find: "Find a Doctor",
+        emergency: "Emergency Services",
+        packages: "Health Packages",
+        privacy: "Privacy Policy",
+        terms: "Terms of Service",
+        refund: "Refund Policy"
+      },
+      copyright: "© 2026 MedicarePlus. INNOVATIVE. CONNECTED. COMPASSIONATE. All Rights Reserved.",
+      powered_by: "Powered by Advanced Health Systems • Jaipur Region"
     },
     lab: {
       portal: "Lab Diagnostics",
@@ -270,8 +335,8 @@ export const translations = {
     },
     hero: {
       badge: "जयपुर की सबसे विश्वसनीय स्वास्थ्य सेवा",
-      title_prefix: "गुलाबी नगरी का सबसे सुरक्षित,",
-      title_highlight: "चिकित्सा नेटवर्क।",
+      title_prefix: "गुलाबी नगरी का,",
+      title_highlight: "मेडिकल नेटवर्क।",
       description: "जयपुर में विश्व स्तरीय स्वास्थ्य सेवा। तुरंत विशेषज्ञ मिलान और सुरक्षित, सरल बुकिंग अनुभव।",
       book_now: "अपॉइंटमेंट लें",
       explore: "हमारी सेवाएँ",
@@ -431,20 +496,85 @@ export const translations = {
         no_details: "पूरी जानकारी के लिए विवरण देखें पर क्लिक करें।",
         read_report: "विवरण देखें"
       },
-      features: {
-        instant: {
-          title: "तुरंत मिलान",
-          desc: "हमारा सिस्टम आपकी ज़रूरतों के आधार पर सही डॉक्टर का सुझाव देता है।"
+      hospitals: {
+        title: "हम जुड़े हैं",
+        highlight: "जयपुर के सर्वश्रेष्ठ संस्थानों से",
+        subtitle: "50+ शीर्ष स्तरीय चिकित्सा संस्थानों का नेटवर्क",
+        location: "जयपुर"
+      },
+      guide: {
+        badge: "मरीज ऑनबोर्डिंग",
+        title: "उपचार की शुरुआत",
+        highlight: "सिर्फ तीन चरणों में",
+        desc: "हमारा उन्नत क्लिनिकल सिस्टम लक्षणों से रिकवरी तक की यात्रा को सरल बनाता है।",
+        support_title: "लाइव सहायता सक्रिय",
+        support_desc: "Aura-AI आपकी चिकित्सा यात्रा की निगरानी कर रहा है।",
+        steps: {
+          triage: { title: "AI विश्लेषण", desc: "हमारे बुद्धिमान क्लिनिकल इंजन को अपने लक्षण बताएं।" },
+          match: { title: "विशेषज्ञ मिलान", desc: "तुरंत शीर्ष स्तरीय विशेषज्ञों से जुड़ें।" },
+          booking: { title: "सुरक्षित बुकिंग", desc: "वन-टैप एन्क्रिप्टेड बुकिंग के साथ अपना स्लॉट सुरक्षित करें।" }
         },
-        realtime: {
-          title: "लाइव शेड्यूल",
-          desc: "डॉक्टर की उपलब्धता के अनुसार तुरंत अपॉइंटमेंट बुक करें।"
+        metrics: {
+          patients: "मरीज",
+          doctors: "डॉक्टर",
+          hospitals: "अस्पताल",
+          support: "सहायता",
+          booking: "बुकिंग",
+          latency: "विलंबता",
+          tech: "तकनीक",
+          lab_tests: "लैब टेस्ट"
+        }
+      },
+      testimonials: {
+        badge: "मरीजों के विचार",
+        title: "असली मरीज",
+        highlight: "असली कहानियाँ",
+        subtitle: "10,000+ मरीजों से जुड़ें जिन्होंने हमारे नेटवर्क के साथ अपना सही स्वास्थ्य मार्ग पाया।",
+        items: {
+          rajesh: { role: "हृदय शल्य चिकित्सा मरीज", content: "मेडिकेयर प्लस के माध्यम से जयपुर हार्ट इंस्टीट्यूट में मुझे जो देखभाल मिली वह असाधारण थी। बुकिंग प्रक्रिया निर्बाध थी।" },
+          priya: { role: "हड्डी रोग मरीज", content: "मेरे घुटने की सर्जरी के लिए सबसे अच्छा विशेषज्ञ मिला। प्लेटफॉर्म के विश्लेषण टूल ने मेरी काफी मदद की।" },
+          amit: { role: "स्वास्थ्य जांच", content: "वार्षिक स्वास्थ्य जांच इतनी कुशलता से व्यवस्थित की गई थी। शीर्ष डॉक्टरों तक सीधी पहुंच। उत्कृष्ट सेवा।" }
+        }
+      },
+      contact: {
+        badge: "संपर्क करें",
+        title: "हमारे स्वास्थ्य",
+        highlight: "विशेषज्ञों से जुड़ें",
+        desc: "हमारी सेवाओं, विशेषज्ञों या कॉर्पोरेट साझेदारी के बारे में प्रश्न हैं? हमें संदेश भेजें और हम 24 घंटों के भीतर आपसे संपर्क करेंगे।",
+        emergency: "आपातकालीन 24x7",
+        email_support: "ईमेल सहायता",
+        form: {
+          name: "पूरा नाम",
+          phone: "फ़ोन नंबर",
+          email: "ईमेल पता",
+          message: "संदेश",
+          placeholder_name: "अमित शर्मा",
+          placeholder_message: "हम आपकी कैसे मदद कर सकते हैं?",
+          cta: "संदेश भेजें",
+          sending: "भेजा जा रहा है..."
         },
-        encrypted: {
-          title: "पूर्णतः सुरक्षित",
-          desc: "आपकी चिकित्सा जानकारी आधुनिक एन्क्रिप्शन के साथ निजी रखी जाती है।"
+        success: {
+          title: "संदेश सफलतापूर्वक भेजा गया",
+          desc: "संपर्क करने के लिए धन्यवाद। हमें आपकी पूछताछ मिल गई है और हम जल्द ही ईमेल के माध्यम से उत्तर देंगे।",
+          cta: "एक और संदेश भेजें"
         }
       }
+    },
+    footer: {
+      about_desc: "राजस्थान में डिजिटल स्वास्थ्य सेवा के भविष्य का नेतृत्व करना। हमारा मंच आपको आधुनिक तकनीक और सहानुभूति के साथ सर्वश्रेष्ठ चिकित्सा विशेषज्ञों से जोड़ता है।",
+      links: {
+        quick: "त्वरित लिंक",
+        legal: "कानूनी",
+        book: "अपॉइंटमेंट बुक करें",
+        find: "डॉक्टर खोजें",
+        emergency: "आपातकालीन सेवाएं",
+        packages: "स्वास्थ्य पैकेज",
+        privacy: "गोपनीयता नीति",
+        terms: "सेवा की शर्तें",
+        refund: "धनवापसी नीति"
+      },
+      copyright: "© 2026 MedicarePlus. अभिनव। जुड़ा हुआ। दयालु। सर्वाधिकार सुरक्षित।",
+      powered_by: "उन्नत स्वास्थ्य प्रणालियों द्वारा संचालित • जयपुर क्षेत्र"
     },
     lab: {
       portal: "लैब और जांच",

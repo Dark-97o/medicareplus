@@ -345,16 +345,16 @@ export default function LabDashboard() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-10">
-          <div className="flex gap-8 border-b border-white/5 mb-10 overflow-x-auto overflow-y-hidden scrollbar-hide">
-            <button onClick={() => setTab('bookings')} className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${tab === 'bookings' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
+          <div className="flex flex-nowrap border-b border-white/5 mb-10 overflow-x-auto scrollbar-hide">
+            <button onClick={() => setTab('bookings')} className={`pb-4 px-6 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap shrink-0 ${tab === 'bookings' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
               Patient Bookings
               {tab === 'bookings' && <motion.div layoutId="lab-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--color-accent-purple)" />}
             </button>
-            <button onClick={() => setTab('tests')} className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${tab === 'tests' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
+            <button onClick={() => setTab('tests')} className={`pb-4 px-6 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap shrink-0 ${tab === 'tests' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
               Test Management
               {tab === 'tests' && <motion.div layoutId="lab-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--color-accent-purple)" />}
             </button>
-            <button onClick={() => setTab('security')} className={`pb-4 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap ${tab === 'security' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
+            <button onClick={() => setTab('security')} className={`pb-4 px-6 text-[10px] font-bold uppercase tracking-widest transition-all relative whitespace-nowrap shrink-0 ${tab === 'security' ? 'text-(--color-accent-purple)' : 'text-gray-500 hover:text-white'}`}>
               Security & Access
               {tab === 'security' && <motion.div layoutId="lab-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--color-accent-purple)" />}
             </button>

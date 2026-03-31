@@ -18,6 +18,7 @@ import QuickEnquiry from './components/QuickEnquiry';
 import EmergencyTag from './components/EmergencyTag';
 import SupportTags from './components/SupportTags';
 import { useAuth } from './contexts/AuthContext';
+import AIChatAssistant from './components/AIChatAssistant';
 import { useState } from 'react';
 import { PhoneCall, ChevronDown, UserCog, FlaskConical, Stethoscope } from 'lucide-react';
 
@@ -125,6 +126,7 @@ export default function App() {
       {/* Global Clinical Elements */}
       <EmergencyTag />
       <SupportTags />
+      <AIChatAssistant />
     </div>
   );
 }

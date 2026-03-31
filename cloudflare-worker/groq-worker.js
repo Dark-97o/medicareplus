@@ -21,7 +21,6 @@ const CORS_HEADERS = {
 
 export default {
   async fetch(request, env) {
-    // Handle CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
@@ -33,11 +32,9 @@ export default {
       );
     }
 
-    // Parse incoming body
-    let message = "";
+    let inputData = {};
     try {
-      const body = await request.json();
-      message = body.message || body.symptoms || "";
+      inputData = await request.json();
     } catch {
       return new Response(
         JSON.stringify({ error: "Invalid JSON body." }),
@@ -45,17 +42,37 @@ export default {
       );
     }
 
-    if (!message.trim()) {
-      return new Response(
-        JSON.stringify({ error: "Empty symptoms provided." }),
-        { status: 400, headers: CORS_HEADERS }
-      );
+    // Determine the interaction mode: 
+    // 1. "chat" (messages array provided)
+    // 2. "triage" (only single message/symptoms provided)
+    
+    let messages = [];
+    let isTriageMode = false;
+
+    if (inputData.messages && Array.isArray(inputData.messages)) {
+      messages = inputData.messages;
+    } else {
+      isTriageMode = true;
+      const userText = inputData.message || inputData.symptoms || "";
+      if (!userText.trim()) {
+        return new Response(
+          JSON.stringify({ error: "Empty input provided." }),
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+      messages = [
+        {
+          role: "system",
+          content: `You are a medical triage assistant. Identify specialty and provide brief assessment context. 
+          Return ONLY JSON: {"specialization": "...", "disease_brief": "..."}`
+        },
+        { role: "user", content: `Symptoms: ${userText}` }
+      ];
     }
 
-    // Call the Groq API
-    let groqResponse;
+    // Call Groq API
     try {
-      groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${env.GROQ_API_KEY}`,
@@ -63,70 +80,36 @@ export default {
         },
         body: JSON.stringify({
           model: "llama3-8b-8192",
-          messages: [
-            {
-              role: "system",
-              content: `You are a medical triage assistant. Given a patient's symptoms, you must:
-1. Identify the most likely medical specialization needed (e.g., Cardiology, Neurology, Orthopedics, Dermatology, Pediatrics, Oncology, Psychiatry, Endocrinology, Urology, or General Physician).
-2. Provide a brief, clear disease assessment in 2-3 sentences.
-
-You MUST respond with ONLY a valid JSON object in this exact format, no preamble, no markdown:
-{
-  "specialization": "<specialty name>",
-  "disease_brief": "<2-3 sentence assessment>"
-}`
-            },
-            {
-              role: "user",
-              content: `Patient symptoms: ${message}`
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 256,
+          messages: messages,
+          temperature: isTriageMode ? 0.3 : 0.7,
+          max_tokens: 512,
         }),
       });
-    } catch (fetchErr) {
-      return new Response(
-        JSON.stringify({ error: "Failed to reach Groq API.", detail: fetchErr.message }),
-        { status: 502, headers: CORS_HEADERS }
-      );
+
+      if (!groqResponse.ok) {
+        const err = await groqResponse.json();
+        return new Response(JSON.stringify({ error: "Groq API error", details: err }), { status: 502, headers: CORS_HEADERS });
+      }
+
+      const groqData = await groqResponse.json();
+      const content = groqData.choices[0].message.content;
+
+      // If it looks like triage JSON, try to parse it to ensure reliability
+      if (isTriageMode) {
+        try {
+          const cleaned = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const parsed = JSON.parse(cleaned);
+          return new Response(JSON.stringify(parsed), { status: 200, headers: CORS_HEADERS });
+        } catch {
+          return new Response(JSON.stringify({ specialization: "General Physician", disease_brief: content }), { status: 200, headers: CORS_HEADERS });
+        }
+      }
+
+      // Default: Return the full content as a response (standard chat format)
+      return new Response(JSON.stringify({ response: content, choices: groqData.choices }), { status: 200, headers: CORS_HEADERS });
+
+    } catch (err) {
+      return new Response(JSON.stringify({ error: "Worker Internal Failure", detail: err.message }), { status: 500, headers: CORS_HEADERS });
     }
-
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
-      return new Response(
-        JSON.stringify({ error: `Groq API returned ${groqResponse.status}`, detail: errText }),
-        { status: 502, headers: CORS_HEADERS }
-      );
-    }
-
-    // Parse Groq response
-    const groqData = await groqResponse.json();
-    const rawContent = groqData?.choices?.[0]?.message?.content || "";
-
-    // Extract JSON from the model's reply (strip any markdown fences)
-    let parsed = null;
-    try {
-      // Remove potential ```json ... ``` wrapping
-      const cleaned = rawContent.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      parsed = JSON.parse(cleaned);
-    } catch {
-      // Fallback: return raw text as disease_brief with general specialization
-      return new Response(
-        JSON.stringify({
-          specialization: "General Physician",
-          disease_brief: rawContent || "Unable to parse AI response.",
-        }),
-        { status: 200, headers: CORS_HEADERS }
-      );
-    }
-
-    return new Response(
-      JSON.stringify({
-        specialization: parsed.specialization || "General Physician",
-        disease_brief: parsed.disease_brief || rawContent,
-      }),
-      { status: 200, headers: CORS_HEADERS }
-    );
   },
 };

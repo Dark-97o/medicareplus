@@ -1,39 +1,42 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Stethoscope, CheckCircle2, Search, ArrowRight, Activity, Zap, HeartPulse, Clock, Users, Building2, Cpu, FileCheck } from 'lucide-react';
 
-const steps = [
-  {
-    icon: Search,
-    title: "AI Triage",
-    desc: "Describe symptoms to our intelligent clinical engine.",
-    color: "text-(--color-accent-blue)"
-  },
-  {
-    icon: Stethoscope,
-    title: "Specialist Match",
-    desc: "Get matched with the top-tier specialists instantly.",
-    color: "text-(--color-accent-purple)"
-  },
-  {
-    icon: CheckCircle2,
-    title: "Secure Booking",
-    desc: "Confirm your slot with one-tap encrypted booking.",
-    color: "text-(--color-text-main)"
-  }
-];
-
-const miniMetrics = [
-  { icon: Users, value: "1k+", label: "Patients", color: "text-(--color-accent-blue)" },
-  { icon: Stethoscope, value: "100+", label: "Doctors", color: "text-(--color-accent-purple)" },
-  { icon: Building2, value: "10+", label: "Hospitals", color: "text-white" },
-  { icon: Clock, value: "24/7", label: "Support", color: "text-(--color-accent-blue)" },
-  { icon: HeartPulse, value: "Clinical", label: "Booking", color: "text-(--color-accent-purple)" },
-  { icon: Zap, value: "0ms", label: "Latency", color: "text-white" },
-  { icon: Cpu, value: "SOTA", label: "Tech", color: "text-(--color-accent-blue)" },
-  { icon: FileCheck, value: "ISO", label: "Lab Tests", color: "text-(--color-accent-purple)" }
-];
-
 export default function QuickGuide() {
+  const { t } = useTranslation();
+
+  const steps = [
+    {
+      icon: Search,
+      title: t('home.guide.steps.triage.title'),
+      desc: t('home.guide.steps.triage.desc'),
+      color: "text-(--color-accent-blue)"
+    },
+    {
+      icon: Stethoscope,
+      title: t('home.guide.steps.match.title'),
+      desc: t('home.guide.steps.match.desc'),
+      color: "text-(--color-accent-purple)"
+    },
+    {
+      icon: CheckCircle2,
+      title: t('home.guide.steps.booking.title'),
+      desc: t('home.guide.steps.booking.desc'),
+      color: "text-(--color-text-main)"
+    }
+  ];
+
+  const miniMetrics = [
+    { icon: Users, value: "1k+", label: t('home.metrics.patients'), color: "text-(--color-accent-blue)" },
+    { icon: Stethoscope, value: "100+", label: t('home.metrics.doctors'), color: "text-(--color-accent-purple)" },
+    { icon: Building2, value: "10+", label: t('home.metrics.hospitals'), color: "text-white" },
+    { icon: Clock, value: "24/7", label: t('home.metrics.support'), color: "text-(--color-accent-blue)" },
+    { icon: HeartPulse, value: "Clinical", label: t('home.metrics.booking'), color: "text-(--color-accent-purple)" },
+    { icon: Zap, value: "0ms", label: t('home.metrics.latency'), color: "text-white" },
+    { icon: Cpu, value: "SOTA", label: t('home.metrics.tech'), color: "text-(--color-accent-blue)" },
+    { icon: FileCheck, value: "ISO", label: t('home.metrics.lab_tests'), color: "text-(--color-accent-purple)" }
+  ];
+
   return (
     <section className="py-6 relative overflow-hidden bg-black/20">
       <div className="container mx-auto px-8 md:px-16">
@@ -59,8 +62,8 @@ export default function QuickGuide() {
                     <Activity className="text-(--color-accent-blue)" size={24} />
                   </div>
                   <div>
-                    <p className="text-white font-bold text-base mb-1">Live Support Active</p>
-                    <p className="text-gray-300 text-[0.65rem] font-medium leading-tight">Aura-AI is monitoring your clinical journey.</p>
+                    <p className="text-white font-bold text-base mb-1">{t('home.guide.support_title')}</p>
+                    <p className="text-gray-300 text-[0.65rem] font-medium leading-tight">{t('home.guide.support_desc')}</p>
                   </div>
                 </div>
               </div>
@@ -70,13 +73,13 @@ export default function QuickGuide() {
           {/* Right: Steps & Mini Metrics */}
           <div className="space-y-4">
             <div>
-              <p className="text-(--color-accent-blue) font-mono text-[0.6rem] uppercase tracking-[0.4em] mb-2">Patient Onboarding</p>
-              <h2 className="font-serif text-3xl md:text-4xl font-black uppercase tracking-tight leading-[1.1] mb-4 text-white">
-                Healing Starts <br />
-                <span className="text-gradient">In Three Steps</span>
+              <p className="text-(--color-accent-blue) font-mono text-[0.6rem] uppercase tracking-[0.4em] mb-2">{t('home.guide.badge')}</p>
+              <h2 className="font-serif text-3xl md:text-5xl font-black uppercase tracking-tight leading-[1.1] mb-4 text-white">
+                {t('home.guide.title')} <br />
+                <span className="text-gradient">{t('home.guide.highlight')}</span>
               </h2>
               <p className="text-gray-300 text-sm leading-relaxed max-w-lg font-medium opacity-80">
-                Our advanced clinical OS simplifies the journey from symptoms to recovery. Experience healthcare at the speed of thought.
+                {t('home.guide.desc')}
               </p>
             </div>
 
@@ -110,9 +113,9 @@ export default function QuickGuide() {
                 <div key={index} className="glass-panel px-3 py-2.5 rounded-xl border border-white/5 bg-white/5 flex flex-col gap-0.5 items-center md:items-start group hover:border-(--color-accent-blue)/20 transition-colors">
                   <div className="flex items-center gap-1.5">
                     <metric.icon size={12} className={`${metric.color} opacity-80 group-hover:opacity-100 transition-opacity`} />
-                    <span className="text-white font-bold font-mono text-[0.7rem] md:text-xs">{metric.value}</span>
+                    <span className="text-white font-bold font-mono text-[0.7rem] md:text-xs whitespace-nowrap">{metric.value}</span>
                   </div>
-                  <span className="text-gray-400 text-[0.5rem] uppercase tracking-[0.1em] font-bold font-mono whitespace-nowrap">{metric.label}</span>
+                  <span className="text-gray-400 text-[0.5rem] uppercase tracking-[0.05em] font-bold font-mono whitespace-nowrap">{metric.label}</span>
                 </div>
               ))}
             </div>

@@ -440,7 +440,7 @@ export default function DoctorDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-10">
-        <div className="flex flex-wrap gap-4 mb-10 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex flex-nowrap gap-4 mb-10 overflow-x-auto pb-2 scrollbar-hide">
           <button onClick={() => setTab('appointments')} className={`px-6 py-4 text-xs font-bold uppercase tracking-widest transition-all relative ${tab === 'appointments' ? 'text-(--color-accent-blue)' : 'text-gray-500 hover:text-white'}`}>
             {t('doctor.tabs.pipeline')}
             {tab === 'appointments' && <motion.div layoutId="doc-tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-(--color-accent-blue)" />}
@@ -459,7 +459,7 @@ export default function DoctorDashboard() {
         <AnimatePresence mode="wait">
           {tab === 'appointments' && (
             <motion.div key="appointments" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
                 <div className="glass-panel border border-white/5 p-4 rounded-xl">
                   <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">{t('doctor.stats.total')}</p>
                   <p className="text-2xl font-serif font-black text-white">{appointments.length}</p>
