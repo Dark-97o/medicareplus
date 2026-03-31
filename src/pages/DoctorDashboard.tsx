@@ -177,7 +177,7 @@ export default function DoctorDashboard() {
     if (success) return (
       <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center p-4 pt-16 relative overflow-hidden">
         {/* DNA Spline for Professional Login */}
-        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+        <div className="fixed inset-0 z-0 opacity-40 pointer-events-none">
           <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
             <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
               <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
@@ -205,7 +205,7 @@ export default function DoctorDashboard() {
     return (
       <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center p-4 pt-16 relative overflow-hidden">
         {/* Spline 3D DNA Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
+        <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
           <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
             <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
               <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
@@ -413,7 +413,7 @@ export default function DoctorDashboard() {
   return (
     <div className="min-h-screen bg-[#050B14] text-white relative overflow-hidden">
       {/* Abstract Dashboard Spline */}
-      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none flex items-center justify-center">
+      <div className="fixed inset-0 z-0 opacity-60 pointer-events-none flex items-center justify-center">
         <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>
           <Suspense fallback={<div className="absolute inset-0 bg-black/20" />}>
             <Spline scene="https://prod.spline.design/vwfRpoawpJ6f8SRL/scene.splinecode" />

@@ -35,7 +35,7 @@ function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center px-4 pt-12 relative overflow-hidden">
-      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+      <div className="fixed inset-0 z-0 opacity-40 pointer-events-none">
         <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/40" />}>
           <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
             <Spline scene="https://prod.spline.design/55m29bzeifbR3LPv/scene.splinecode" />
@@ -210,51 +210,83 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
 }
 
 /* ─── LAB TABLE ─── */
-function LabTable({ labs, onDelete, onApprove, onDecline }: any) {
-
+function LabTable({ labs, labTests, onDelete, onApprove, onDecline }: any) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const pending = labs.filter((l: any) => l.status === 'pending');
   const approved = labs.filter((l: any) => l.status !== 'pending');
 
-  const Row = ({ l }: { l: any }) => (
-    <div className="glass-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-colors">
-      <div className="p-4 flex items-center gap-4">
-        <div className="w-16 h-16 rounded-xl bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center shrink-0 overflow-hidden">
-          {l.imageUrl ? <img src={l.imageUrl} alt="" className="w-full h-full object-cover" /> : <FlaskConical size={24} className="text-(--color-accent-purple)" />}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-white truncate">{l.labName}</span>
-            <span className={`px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-full border ${l.status === 'approved' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'}`}>{l.status}</span>
+  const Row = ({ l }: { l: any }) => {
+    const lTests = labTests.filter((t: any) => t.labId === l.id);
+    
+    return (
+      <div className="glass-panel border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-colors">
+        <div className="p-4 flex items-center gap-4">
+          <div className="w-16 h-16 rounded-xl bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center shrink-0 overflow-hidden">
+            {l.imageUrl ? <img src={l.imageUrl} alt="" className="w-full h-full object-cover" /> : <FlaskConical size={24} className="text-(--color-accent-purple)" />}
           </div>
-          <p className="text-xs text-gray-400 font-mono mt-0.5">Specialist: {l.name} · {l.hospital}</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-white truncate">{l.labName}</span>
+              <span className={`px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-full border ${l.status === 'approved' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'}`}>{l.status}</span>
+            </div>
+            <p className="text-xs text-gray-400 font-mono mt-0.5">Specialist: {l.name} · {l.hospital}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {l.status === 'pending' && (<>
+              <button onClick={() => onApprove(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-[10px] font-bold uppercase">Approve</button>
+              <button onClick={() => onDecline(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase">Decline</button>
+            </>)}
+            <button onClick={() => onDelete(l.id, 'lab_doctors')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
+            <button onClick={() => setExpanded(expanded === l.id ? null : l.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors"><Plus size={14} className={`transition-transform duration-300 ${expanded === l.id ? 'rotate-45' : ''}`} /></button>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {l.status === 'pending' && (<>
-            <button onClick={() => onApprove(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-[10px] font-bold uppercase">Approve</button>
-            <button onClick={() => onDecline(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase">Decline</button>
-          </>)}
-          <button onClick={() => onDelete(l.id, 'lab_doctors')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
-          <button onClick={() => setExpanded(expanded === l.id ? null : l.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors"><Plus size={14} /></button>
-        </div>
+        <AnimatePresence>
+          {expanded === l.id && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-white/5 bg-black/20 p-6 overflow-hidden">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-[10px] font-mono mb-6">
+                <div><p className="text-gray-500 uppercase tracking-widest mb-1.5">Email Contact</p><p className="text-white font-bold">{l.email}</p></div>
+                <div><p className="text-gray-500 uppercase tracking-widest mb-1.5">System Registry</p><p className="text-white font-bold">{new Date(l.createdAt).toLocaleDateString()}</p></div>
+                <div><p className="text-gray-500 uppercase tracking-widest mb-1.5">Authorization</p><p className="text-(--color-accent-purple) font-black">CERTIFIED SPECIALIST</p></div>
+              </div>
+
+              <div className="pt-6 border-t border-white/5 w-full">
+                <div className="flex items-center gap-3 mb-5">
+                   <Activity size={14} className="text-(--color-accent-purple)" />
+                   <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white/50">Diagnostic Protocol Catalog</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {lTests.length > 0 ? lTests.map((t: any) => (
+                    <div key={t.id} className="flex items-center gap-4 p-3 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-(--color-accent-purple)/30 transition-all group/test">
+                      <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                        <img src={t.imageUrl} className="w-full h-full object-cover group-hover/test:scale-110 transition-transform duration-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-bold text-white truncate group-hover/test:text-(--color-accent-purple) transition-colors">{t.name}</p>
+                        <p className="text-[9px] text-gray-500 font-mono tracking-widest uppercase mt-0.5">{t.category}</p>
+                        <p className="text-[10px] font-black text-(--color-accent-purple) mt-1">₹{t.charges}</p>
+                      </div>
+                    </div>
+                  )) : (
+                    <div className="col-span-full py-10 flex flex-col items-center justify-center glass-panel rounded-2xl border border-dashed border-white/10 scale-95">
+                      <FlaskConical size={24} className="text-gray-700 mb-3 opacity-30" />
+                      <p className="text-gray-600 font-mono text-[9px] uppercase tracking-widest">No active protocols in catalog</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      <AnimatePresence>
-        {expanded === l.id && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-white/5 bg-black/20 p-4 grid grid-cols-2 md:grid-cols-3 gap-4 text-[10px] font-mono">
-            <div><p className="text-gray-500 uppercase mb-1">Email</p><p className="text-white">{l.email}</p></div>
-            <div><p className="text-gray-500 uppercase mb-1">Registration</p><p className="text-white">{new Date(l.createdAt).toLocaleDateString()}</p></div>
-            <div><p className="text-gray-500 uppercase mb-1">Role</p><p className="text-(--color-accent-purple)">Lab Specialist</p></div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
       {pending.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-3 flex items-center gap-2">Pending Lab Approvals ({pending.length})</h3>
+          <h3 className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest mb-3 flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" /> Pending Lab Approvals ({pending.length})</h3>
           {pending.map((l: any) => <Row key={l.id} l={l} />)}
         </div>
       )}
@@ -428,20 +460,22 @@ function AdminPanel() {
   const [labBookings, setLabBookings] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
+  const [labTests, setLabTests] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [editItem, setEditItem] = useState<{ item: any; col: string } | null>(null);
 
   const loadAll = async () => {
     setLoadingData(true);
     try {
-      const [docSnap, patSnap, bookSnap, enqSnap, msgSnap, labSnap, lBkSnap] = await Promise.all([
+      const [docSnap, patSnap, bookSnap, enqSnap, msgSnap, labSnap, lBkSnap, testSnap] = await Promise.all([
         getDocs(collection(db, 'doctors')),
         getDocs(collection(db, 'users')),
         getDocs(query(collection(db, 'appointments'), orderBy('createdAt', 'desc'))),
         getDocs(query(collection(db, 'enquiries'), orderBy('createdAt', 'desc'))),
         getDocs(query(collection(db, 'contacts'), orderBy('createdAt', 'desc'))),
         getDocs(collection(db, 'lab_doctors')),
-        getDocs(query(collection(db, 'lab_bookings'), orderBy('createdAt', 'desc')))
+        getDocs(query(collection(db, 'lab_bookings'), orderBy('createdAt', 'desc'))),
+        getDocs(collection(db, 'lab_tests'))
       ]);
       setDoctors(docSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setPatients(patSnap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -450,6 +484,7 @@ function AdminPanel() {
       setMessages(msgSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setLabs(labSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       setLabBookings(lBkSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLabTests(testSnap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (err) { console.error(err); }
     finally { setLoadingData(false); }
   };
@@ -499,9 +534,9 @@ function AdminPanel() {
   return (
     <div className="min-h-screen bg-[#050B14] text-white relative overflow-hidden">
       {/* Abstract Background Spline */}
-      <div className="absolute inset-0 z-0 opacity-60 pointer-events-none h-full overflow-hidden">
+      <div className="fixed inset-0 z-0 opacity-60 pointer-events-none h-full overflow-hidden">
         <ErrorBoundary fallback={<div className="absolute inset-0 bg-black/20" />}>
-          <Suspense fallback={<div className="absolute inset-0 bg-black/20" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-black/40" />}>
             <Spline scene="https://prod.spline.design/vwfRpoawpJ6f8SRL/scene.splinecode" />
           </Suspense>
         </ErrorBoundary>
@@ -576,7 +611,7 @@ function AdminPanel() {
                 <EnquiryTable enquiries={enquiries} onDelete={handleDelete} onStatusChange={handleStatusChange} />
               )}
               {activeTab === 'labs' && (
-                <LabTable labs={labs} onDelete={handleDelete} onApprove={handleApprove} onDecline={handleDecline} />
+                <LabTable labs={labs} labTests={labTests} onDelete={handleDelete} onApprove={handleApprove} onDecline={handleDecline} />
               )}
               {activeTab === 'lab_bookings' && (
                 <LabBookingTable bookings={labBookings} onDelete={handleDelete} />
