@@ -554,7 +554,7 @@ export default function DoctorDashboard() {
                 </div>
                 <button onClick={saveAvailability} disabled={savingAvailability}
                   className="px-8 py-3 bg-(--color-accent-blue) text-black rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(0,229,255,0.2)]">
-                  {savingAvailability ? t('common.saving') : t('doctor.auth.access_records')}
+                  {savingAvailability ? t('common.saving') : t('common.save')}
                 </button>
               </div>
 
@@ -597,11 +597,11 @@ export default function DoctorDashboard() {
                       <label className="text-xs text-gray-500 uppercase tracking-wider block mb-2">{t('doctor.security.new_password')}</label>
                       <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
                         className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-red-500 focus:outline-none transition-all"
-                        placeholder="Min 6 characters" />
+                        placeholder={t('doctor.security.placeholder')} />
                     </div>
                     <button onClick={changePassword} disabled={loading || !newPassword}
                       className="w-full py-4 bg-red-500/20 text-red-100 border border-red-500/30 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-red-500 hover:text-black transition-all mt-4">
-                      {loading ? 'Securing...' : t('doctor.security.update_cta')}
+                      {loading ? t('common.sending') : t('doctor.security.update_cta')}
                     </button>
                   </div>
                 </div>
@@ -618,7 +618,7 @@ export default function DoctorDashboard() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !loading && setEmailModal(null)} />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative w-full max-w-lg glass-panel border border-(--color-accent-blue)/30 rounded-2xl p-6 shadow-2xl z-10">
-              <h3 className="text-xl font-serif font-bold mb-1 flex items-center gap-2"><Mail className="text-(--color-accent-blue)" /> Email Pre-Requisites</h3>
+              <h3 className="text-xl font-serif font-bold mb-1 flex items-center gap-2"><Mail className="text-(--color-accent-blue)" /> {t('doctor.email_actions.pre_consultation_instructions')}</h3>
               <p className="text-xs text-gray-400 font-mono uppercase tracking-widest mb-6 border-b border-white/10 pb-4">To: {emailModal.patientName} ({emailModal.patientEmail})</p>
               <textarea value={customEmailBody} onChange={e => setCustomEmailBody(e.target.value)}
                 placeholder="Type pre-consultation instructions (e.g., 'Please carry fasting blood sugar reports.')"
@@ -626,7 +626,7 @@ export default function DoctorDashboard() {
               <div className="flex justify-end gap-3">
                 <button onClick={() => setEmailModal(null)} disabled={loading} className="px-5 py-3 border border-white/10 rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white/5 transition-colors">Cancel</button>
                 <button onClick={sendEmail} disabled={loading || !customEmailBody} className="px-5 py-3 bg-(--color-accent-blue) text-black rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center gap-2">
-                  {loading ? <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : 'Send'}
+                  {loading ? <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : t('common.save')}
                 </button>
               </div>
             </motion.div>

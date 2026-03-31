@@ -19,7 +19,7 @@ import EmergencyTag from './components/EmergencyTag';
 import SupportTags from './components/SupportTags';
 import { useAuth } from './contexts/AuthContext';
 import { useState } from 'react';
-import { PhoneCall } from 'lucide-react';
+import { PhoneCall, ChevronDown, UserCog, FlaskConical, Stethoscope } from 'lucide-react';
 
 export default function App() {
   const { t } = useTranslation();
@@ -48,31 +48,43 @@ export default function App() {
           <Logo />
         </Link>
         <div className="flex items-center gap-4">
-          <Link to="/doctor" className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300">
-            <span className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-full border border-white/10 group-hover:border-(--color-accent-purple)/50 transition-colors" />
-            <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-purple)/0 via-(--color-accent-purple)/20 to-(--color-accent-purple)/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
-            <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-text-muted) group-hover:text-white transition-colors">
-              {t('nav.doctor')}
-            </span>
-          </Link>
-
-          <Link to="/lab" className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300">
-            <span className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-full border border-white/10 group-hover:border-(--color-accent-purple)/50 transition-colors" />
-            <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-purple)/0 via-(--color-accent-purple)/20 to-(--color-accent-purple)/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
-            <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-text-muted) group-hover:text-white transition-colors">
-              {t('nav.lab')}
-            </span>
-          </Link>
-
-          {(!userProfile || userProfile?.role === 'admin') && (
-            <Link to="/admin" className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300">
+          {/* Professional Portals Dropdown */}
+          <div className="relative group">
+            <button className="relative flex items-center gap-2 px-6 py-2 rounded-full overflow-hidden transition-all duration-300">
               <span className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-full border border-white/10 group-hover:border-(--color-accent-blue)/50 transition-colors" />
-              <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-blue)/0 via-(--color-accent-blue)/20 to-(--color-accent-blue)/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
-              <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-text-muted) group-hover:text-white transition-colors">
-                {t('nav.admin')}
+              <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-text-muted) group-hover:text-white transition-colors flex items-center gap-2">
+                Professional <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
               </span>
-            </Link>
-          )}
+            </button>
+            
+            {/* Dropdown Menu */}
+            <div className="absolute top-full right-0 mt-2 w-56 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300">
+              <div className="glass-panel p-2 rounded-2xl border border-white/10 shadow-2xl bg-black/80 backdrop-blur-3xl overflow-hidden">
+                <Link to="/doctor" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group/item">
+                  <div className="w-8 h-8 rounded-lg bg-(--color-accent-purple)/10 flex items-center justify-center text-(--color-accent-purple)">
+                    <Stethoscope size={16} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-300 group-hover/item:text-white transition-colors">{t('nav.doctor')}</span>
+                </Link>
+                
+                <Link to="/lab" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group/item">
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/10 flex items-center justify-center text-pink-400">
+                    <FlaskConical size={16} />
+                  </div>
+                  <span className="text-sm font-medium text-gray-300 group-hover/item:text-white transition-colors">{t('nav.lab')}</span>
+                </Link>
+
+                {(!userProfile || userProfile?.role === 'admin') && (
+                  <Link to="/admin" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors group/item border-t border-white/5 mt-1 pt-2">
+                    <div className="w-8 h-8 rounded-lg bg-(--color-accent-blue)/10 flex items-center justify-center text-(--color-accent-blue)">
+                      <UserCog size={16} />
+                    </div>
+                    <span className="text-sm font-medium text-gray-300 group-hover/item:text-white transition-colors">{t('nav.admin')}</span>
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
           
           <div className="relative">
             <button 

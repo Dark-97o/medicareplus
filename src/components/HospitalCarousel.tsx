@@ -19,7 +19,7 @@ export default function HospitalCarousel() {
           viewport={{ once: true }}
           className="flex flex-col items-center text-center"
         >
-          <h2 className="font-serif text-4xl md:text-5xl font-black uppercase tracking-tight leading-[1.1] mb-6">
+          <h2 className="font-serif text-2xl md:text-3xl font-black uppercase tracking-tight leading-[1.1] mb-6">
             Engaged with <span className="text-gradient">Jaipur's Finest</span>
           </h2>
           <p className="text-(--color-text-muted) text-xs md:text-sm font-mono uppercase tracking-[0.5em] opacity-80">

@@ -156,9 +156,9 @@ function DiseaseAssessmentPanel({ conditions, isAI }: { conditions: Condition[];
       {/* Header */}
       <div className="flex items-center gap-3 px-5 py-3.5 bg-white/4 border-b border-white/8">
         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="font-mono text-[0.6rem] uppercase tracking-widest text-gray-400">{t('booking.assessment.preliminary')}</span>
+        <span className="font-mono text-[0.6rem] uppercase tracking-widest text-gray-400">{t('booking.triage.engine_desc')}</span>
         <span className="ml-auto font-mono text-[0.55rem] uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/8 text-gray-500">
-          {isAI ? 'Groq · Llama 3' : t('booking.assessment.local_engine')}
+          {isAI ? 'Groq · Llama 3' : t('booking.triage.local_engine')}
         </span>
       </div>
 

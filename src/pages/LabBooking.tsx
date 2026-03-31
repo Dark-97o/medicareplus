@@ -157,7 +157,7 @@ export default function LabBooking() {
                         }}
                         className="px-6 py-3 bg-(--color-accent-purple)/10 text-(--color-accent-purple) border border-(--color-accent-purple)/30 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-(--color-accent-purple) hover:text-white transition-all cursor-pointer"
                       >
-                        Initialize Sample Catalog
+                        Generate Quick Catalog
                       </button>
                     </div>
                   ) : (
@@ -196,7 +196,7 @@ export default function LabBooking() {
                   onClick={() => setStep(2)}
                   className="px-10 py-5 bg-(--color-accent-purple) text-white rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all shadow-[0_0_30px_rgba(168,85,247,0.3)] disabled:opacity-30 disabled:grayscale flex items-center gap-3"
                 >
-                  Configure Date <ArrowRight size={16} />
+                  Select Date <ArrowRight size={16} />
                 </button>
               </div>
             </motion.div>
@@ -205,8 +205,8 @@ export default function LabBooking() {
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-2xl mx-auto">
                <div className="text-center mb-12">
-                <h1 className="text-4xl font-serif font-black mb-4 uppercase tracking-tighter">Temporal Scheduling</h1>
-                <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.3em]">Select your preferred slot</p>
+                <h1 className="text-4xl font-serif font-black mb-4 uppercase tracking-tighter">{t('booking.slots.date')}</h1>
+                <p className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.3em]">Choose a date for your visit</p>
               </div>
 
               <div className="glass-panel p-10 rounded-3xl border border-white/5 mb-8">
@@ -222,7 +222,7 @@ export default function LabBooking() {
 
                  <div className="space-y-6">
                     <div>
-                       <label className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3 block">Selection Date</label>
+                       <label className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3 block">{t('booking.slots.date')}</label>
                        <div className="relative">
                           <Calendar size={18} className="absolute left-4 top-1/2 -mt-2.2 text-(--color-accent-purple)" />
                           <input 
@@ -243,7 +243,7 @@ export default function LabBooking() {
 
               <div className="flex justify-between">
                 <button onClick={() => setStep(1)} className="px-8 py-4 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-colors flex items-center gap-2">
-                   <ArrowLeft size={16} /> Reconnect Catalog
+                   <ArrowLeft size={16} /> {t('common.back') || 'Back to Catalog'}
                 </button>
                 <button 
                   disabled={!bookingDate}

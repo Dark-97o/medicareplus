@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import Spline from '@splinetool/react-spline';
-import { ArrowRight, Activity, Stethoscope, HeartPulse } from 'lucide-react';
+import { ArrowRight, Activity, Stethoscope, FlaskConical } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -117,7 +117,7 @@ export default function Home() {
             </h1>
             
             <p className="text-base text-gray-300 font-light leading-relaxed max-w-md mb-5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-              Jaipur's most trusted platform — book appointments, health checkups & lab tests instantly.
+              {t('hero.description')}
             </p>
             
             <div className="flex flex-col items-start gap-3 mb-5 max-w-[300px]">
@@ -151,7 +151,7 @@ export default function Home() {
               >
                 <span className="relative text-(--color-accent-blue) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
                   <Activity size={16} />
-                  Health Checkup
+                  {t('nav.health_checkup')}
                 </span>
               </button>
               
@@ -168,8 +168,8 @@ export default function Home() {
                 className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-(--color-accent-purple)/30 cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
               >
                 <span className="relative text-(--color-accent-purple) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
-                  <HeartPulse size={16} />
-                  Book Lab Test
+                  <FlaskConical size={16} />
+                  {t('lab.book_test')}
                 </span>
               </button>
 
