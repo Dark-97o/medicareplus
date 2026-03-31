@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 export default function PatientDashboard() {
 
   const { t } = useTranslation();
-  const { userProfile, user, signOut } = useAuth();
+  const { userProfile, user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [labBookings, setLabBookings] = useState<any[]>([]);
@@ -20,6 +20,7 @@ export default function PatientDashboard() {
   const [activeTab, setActiveTab] = useState<'doctor' | 'lab'>('doctor');
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       navigate('/');
       return;
@@ -49,7 +50,7 @@ export default function PatientDashboard() {
       }
     };
     fetchData();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleCancel = async (appId: string, appDate: string, appTime: string) => {
     if (!confirm("Are you sure you want to cancel this appointment? Refunds are processed via Razorpay based on the 24-hr policy.")) return;

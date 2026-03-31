@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Spline from '@splinetool/react-spline';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { ShieldAlert, ArrowRight, Lock, Eye, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Lock, Eye, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail, FlaskConical, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
@@ -211,7 +211,7 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
 
 /* ─── LAB TABLE ─── */
 function LabTable({ labs, onDelete, onApprove, onDecline }: any) {
-  const { t } = useTranslation();
+
   const [expanded, setExpanded] = useState<string | null>(null);
   const pending = labs.filter((l: any) => l.status === 'pending');
   const approved = labs.filter((l: any) => l.status !== 'pending');

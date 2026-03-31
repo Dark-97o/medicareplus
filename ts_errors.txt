@@ -1,0 +1,11 @@
+﻿src/pages/AdminDashboard.tsx(214,9): error TS6133: 't' is declared but its value is never read.
+src/pages/AdminDashboard.tsx(223,99): error TS2304: Cannot find name 'FlaskConical'.
+src/pages/AdminDashboard.tsx(493,40): error TS2304: Cannot find name 'FlaskConical'.
+src/pages/AdminDashboard.tsx(494,54): error TS2304: Cannot find name 'Activity'.
+src/pages/LabBooking.tsx(1,31): error TS6133: 'Suspense' is declared but its value is never read.
+src/pages/LabBooking.tsx(12,1): error TS6133: 'Spline' is declared but its value is never read.
+src/pages/LabBooking.tsx(13,1): error TS6133: 'ErrorBoundary' is declared but its value is never read.
+src/pages/LabBooking.tsx(26,23): error TS6133: 'setSearchQuery' is declared but its value is never read.
+src/pages/LabDashboard.tsx(11,117): error TS6133: 'ChevronRight' is declared but its value is never read.
+src/pages/LabDashboard.tsx(11,131): error TS6133: 'CheckCircle' is declared but its value is never read.
+src/pages/LabDashboard.tsx(11,144): error TS6133: 'XCircle' is declared but its value is never read.

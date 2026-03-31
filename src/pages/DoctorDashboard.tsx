@@ -15,7 +15,7 @@ const SPECIALITIES = ["General Physician", "Cardiology", "Neurology", "Orthopedi
 export default function DoctorDashboard() {
 
   const { t } = useTranslation();
-  const { user, userProfile, login, signOut } = useAuth();
+  const { user, userProfile, login, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -171,6 +171,8 @@ export default function DoctorDashboard() {
   };
 
   /* ─── AUTH SCREEN ─── */
+  if (authLoading) return <div className="min-h-screen bg-[#050B14] text-(--color-accent-blue) flex items-center justify-center font-mono tracking-widest text-xs uppercase animate-pulse">Initializing Secure Portal...</div>;
+
   if (!user || userProfile?.role !== 'doctor') {
     if (success) return (
       <div className="min-h-screen bg-(--color-primary-base) flex items-center justify-center p-4 pt-16 relative overflow-hidden">

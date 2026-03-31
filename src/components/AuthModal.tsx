@@ -55,7 +55,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         const userDoc = snap.docs[0];
         const profile = userDoc.data() as UserProfile;
         login(profile, userDoc.id);
-        navigate('/patient-dashboard');
+        const redirect = sessionStorage.getItem('redirectAfterLogin');
+        if (redirect) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          navigate(redirect);
+        } else {
+          navigate('/patient-dashboard');
+        }
       } else {
         const q = query(collection(db, 'users'), where('email', '==', formData.email));
         const snap = await withTimeout(getDocs(q));
@@ -78,7 +84,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         };
         await withTimeout(setDoc(newDocRef, profileData));
         login(profileData as UserProfile, newDocRef.id);
-        navigate('/patient-dashboard');
+        const redirect = sessionStorage.getItem('redirectAfterLogin');
+        if (redirect) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          navigate(redirect);
+        } else {
+          navigate('/patient-dashboard');
+        }
       }
       onClose();
     } catch (err: any) {

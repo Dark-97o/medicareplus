@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,13 +9,12 @@ import {
   FlaskConical, Calendar, ArrowRight, ArrowLeft, 
   CheckCircle, ShieldCheck, Activity, Search, Building, CreditCard
 } from 'lucide-react';
-import Spline from '@splinetool/react-spline';
-import ErrorBoundary from '../components/ErrorBoundary';
+
 
 
 export default function LabBooking() {
   const { t } = useTranslation();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -23,11 +22,12 @@ export default function LabBooking() {
   const [tests, setTests] = useState<any[]>([]);
   const [selectedTest, setSelectedTest] = useState<any>(null);
   const [bookingDate, setBookingDate] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
-      navigate('/login');
+      navigate('/');
       return;
     }
 
@@ -55,7 +55,7 @@ export default function LabBooking() {
       }
     };
     fetchTests();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const filteredTests = tests.filter(t => 
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 

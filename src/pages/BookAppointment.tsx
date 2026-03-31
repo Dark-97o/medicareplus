@@ -210,7 +210,7 @@ function DiseaseAssessmentPanel({ conditions, isAI }: { conditions: Condition[];
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function BookAppointment() {
   const { t } = useTranslation();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isCheckupMode = searchParams.get('mode') === 'checkup';
@@ -233,7 +233,11 @@ export default function BookAppointment() {
   const [consultationMode, setConsultationMode] = useState<'online' | 'offline'>('offline');
 
   useEffect(() => {
-    if (!user) navigate('/');
+    if (authLoading) return;
+    if (!user) {
+      navigate('/');
+      return;
+    }
     emailjs.init('nEbb9aPtYh8imCD0M');
 
     if (isCheckupMode && !symptoms) {
@@ -266,7 +270,7 @@ export default function BookAppointment() {
       };
       fetchCheckupDoctors();
     }
-  }, [user, navigate, isCheckupMode]);
+  }, [user, authLoading, navigate, isCheckupMode]);
 
   // Simple spec triage for plain-text AI response
   const localTriage = (text: string): { spec: string; brief: string } => {

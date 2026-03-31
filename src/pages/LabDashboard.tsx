@@ -8,11 +8,11 @@ import { useAuth } from '../contexts/AuthContext';
 import type { UserProfile } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
-import { Mail, Calendar, Clock, FlaskConical, Lock, Activity, LogOut, Plus, Trash2, Image as ImageIcon, ArrowRight, ChevronRight, CheckCircle, XCircle } from 'lucide-react';
+import { Mail, Calendar, Clock, FlaskConical, Lock, Activity, LogOut, Plus, Trash2, Image as ImageIcon, ArrowRight } from 'lucide-react';
 
 export default function LabDashboard() {
   const { t } = useTranslation();
-  const { user, userProfile, signOut, login } = useAuth();
+  const { user, userProfile, signOut, login, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -159,6 +159,8 @@ export default function LabDashboard() {
   };
 
   /* ─── AUTH SCREEN ─── */
+  if (authLoading) return <div className="min-h-screen bg-[#050B14] text-(--color-accent-purple) flex items-center justify-center font-mono tracking-widest text-xs uppercase animate-pulse">Initializing Lab Portal...</div>;
+
   if (success) return (
     <div className="min-h-screen bg-[#050B14] flex items-center justify-center p-4 pt-16 relative overflow-hidden">
       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">

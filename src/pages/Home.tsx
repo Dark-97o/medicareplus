@@ -122,7 +122,14 @@ export default function Home() {
             
             <div className="flex flex-col items-start gap-3 mb-5 max-w-[300px]">
               {/* Book Appointment Button */}
-              <button onClick={() => setIsAuthOpen(true)} className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer">
+              <button onClick={() => {
+                if (user) {
+                  navigate('/book-appointment');
+                } else {
+                  sessionStorage.setItem('redirectAfterLogin', '/book-appointment');
+                  setIsAuthOpen(true);
+                }
+              }} className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-white/5 shadow-[0_4px_20px_rgba(0,0,0,0.5)] cursor-pointer">
                 <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-blue) to-(--color-accent-purple) opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="absolute inset-0 bg-gradient-to-r from-(--color-accent-purple) to-(--color-accent-blue) opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl" />
                 <span className="relative text-white font-semibold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
@@ -132,7 +139,14 @@ export default function Home() {
               
               {/* Health Checkup Button */}
               <button 
-                onClick={() => navigate('/book-appointment?mode=checkup')}
+                onClick={() => {
+                  if (user) {
+                    navigate('/book-appointment?mode=checkup');
+                  } else {
+                    sessionStorage.setItem('redirectAfterLogin', '/book-appointment?mode=checkup');
+                    setIsAuthOpen(true);
+                  }
+                }}
                 className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-white/10 cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
               >
                 <span className="relative text-(--color-accent-blue) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
@@ -143,7 +157,14 @@ export default function Home() {
               
               {/* Lab Test Button */}
               <button 
-                onClick={() => user ? navigate('/lab-booking') : setIsAuthOpen(true)}
+                onClick={() => {
+                  if (user) {
+                    navigate('/lab-booking');
+                  } else {
+                    sessionStorage.setItem('redirectAfterLogin', '/lab-booking');
+                    setIsAuthOpen(true);
+                  }
+                }}
                 className="relative group px-9 py-4 rounded-md flex items-center gap-3 w-full justify-center overflow-hidden border border-(--color-accent-purple)/30 cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all"
               >
                 <span className="relative text-(--color-accent-purple) font-bold text-xs uppercase tracking-[0.2em] flex items-center gap-2">
