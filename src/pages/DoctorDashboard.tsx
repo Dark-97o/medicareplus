@@ -31,6 +31,9 @@ export default function DoctorDashboard() {
   const [fetching, setFetching] = useState(false);
   const [emailModal, setEmailModal] = useState<any>(null);
   const [customEmailBody, setCustomEmailBody] = useState('');
+  const [concludeModal, setConcludeModal] = useState<any>(null);
+  const [diagnosis, setDiagnosis] = useState('');
+  const [prescription, setPrescription] = useState('');
   const [tab, setTab] = useState<'appointments' | 'availability' | 'security'>('appointments'); // Changed from activeTab to tab
   const [availability, setAvailability] = useState<any>({});
   const [newPassword, setNewPassword] = useState('');
@@ -107,10 +110,24 @@ export default function DoctorDashboard() {
 
   useEffect(() => { loadAppointments(); }, [user, userProfile]);
 
-  const handleConclude = async (id: string) => { // Renamed from markDone
-    if (!confirm(t('doctor.appointments.confirm_conclude'))) return;
-    await updateDoc(doc(db, 'appointments', id), { status: 'concluded' });
-    loadAppointments();
+  const submitConclude = async () => {
+    if (!concludeModal) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'appointments', concludeModal.id), { 
+        status: 'concluded',
+        diagnosis,
+        prescription
+      });
+      setConcludeModal(null);
+      setDiagnosis('');
+      setPrescription('');
+      loadAppointments();
+    } catch (e) {
+      alert(t('doctor.appointments.fetch_error'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = async (id: string) => { // Renamed from cancelAppointment
@@ -519,10 +536,10 @@ export default function DoctorDashboard() {
                         {app.status === 'upcoming' && (
                           <div className="flex flex-row md:flex-col gap-2 md:w-44 shrink-0">
                             <button 
-                                  onClick={() => handleConclude(app.id)}
+                                  onClick={() => setConcludeModal(app)}
                                   className="px-4 py-2 border border-green-500/30 text-green-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all flex items-center gap-2"
                                 >
-                                  <CheckCircle size={14} /> {t('doctor.appointments.concluded')}
+                                  <CheckCircle size={14} /> {t('doctor.appointments.fill_report')}
                                 </button>
                             {app.consultationMode === 'online' && app.status === 'upcoming' && (
                               <button 
@@ -610,6 +627,37 @@ export default function DoctorDashboard() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Conclude Modal */}
+      <AnimatePresence>
+        {concludeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !loading && setConcludeModal(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg glass-panel border border-green-500/30 rounded-2xl p-6 shadow-2xl z-10">
+              <h3 className="text-xl font-serif font-bold mb-1 flex items-center gap-2"><CheckCircle className="text-green-400" /> {t('doctor.appointments.fill_report')}</h3>
+              <p className="text-xs text-gray-400 font-mono uppercase tracking-widest mb-6 border-b border-white/10 pb-4">Patient: {concludeModal.patientName}</p>
+              
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">{t('doctor.appointments.diagnosis')}</label>
+              <textarea value={diagnosis} onChange={e => setDiagnosis(e.target.value)}
+                placeholder="Enter diagnosis report..."
+                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 min-h-[100px] text-sm focus:border-green-500 focus:outline-none mb-4 resize-none" />
+
+              <label className="text-xs text-gray-400 uppercase tracking-wider block mb-2">{t('doctor.appointments.prescription')}</label>
+              <textarea value={prescription} onChange={e => setPrescription(e.target.value)}
+                placeholder="Enter medical prescription..."
+                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 min-h-[100px] text-sm focus:border-green-500 focus:outline-none mb-6 resize-none" />
+              
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setConcludeModal(null)} disabled={loading} className="px-5 py-3 border border-white/10 rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white/5 transition-colors">{t('admin.cancel')}</button>
+                <button onClick={submitConclude} disabled={loading || !diagnosis || !prescription} className="px-5 py-3 bg-green-500 text-black rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50 flex items-center gap-2">
+                  {loading ? <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : t('doctor.appointments.conclude_submit')}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Email Modal */}
       <AnimatePresence>

@@ -1,11 +1,11 @@
 import { useEffect, useState, Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import Spline from '@splinetool/react-spline';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video } from 'lucide-react';
+import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -18,6 +18,7 @@ export default function PatientDashboard() {
   const [labBookings, setLabBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'doctor' | 'lab'>('doctor');
+  const [reportModal, setReportModal] = useState<any>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -225,12 +226,22 @@ export default function PatientDashboard() {
                         </div>
                       </div>
                       {app.status === 'concluded' && (
-                        <button 
-                          onClick={() => handleRebook(app.doctorId)}
-                          className="text-(--color-accent-blue) hover:text-white flex flex-col items-center gap-1 justify-center text-xs uppercase tracking-widest font-bold cursor-pointer hover:bg-white/10 px-4 py-2 rounded-lg transition-colors"
-                        >
-                          <RefreshCw size={20} /> {t('patient.rebook')}
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {(app.diagnosis || app.prescription) && (
+                            <button 
+                              onClick={() => setReportModal(app)}
+                              className="text-green-400 hover:text-green-300 flex flex-col items-center gap-1 justify-center text-[10px] uppercase tracking-widest font-bold cursor-pointer hover:bg-green-500/10 px-4 py-2 rounded-lg transition-colors"
+                            >
+                              <FileText size={20} /> {t('patient.view_report')}
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => handleRebook(app.doctorId)}
+                            className="text-(--color-accent-blue) hover:text-white flex flex-col items-center gap-1 justify-center text-[10px] uppercase tracking-widest font-bold cursor-pointer hover:bg-white/10 px-4 py-2 rounded-lg transition-colors"
+                          >
+                            <RefreshCw size={20} /> {t('patient.rebook')}
+                          </button>
+                        </div>
                       )}
                     </motion.div>
                   ))
@@ -283,6 +294,53 @@ export default function PatientDashboard() {
           </div>
         )}
       </div>
+
+      {/* Report Modal */}
+      <AnimatePresence>
+        {reportModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setReportModal(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg glass-panel border border-(--color-accent-blue)/30 rounded-2xl p-6 shadow-2xl z-10 max-h-[80vh] overflow-y-auto custom-scrollbar">
+              <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-white mb-1 flex items-center gap-2">
+                    <FileText className="text-(--color-accent-blue)" /> {t('patient.report_title')}
+                  </h3>
+                  <p className="text-xs text-gray-400 font-mono uppercase tracking-widest">
+                    Dr. {reportModal.doctorName} • {reportModal.date}
+                  </p>
+                </div>
+                <button onClick={() => setReportModal(null)} className="text-gray-500 hover:text-white">
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              {reportModal.diagnosis && (
+                <div className="mb-6">
+                  <h4 className="text-xs font-bold text-(--color-accent-blue) uppercase tracking-widest mb-2 border-l-2 border-(--color-accent-blue) pl-2">
+                    {t('patient.diagnosis')}
+                  </h4>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {reportModal.diagnosis}
+                  </div>
+                </div>
+              )}
+
+              {reportModal.prescription && (
+                <div className="mb-6">
+                  <h4 className="text-xs font-bold text-green-400 uppercase tracking-widest mb-2 border-l-2 border-green-400 pl-2">
+                    {t('patient.prescription')}
+                  </h4>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {reportModal.prescription}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

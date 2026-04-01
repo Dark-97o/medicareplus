@@ -141,7 +141,11 @@ export const translations = {
         check_firestore: "Check your internet connection.",
         confirm_conclude: "Mark this consultation as finished?",
         confirm_cancel: "Are you sure you want to cancel? The patient will receive a refund.",
-        reported_symptoms: "Patient Symptoms"
+        reported_symptoms: "Patient Symptoms",
+        fill_report: "Diagnosis & Prescription",
+        diagnosis: "Diagnosis Report",
+        prescription: "Medical Prescription",
+        conclude_submit: "Save & Conclude"
       }
     },
     specialities: {
@@ -277,7 +281,11 @@ export const translations = {
       rebook: "Book Again",
       cancel: "Cancel",
       online: "Video Call",
-      offline: "Clinic Visit"
+      offline: "Clinic Visit",
+      view_report: "View Report",
+      report_title: "Diagnosis & Prescription",
+      diagnosis: "Diagnosis",
+      prescription: "Prescription"
     },
     booking: {
       title: "Book An Appointment",
@@ -467,7 +475,11 @@ export const translations = {
         check_firestore: "इंटरनेट कनेक्शन की जांच करें",
         confirm_conclude: "क्या अपॉइंटमेंट पूर्ण हो गया है?",
         confirm_cancel: "क्या आप रद्द करना चाहते हैं?",
-        reported_symptoms: "मरीज के लक्षण"
+        reported_symptoms: "मरीज के लक्षण",
+        fill_report: "निदान और नुस्खा",
+        diagnosis: "निदान रिपोर्ट",
+        prescription: "दवा का पर्चा",
+        conclude_submit: "सहेजें और पूर्ण करें"
       }
     },
     specialities: {
@@ -602,7 +614,11 @@ export const translations = {
       rebook: "फिर से बुक करें",
       cancel: "रद्द करें",
       online: "वीडियो कॉल",
-      offline: "क्लिनिक विजिट"
+      offline: "क्लिनिक विजिट",
+      view_report: "रिपोर्ट देखें",
+      report_title: "निदान और नुस्खा",
+      diagnosis: "निदान",
+      prescription: "दवा का पर्चा"
     },
     booking: {
       title: "अपॉइंटमेंट बुकिंग",
