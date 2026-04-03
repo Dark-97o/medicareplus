@@ -183,7 +183,7 @@ export default function AIChatAssistant() {
             initial={{ opacity: 0, scale: 0.9, y: 20, x: -20, originX: 0, originY: 1 }}
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20, x: -20 }}
-            className="fixed bottom-28 left-8 w-[90vw] md:w-[480px] h-[600px] max-h-[70vh] z-[100] glass-panel border border-white/10 rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden backdrop-blur-2xl"
+            className="fixed bottom-28 left-8 w-[90vw] md:w-[816px] h-[600px] max-h-[70vh] z-[100] glass-panel border border-white/10 rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden backdrop-blur-[80px]"
           >
             {/* Header */}
             <div className="p-6 bg-gradient-to-r from-(--color-accent-blue)/10 to-(--color-accent-purple)/10 border-b border-white/5 flex items-center justify-between">

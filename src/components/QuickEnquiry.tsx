@@ -67,21 +67,26 @@ export default function QuickEnquiry({ isOpen: externalOpen, onClose: externalCl
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95, y: -10 }}
+          initial={{ opacity: 0, scale: 0.9, y: -20, originX: 1, originY: 0 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: -10 }}
-          className="absolute top-full right-0 mt-4 z-[100] w-[320px] glass-panel bg-black/60 backdrop-blur-2xl p-6 rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/10"
+          exit={{ opacity: 0, scale: 0.9, y: -20 }}
+          className="fixed top-24 right-8 md:right-16 z-[10002] w-[320px] glass-panel border border-white/10 rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden backdrop-blur-[80px]"
         >
-          <div className="flex justify-between items-start mb-6">
+          {/* Header */}
+          <div className="p-6 bg-gradient-to-r from-(--color-accent-blue)/10 to-(--color-accent-purple)/10 border-b border-white/5 flex items-center justify-between">
             <div>
-              <h3 className="text-white font-serif text-lg font-bold">Quick Enquiry</h3>
-                <p className="text-(--color-text-muted) text-[0.65rem] uppercase tracking-widest font-mono">We'll call you back instantly</p>
+              <h3 className="font-serif font-black text-white text-lg tracking-tight">Quick Enquiry</h3>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-green-400 font-bold">Fast Callback</span>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-white transition-colors">
-                <X size={18} />
-              </button>
             </div>
+            <button onClick={() => setIsOpen(false)} className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+              <X size={16} />
+            </button>
+          </div>
 
+          <div className="p-6 bg-black/20">
             {isSuccess ? (
               <motion.div 
                 initial={{ opacity: 0 }}
@@ -155,7 +160,8 @@ export default function QuickEnquiry({ isOpen: externalOpen, onClose: externalCl
                 </button>
               </form>
             )}
-          </motion.div>
+          </div>
+        </motion.div>
         )}
       </AnimatePresence>
     );

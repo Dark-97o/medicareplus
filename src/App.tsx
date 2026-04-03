@@ -103,7 +103,6 @@ export default function App() {
                   Quick Enquiry
                 </span>
               </button>
-              <QuickEnquiry isOpen={isEnquiryOpen} onClose={() => setIsEnquiryOpen(false)} />
             </div>
           )}
 
@@ -134,6 +133,7 @@ export default function App() {
         <>
           <EmergencyTag />
           <SupportTags />
+          <QuickEnquiry isOpen={isEnquiryOpen} onClose={() => setIsEnquiryOpen(false)} />
           <AIChatAssistant />
         </>
       )}
