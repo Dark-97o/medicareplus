@@ -295,25 +295,42 @@ export default function BookAppointment() {
     finalBrief = local.conditions[0]?.brief || '';
 
     try {
-      console.log('[Groq] Sending symptoms to Cloudflare Worker...');
-      const res = await fetch('https://groqda.subhranilbaul2017.workers.dev', {
+      console.log('[Groq] Sending symptoms directly to Groq API...');
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: symptoms, prompt: symptoms }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
+         },
+        body: JSON.stringify({ 
+          model: 'llama-3.1-8b-instant',
+          messages: [
+            {
+              role: "system",
+              content: `You are a medical triage assistant. Identify specialty and provide brief assessment context. 
+              Return ONLY JSON: {"specialization": "...", "disease_brief": "..."}`
+            },
+            { role: "user", content: `Symptoms: ${symptoms}` }
+          ],
+          temperature: 0.3,
+          max_tokens: 512,
+          response_format: { type: "json_object" }
+        }),
       });
 
-      console.log('[Groq] Worker response status:', res.status, res.statusText);
+      console.log('[Groq] API response status:', res.status, res.statusText);
 
-      if (!res.ok) throw new Error(`Worker returned HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`Groq API returned HTTP ${res.status}`);
 
-      const rawText = await res.text();
-      console.log('[Groq] Raw response:', rawText);
+      const groqData = await res.json();
+      console.log('[Groq] Raw response:', groqData);
 
       try {
-        const data = JSON.parse(rawText);
+        const content = groqData.choices?.[0]?.message?.content || '{}';
+        const data = JSON.parse(content);
         const aiContent = data.disease_brief || data.response || data.result || data.text || '';
 
-        if (!aiContent.trim()) throw new Error('Worker returned empty AI content');
+        if (!aiContent.trim()) throw new Error('API returned empty AI content');
 
         // Try to extract structured conditions from the response
         if (data.conditions && Array.isArray(data.conditions)) {

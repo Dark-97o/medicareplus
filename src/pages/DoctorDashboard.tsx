@@ -536,6 +536,12 @@ export default function DoctorDashboard() {
                         {app.status === 'upcoming' && (
                           <div className="flex flex-row md:flex-col gap-2 md:w-44 shrink-0">
                             <button 
+                              onClick={() => setEmailModal(app)}
+                              className="px-4 py-2 border border-(--color-accent-blue)/30 text-(--color-accent-blue) rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-(--color-accent-blue) hover:text-black transition-all flex items-center gap-2"
+                            >
+                              <Mail size={14} /> {t('doctor.email_actions.pre_consultation_instructions')}
+                            </button>
+                            <button 
                                   onClick={() => setConcludeModal(app)}
                                   className="px-4 py-2 border border-green-500/30 text-green-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all flex items-center gap-2"
                                 >
@@ -549,6 +555,9 @@ export default function DoctorDashboard() {
                                 <Video size={14} /> {t('doctor.appointments.video')}
                               </button>
                             )}
+                            <button onClick={() => alert("Reschedule functionality coming soon!")} className="flex-1 md:flex-none py-2.5 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-xl hover:bg-orange-500 hover:text-black transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
+                              <Calendar size={13} /> Reschedule
+                            </button>
                             <button onClick={() => handleCancel(app.id)} className="flex-1 md:flex-none py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500 hover:text-white transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
                               <XCircle size={13} /> {t('doctor.appointments.cancel')}
                             </button>

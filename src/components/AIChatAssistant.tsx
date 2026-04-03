@@ -116,10 +116,18 @@ export default function AIChatAssistant() {
       
       console.log("AI Request Body:", requestBody);
 
-      const response = await fetch('https://groqda.subhranilbaul2017.workers.dev', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.1-8b-instant',
+          messages: requestBody.messages,
+          temperature: 0.7,
+          max_tokens: 512,
+        }),
       });
 
       if (!response.ok) throw new Error(`API Error: ${response.status}`);
@@ -127,13 +135,8 @@ export default function AIChatAssistant() {
       const data = await response.json();
       console.log("AI Assistant Raw Response:", data);
 
-      // Extract content from various potential response formats
-      const aiContent = 
-        data.response || 
-        data.disease_brief || 
-        (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ||
-        data.text ||
-        "I'm sorry, I'm having trouble processing that right now. How can I help you otherwise?";
+      const aiContent = data.choices?.[0]?.message?.content || 
+        "I'm sorry, I'm having trouble connecting to the AI. Please try again.";
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
