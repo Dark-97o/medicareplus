@@ -62,7 +62,7 @@ export default function PatientDashboard() {
     const now = new Date();
     const diffHours = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     
-    const refundPercentage = diffHours > 24 ? 100 : 30;
+    const refundPercentage = diffHours > 24 ? 90 : 30;
     
     try {
       await updateDoc(doc(db, 'appointments', app.id), {

@@ -47,7 +47,7 @@ When you create these, just make sure to include the exact variable names (e.g.,
 
 **Refund Rules / Limits to Mention in the Email Body:**
 * If you (the patient) cancel in the last 24hrs: **Refund 30%**
-* If you (the patient) cancel before 24hrs: **100% Refund**
+* If you (the patient) cancel before 24hrs: **90% Refund**
 * If the Doctor or Lab cancels at any time: **100% Refund**
 
 ---
