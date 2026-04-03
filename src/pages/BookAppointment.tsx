@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { ArrowLeft, Brain, User, CheckCircle, Zap, Stethoscope, Sparkles, Clock, ArrowRight, ShieldCheck, MapPin, Calendar } from 'lucide-react';
-import emailjs from '@emailjs/browser';
+import { sendPatientBookingConfirmation, sendProviderBookingAlert } from '../lib/emailService';
 import { useTranslation } from 'react-i18next';
 
 
@@ -238,7 +238,6 @@ export default function BookAppointment() {
       navigate('/');
       return;
     }
-    emailjs.init('nEbb9aPtYh8imCD0M');
 
     if (isCheckupMode && !symptoms) {
       setSymptoms('General Health Checkup & Basic Screening');
@@ -454,14 +453,26 @@ export default function BookAppointment() {
             createdAt: new Date().toISOString(),
           });
           
-          console.log('[Booking] Firestore record created, sending email...');
-          await emailjs.send('default_service', 'template_smasli7', {
+          console.log('[Booking] Firestore record created, sending emails...');
+          
+          await sendPatientBookingConfirmation({
+            to_email: userProfile?.email || user?.email || '',
             to_name: userProfile?.name || 'Patient',
-            to_email: userProfile?.email || user?.email,
-            doctor_name: selectedDoctor.name,
+            service_type: 'Doctor Appointment',
+            provider_name: selectedDoctor.name,
             date,
             time,
-            specialization: selectedDoctor.speciality,
+            transaction_id: razorpayPaymentId,
+            amount_paid: `₹${selectedDoctor.fees}`,
+          });
+
+          await sendProviderBookingAlert({
+            provider_email: selectedDoctor.email || 'doctor@example.com',
+            provider_name: selectedDoctor.name,
+            patient_name: userProfile?.name || 'Patient',
+            service_type: 'Doctor Appointment',
+            date,
+            time,
           });
           
           setLoading(false);

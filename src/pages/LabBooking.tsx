@@ -9,6 +9,7 @@ import {
   FlaskConical, Calendar, ArrowRight, ArrowLeft, 
   CheckCircle, ShieldCheck, Activity, Search, Building, CreditCard
 } from 'lucide-react';
+import { sendPatientBookingConfirmation, sendProviderBookingAlert } from '../lib/emailService';
 
 
 
@@ -88,6 +89,31 @@ export default function LabBooking() {
             status: 'confirmed',
             createdAt: new Date().toISOString()
           });
+
+          try {
+            await sendPatientBookingConfirmation({
+              to_email: userProfile?.email || user?.email || '',
+              to_name: userProfile?.name || 'Patient',
+              service_type: 'Lab Test',
+              provider_name: selectedTest.hospitalName,
+              date: bookingDate,
+              time: 'As per lab schedule',
+              transaction_id: response.razorpay_payment_id,
+              amount_paid: `₹${selectedTest.charges}`,
+            });
+
+            await sendProviderBookingAlert({
+              provider_email: selectedTest.email || 'lab@example.com',
+              provider_name: selectedTest.hospitalName,
+              patient_name: userProfile?.name || 'Patient',
+              service_type: `Lab Test (${selectedTest.name})`,
+              date: bookingDate,
+              time: 'As per lab schedule',
+            });
+          } catch (e) {
+            console.error('Email failed to send', e);
+          }
+
           setStep(4);
         },
         prefill: {

@@ -8,6 +8,7 @@ import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/fire
 import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { sendProviderCancellationAlert, sendPatientCancellationNotice } from '../lib/emailService';
 
 export default function PatientDashboard() {
 
@@ -53,24 +54,45 @@ export default function PatientDashboard() {
     fetchData();
   }, [user, authLoading, navigate]);
 
-  const handleCancel = async (appId: string, appDate: string, appTime: string) => {
+  const handleCancel = async (app: any) => {
     if (!confirm("Are you sure you want to cancel this appointment? Refunds are processed via Razorpay based on the 24-hr policy.")) return;
     
     // Calculate 24 hr difference
-    const appointmentDateTime = new Date(`${appDate}T${appTime}`);
+    const appointmentDateTime = new Date(`${app.date}T${app.time}`);
     const now = new Date();
     const diffHours = (appointmentDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
     
-    const refundPercentage = diffHours > 24 ? 80 : 30;
+    const refundPercentage = diffHours > 24 ? 100 : 30;
     
     try {
-      await updateDoc(doc(db, 'appointments', appId), {
+      await updateDoc(doc(db, 'appointments', app.id), {
         status: 'cancelled',
         refundStatus: `Initiated (${refundPercentage}%)`
       });
       alert(`Appointment cancelled. A ${refundPercentage}% Razorpay refund has been initiated.`);
       // Update local state
-      setAppointments(prev => prev.map(a => a.id === appId ? { ...a, status: 'cancelled', refundStatus: `Initiated (${refundPercentage}%)` } : a));
+      setAppointments(prev => prev.map(a => a.id === app.id ? { ...a, status: 'cancelled', refundStatus: `Initiated (${refundPercentage}%)` } : a));
+
+      try {
+        await sendProviderCancellationAlert({
+          provider_email: 'doctor@example.com',
+          provider_name: app.doctorName,
+          patient_name: app.patientName || userProfile?.name || 'Patient',
+          service_type: 'Doctor Appointment',
+          date: app.date,
+        });
+
+        await sendPatientCancellationNotice({
+          to_email: app.patientEmail || userProfile?.email || user?.email || '',
+          to_name: app.patientName || userProfile?.name || 'Patient',
+          service_type: 'Doctor Appointment',
+          provider_name: app.doctorName,
+          date: app.date,
+          refund_amount: `${refundPercentage}%`,
+        });
+      } catch (e) {
+        console.error("Failed to send cancellation email", e);
+      }
     } catch (error) {
       console.error("Cancel failed", error);
       alert("Failed to cancel appointment.");
@@ -186,7 +208,7 @@ export default function PatientDashboard() {
                           </button>
                         )}
                         <button 
-                          onClick={() => handleCancel(app.id, app.date, app.time)}
+                          onClick={() => handleCancel(app)}
                           className="text-red-400 hover:text-red-300 flex flex-col items-center justify-center gap-2 text-xs uppercase tracking-widest font-bold opacity-70 group-hover:opacity-100 transition-opacity cursor-pointer px-4 py-2 hover:bg-red-500/10 rounded-lg"
                         >
                           <XCircle size={24} /> {t('patient.cancel')}

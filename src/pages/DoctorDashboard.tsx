@@ -8,7 +8,7 @@ import { useAuth, type UserProfile } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { Mail, Calendar, CheckCircle, XCircle, Clock, Stethoscope, Lock, FileText, Activity, Phone, Award, Building, User, ChevronRight, Video, LogOut } from 'lucide-react';
-import emailjs from '@emailjs/browser';
+import { sendPreConsultationInstructions, sendPatientCancellationNotice } from '../lib/emailService';
 
 const SPECIALITIES = ["General Physician", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry", "Urology", "Radiology", "Endocrinology"];
 
@@ -130,9 +130,26 @@ export default function DoctorDashboard() {
     }
   };
 
-  const handleCancel = async (id: string) => { // Renamed from cancelAppointment
+  const handleCancel = async (app: any) => {
     if (!confirm(t('doctor.appointments.confirm_cancel'))) return;
-    await updateDoc(doc(db, 'appointments', id), { status: 'cancelled_by_doctor' });
+    await updateDoc(doc(db, 'appointments', app.id), { 
+      status: 'cancelled_by_doctor',
+      refundStatus: 'Initiated (100%)'
+    });
+    
+    try {
+      await sendPatientCancellationNotice({
+        to_email: app.patientEmail || 'patient@example.com',
+        to_name: app.patientName || 'Patient',
+        service_type: 'Doctor Appointment',
+        provider_name: userProfile?.name || 'Doctor',
+        date: app.date,
+        refund_amount: '100%',
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    
     loadAppointments();
   };
 
@@ -140,11 +157,14 @@ export default function DoctorDashboard() {
     if (!emailModal || !customEmailBody) return;
     setLoading(true);
     try {
-      await emailjs.send('default_service', 'template_smasli7', {
-        to_name: emailModal.patientName, to_email: emailModal.patientEmail,
-        doctor_name: userProfile?.name, date: emailModal.date, time: emailModal.time,
-        specialization: t('doctor.email.pre_consultation_instructions'), message: customEmailBody
-      }, 'nEbb9aPtYh8imCD0M');
+      await sendPreConsultationInstructions({
+        to_email: emailModal.patientEmail || '',
+        to_name: emailModal.patientName || 'Patient',
+        doctor_name: userProfile?.name || 'Doctor',
+        date: emailModal.date,
+        time: emailModal.time,
+        message: customEmailBody
+      });
       alert(t('doctor.email.sent_success', { email: emailModal.patientEmail }));
       setEmailModal(null); setCustomEmailBody('');
     } catch (e) { alert(t('doctor.email.dispatch_error')); }
@@ -558,7 +578,7 @@ export default function DoctorDashboard() {
                             <button onClick={() => alert("Reschedule functionality coming soon!")} className="flex-1 md:flex-none py-2.5 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-xl hover:bg-orange-500 hover:text-black transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
                               <Calendar size={13} /> Reschedule
                             </button>
-                            <button onClick={() => handleCancel(app.id)} className="flex-1 md:flex-none py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500 hover:text-white transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
+                            <button onClick={() => handleCancel(app)} className="flex-1 md:flex-none py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500 hover:text-white transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
                               <XCircle size={13} /> {t('doctor.appointments.cancel')}
                             </button>
                           </div>

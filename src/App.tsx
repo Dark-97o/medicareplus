@@ -1,4 +1,4 @@
-import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Lenis from 'lenis';
 import Home from './pages/Home';
@@ -25,7 +25,11 @@ import { PhoneCall, ChevronDown, UserCog, FlaskConical, Stethoscope } from 'luci
 export default function App() {
   const { t } = useTranslation();
   const { userProfile } = useAuth();
+  const location = useLocation();
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
+  const hideFloaters = location.pathname.startsWith('/admin') || 
+                       location.pathname.startsWith('/doctor') || 
+                       location.pathname.startsWith('/lab');
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -87,19 +91,21 @@ export default function App() {
             </div>
           </div>
           
-          <div className="relative">
-            <button 
-              onClick={() => setIsEnquiryOpen(!isEnquiryOpen)}
-              className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300 flex items-center gap-2"
-            >
-              <span className="absolute inset-0 bg-(--color-accent-blue)/10 backdrop-blur-md rounded-full border border-(--color-accent-blue)/20 group-hover:border-(--color-accent-blue)/50 transition-colors" />
-              <PhoneCall size={14} className="relative text-(--color-accent-blue)" />
-              <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-accent-blue) group-hover:text-white transition-colors">
-                Quick Enquiry
-              </span>
-            </button>
-            <QuickEnquiry isOpen={isEnquiryOpen} onClose={() => setIsEnquiryOpen(false)} />
-          </div>
+          {!hideFloaters && (
+            <div className="relative">
+              <button 
+                onClick={() => setIsEnquiryOpen(!isEnquiryOpen)}
+                className="relative group px-6 py-2 rounded-full overflow-hidden transition-all duration-300 flex items-center gap-2"
+              >
+                <span className="absolute inset-0 bg-(--color-accent-blue)/10 backdrop-blur-md rounded-full border border-(--color-accent-blue)/20 group-hover:border-(--color-accent-blue)/50 transition-colors" />
+                <PhoneCall size={14} className="relative text-(--color-accent-blue)" />
+                <span className="relative text-xs font-semibold tracking-[0.2em] uppercase text-(--color-accent-blue) group-hover:text-white transition-colors">
+                  Quick Enquiry
+                </span>
+              </button>
+              <QuickEnquiry isOpen={isEnquiryOpen} onClose={() => setIsEnquiryOpen(false)} />
+            </div>
+          )}
 
           <div className="h-6 w-px bg-white/10 hidden md:block" />
           <LanguageSelector />
@@ -124,9 +130,13 @@ export default function App() {
       </main>
 
       {/* Global Clinical Elements */}
-      <EmergencyTag />
-      <SupportTags />
-      <AIChatAssistant />
+      {!hideFloaters && (
+        <>
+          <EmergencyTag />
+          <SupportTags />
+          <AIChatAssistant />
+        </>
+      )}
     </div>
   );
 }

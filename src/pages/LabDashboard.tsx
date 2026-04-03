@@ -9,6 +9,7 @@ import type { UserProfile } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
 import { Mail, Calendar, Clock, FlaskConical, Lock, Activity, LogOut, Plus, Trash2, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import { sendPatientCancellationNotice } from '../lib/emailService';
 
 export default function LabDashboard() {
   const { t } = useTranslation();
@@ -144,9 +145,26 @@ export default function LabDashboard() {
     }
   };
 
-  const handleUpdateBooking = async (id: string, status: string) => {
+  const handleUpdateBooking = async (book: any, status: string) => {
+    if (status === 'cancelled' && !confirm("Are you sure you want to cancel this booking? A 100% refund will be initiated.")) return;
     try {
-      await updateDoc(doc(db, 'lab_bookings', id), { status });
+      await updateDoc(doc(db, 'lab_bookings', book.id), { status });
+      
+      if (status === 'cancelled') {
+        try {
+          await sendPatientCancellationNotice({
+            to_email: book.patientEmail || 'patient@example.com',
+            to_name: book.patientName || 'Patient',
+            service_type: 'Lab Test',
+            provider_name: userProfile?.name || 'Lab Provider',
+            date: book.date,
+            refund_amount: '100%',
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
       fetchData();
     } catch (err) {
       alert("Update failed");
@@ -396,10 +414,10 @@ export default function LabDashboard() {
                         </div>
                         {book.status !== 'completed' && (
                           <div className="mt-6 pt-4 border-t border-white/5 flex gap-2">
-                             <button onClick={() => handleUpdateBooking(book.id, 'completed')} className="flex-1 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all">
+                             <button onClick={() => handleUpdateBooking(book, 'completed')} className="flex-1 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-green-500 hover:text-black transition-all">
                                 Finalize Test
                              </button>
-                             <button onClick={() => handleUpdateBooking(book.id, 'cancelled')} className="px-4 py-3 bg-red-500/5 text-red-500/60 hover:text-red-400 transition-colors uppercase font-bold text-[8px] tracking-widest">
+                             <button onClick={() => handleUpdateBooking(book, 'cancelled')} className="px-4 py-3 bg-red-500/5 text-red-500/60 hover:text-red-400 transition-colors uppercase font-bold text-[8px] tracking-widest">
                                 Cancel
                              </button>
                           </div>

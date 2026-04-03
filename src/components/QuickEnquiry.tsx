@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Calendar, User, Send, CheckCircle2, X } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { sendAdminEnquiryAlert } from '../lib/emailService';
 
 interface QuickEnquiryProps {
   isOpen?: boolean;
@@ -37,6 +38,18 @@ export default function QuickEnquiry({ isOpen: externalOpen, onClose: externalCl
         status: 'pending',
         createdAt: serverTimestamp()
       });
+      
+      try {
+        await sendAdminEnquiryAlert({
+          admin_email: 'admin@medicareplus.com',
+          user_name: formData.name,
+          user_email: formData.phone, 
+          message: `Preferred Callback Time: ${formData.preferredTime}. Please call back on ${formData.phone}.`
+        });
+      } catch (emailErr) {
+        console.error('Failed to send admin email alert:', emailErr);
+      }
+
       setIsSuccess(true);
       setFormData({ name: '', phone: '', preferredTime: '' });
       setTimeout(() => {
@@ -57,7 +70,7 @@ export default function QuickEnquiry({ isOpen: externalOpen, onClose: externalCl
           initial={{ opacity: 0, scale: 0.95, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
-          className="absolute top-full right-0 mt-4 z-[100] w-[320px] bg-zinc-900/95 backdrop-blur-xl p-6 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20"
+          className="absolute top-full right-0 mt-4 z-[100] w-[320px] glass-panel bg-black/60 backdrop-blur-2xl p-6 rounded-3xl shadow-[0_20px_80px_rgba(0,0,0,0.8)] border border-white/10"
         >
           <div className="flex justify-between items-start mb-6">
             <div>
