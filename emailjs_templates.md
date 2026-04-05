@@ -86,9 +86,40 @@ When you create these, just make sure to include the exact variable names (e.g.,
   * `{{time}}`
   * `{{message}}` (The custom instructions from the doctor)
 
+### 7. System Auto-Cancellation Notice | Template ID: <NEW_TEMPLATE_ID_PLACEHOLDER>, Service ID: service_2m6dz0e, Public Key: s5aMYZtxqGdrZT9vc
+*Sent to Patient if the Doctor hasn't concluded the appointment 30 mins past the scheduled time.*
+* **To Email Field:** `{{to_email}}`
+* **Suggested Subject:** `Important: Your appointment with {{provider_name}} was auto-cancelled`
+* **Message Body Variables needed:**
+  * `{{to_name}}`
+  * `{{provider_name}}`
+  * `{{date}}`
+  * `{{time}}`
+
+---
+
+### 8. Doctor No-Show Notice | Template ID: <NEW_TEMPLATE_ID_PLACEHOLDER>, Service ID: service_2m6dz0e, Public Key: s5aMYZtxqGdrZT9vc
+*Sent to Patient if the Doctor marks them as a No-Show 10 minutes past the scheduled time.*
+* **To Email Field:** `{{to_email}}`
+* **Suggested Subject:** `Missed Appointment Notice: {{provider_name}}`
+* **Message Body Variables needed:**
+  * `{{to_name}}`
+  * `{{provider_name}}`
+  * `{{date}}`
+  * `{{time}}`
+
+---
+
+### 9. Patient Review Request (+12h Feedback) | Template ID: <NEW_TEMPLATE_ID_PLACEHOLDER>, Service ID: service_2m6dz0e, Public Key: s5aMYZtxqGdrZT9vc
+*Sent automatically 12 hours after a concluded appointment to request feedback.*
+* **To Email Field:** `{{to_email}}`
+* **Suggested Subject:** `How was your visit with {{provider_name}}?`
+* **Message Body Variables needed:**
+  * `{{to_name}}`
+  * `{{provider_name}}`
+  * `{{date}}`
+
 ---
 
 ### Next Steps 🚀
-Once you have created these in your EmailJS dashboard, you will have **6 new Template IDs** (they usually look like `template_xxxxxx`). 
-
-Whenever you are ready, just drop those 6 IDs into your application code to activate them!
+Once you have created these in your EmailJS dashboard, drop those new Template IDs into `src/lib/emailService.ts` to activate the automated logic!

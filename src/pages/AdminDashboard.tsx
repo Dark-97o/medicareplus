@@ -103,21 +103,9 @@ function EditModal({ item, onSave, onClose, collection: col }: { item: any; onSa
           {fields.map(key => (
             <div key={key} className={key === 'address' || key === 'symptoms' || key === 'aiAssessment' ? 'md:col-span-2' : ''}>
               <label className="text-xs text-gray-400 uppercase tracking-wider block mb-1.5">{key.replace(/([A-Z])/g, ' $1')}</label>
-              {key === 'status' && col === 'doctors' ? (
-                <select value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full bg-[#0a0f1a] border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-blue) focus:outline-none">
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              ) : key === 'status' && col === 'appointments' ? (
-                <select value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })}
-                  className="w-full bg-[#0a0f1a] border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-blue) focus:outline-none">
-                  <option value="upcoming">Upcoming</option>
-                  <option value="concluded">Concluded</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="cancelled_by_doctor">Cancelled by Doctor</option>
-                </select>
+              {key === 'id' || key === 'createdAt' ? (
+                <input value={typeof form[key] === 'object' && form[key]?.seconds ? new Date(form[key].seconds * 1000).toLocaleString() : form[key] ?? ''} disabled
+                  className="w-full bg-black/20 border border-white/5 rounded-xl p-3 text-sm text-gray-500 cursor-not-allowed" />
               ) : (
                 <input value={form[key] ?? ''} onChange={e => setForm({ ...form, [key]: e.target.value })}
                   className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all" />
@@ -236,6 +224,7 @@ function LabTable({ labs, labTests, onDelete, onApprove, onDecline }: any) {
               <button onClick={() => onApprove(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500 hover:text-black transition-all text-[10px] font-bold uppercase">Approve</button>
               <button onClick={() => onDecline(l.id, 'lab_doctors')} className="px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500 hover:text-white transition-all text-[10px] font-bold uppercase">Decline</button>
             </>)}
+            <button onClick={() => onEdit(l)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
             <button onClick={() => onDelete(l.id, 'lab_doctors')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
             <button onClick={() => setExpanded(expanded === l.id ? null : l.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors"><Plus size={14} className={`transition-transform duration-300 ${expanded === l.id ? 'rotate-45' : ''}`} /></button>
           </div>
@@ -299,30 +288,51 @@ function LabTable({ labs, labTests, onDelete, onApprove, onDecline }: any) {
 }
 
 /* ─── LAB BOOKING TABLE ─── */
-function LabBookingTable({ bookings, onDelete }: any) {
+function LabBookingTable({ bookings, onEdit, onDelete }: any) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  
   return (
     <div className="space-y-2">
       {bookings.length === 0 && <div className="text-center py-20 text-gray-600 font-mono text-xs uppercase tracking-widest">No lab transactions recorded.</div>}
       {bookings.map((b: any) => (
-        <div key={b.id} className="glass-panel border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 hover:border-white/10 transition-colors">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="font-bold text-white uppercase tracking-tight">{b.patientName}</span>
-              <span className="text-gray-500 font-mono text-[10px]"> booked </span>
-              <span className="text-(--color-accent-purple) font-bold">{b.testName}</span>
-              <span className={`ml-2 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-full border ${b.status === 'confirmed' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}`}>{b.status}</span>
+        <div key={b.id} className="glass-panel border border-white/5 rounded-xl flex flex-col overflow-hidden hover:border-white/10 transition-colors">
+          <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="font-bold text-white uppercase tracking-tight">{b.patientName}</span>
+                <span className="text-gray-500 font-mono text-[10px]"> booked </span>
+                <span className="text-(--color-accent-purple) font-bold">{b.testName}</span>
+                <span className={`ml-2 px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest rounded-full border ${b.status === 'confirmed' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'}`}>{b.status}</span>
+              </div>
+              <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{b.date} · {b.hospitalName} · ₹{b.charges}</p>
             </div>
-            <p className="text-[10px] text-gray-500 font-mono uppercase tracking-widest">{b.date} · {b.hospitalName} · ₹{b.charges} (Paid)</p>
+            <div className="flex items-center gap-2">
+              <button onClick={() => onEdit(b)} className="p-2 hover:bg-white/10 text-gray-600 hover:text-(--color-accent-purple) rounded-lg transition-colors">
+                 <Pencil size={14} />
+              </button>
+              <button onClick={() => onDelete(b.id, 'lab_bookings')} className="p-2 hover:bg-red-500/10 text-gray-600 hover:text-red-400 rounded-lg transition-colors">
+                 <Trash2 size={14} />
+              </button>
+              <button onClick={() => setExpanded(expanded === b.id ? null : b.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors">
+                <Plus size={14} className={`transition-transform duration-300 ${expanded === b.id ? 'rotate-45' : ''}`} />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="text-right">
-                <p className="text-[8px] text-gray-600 font-mono uppercase">Reference ID</p>
-                <p className="text-[10px] text-gray-400 font-mono truncate max-w-[100px]">{b.paymentId}</p>
-             </div>
-             <button onClick={() => onDelete(b.id, 'lab_bookings')} className="p-2 hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors">
-               <Trash2 size={14} />
-             </button>
-          </div>
+          
+          <AnimatePresence>
+            {expanded === b.id && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-white/5 bg-black/20 overflow-hidden">
+                <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] font-mono">
+                  {Object.keys(b).filter(k => k !== 'id' && typeof b[k] !== 'object').map(key => (
+                    <div key={key}>
+                      <p className="text-gray-500 uppercase tracking-widest mb-0.5">{key.replace(/([A-Z])/g, ' $1')}</p>
+                      <p className="text-white truncate block">{b[key] ? String(b[key]) : '—'}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       ))}
     </div>
@@ -332,23 +342,44 @@ function LabBookingTable({ bookings, onDelete }: any) {
 /* ─── PATIENT TABLE ─── */
 function PatientTable({ patients, onEdit, onDelete }: any) {
   const { t } = useTranslation();
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   return (
     <div className="space-y-2">
       {patients.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">{t('admin.no_patients_found')}</div>}
       {patients.map((p: any) => (
-        <div key={p.id} className="glass-panel border border-white/5 rounded-xl p-4 flex items-center gap-4 hover:border-white/10 transition-colors">
-          <div className="w-10 h-10 rounded-full bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center shrink-0">
-            <User size={16} className="text-(--color-accent-purple)" />
+        <div key={p.id} className="glass-panel border border-white/5 rounded-xl flex flex-col overflow-hidden hover:border-white/10 transition-colors">
+          <div className="p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-(--color-accent-purple)/10 border border-(--color-accent-purple)/20 flex items-center justify-center shrink-0">
+              <User size={16} className="text-(--color-accent-purple)" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-white">{p.name}</p>
+              <p className="text-xs text-gray-400 font-mono">{p.email} · Age {p.age} · {p.bloodGroup}</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 text-xs font-mono text-gray-400">
+              <span>{p.phone}</span>
+              <button onClick={() => onEdit(p)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
+              <button onClick={() => onDelete(p.id, 'users')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
+              <button onClick={() => setExpanded(expanded === p.id ? null : p.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors">
+                <Plus size={14} className={`transition-transform duration-300 ${expanded === p.id ? 'rotate-45' : ''}`} />
+              </button>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-white">{p.name}</p>
-            <p className="text-xs text-gray-400 font-mono">{p.email} · Age {p.age} · {p.bloodGroup}</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0 text-xs font-mono text-gray-400">
-            <span>{p.phone}</span>
-            <button onClick={() => onEdit(p)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
-            <button onClick={() => onDelete(p.id, 'users')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
-          </div>
+          <AnimatePresence>
+            {expanded === p.id && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-white/5 bg-black/20 overflow-hidden">
+                <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] font-mono">
+                  {Object.keys(p).filter(k => k !== 'id' && typeof p[k] !== 'object').map(key => (
+                    <div key={key}>
+                      <p className="text-gray-500 uppercase tracking-widest mb-0.5">{key.replace(/([A-Z])/g, ' $1')}</p>
+                      <p className="text-white truncate block">{p[key] ? String(p[key]) : '—'}</p>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       ))}
     </div>
@@ -358,24 +389,47 @@ function PatientTable({ patients, onEdit, onDelete }: any) {
 /* ─── BOOKING TABLE ─── */
 function BookingTable({ bookings, onEdit, onDelete }: any) {
   const { t } = useTranslation();
+  const [expanded, setExpanded] = useState<string | null>(null);
+
   return (
     <div className="space-y-2">
       {bookings.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">{t('admin.no_bookings_found')}</div>}
       {bookings.map((b: any) => (
-        <div key={b.id} className="glass-panel border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 hover:border-white/10 transition-colors">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className="font-bold text-white">{b.patientName}</span>
-              <span className="text-gray-400 font-mono text-xs">→ Dr. {b.doctorName}</span>
-              <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full border ${b.status === 'upcoming' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : b.status === 'concluded' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>{b.status}</span>
+        <div key={b.id} className="glass-panel border border-white/5 rounded-xl flex flex-col overflow-hidden hover:border-white/10 transition-colors">
+          <div className="p-4 flex flex-col md:flex-row md:items-center gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <span className="font-bold text-white">{b.patientName}</span>
+                <span className="text-gray-400 font-mono text-xs">→ Dr. {b.doctorName}</span>
+                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full border ${b.status === 'upcoming' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' : b.status === 'concluded' ? 'bg-green-500/20 text-green-300 border-green-500/30' : 'bg-red-500/20 text-red-300 border-red-500/30'}`}>{b.status}</span>
+              </div>
+              <p className="text-xs text-gray-400 font-mono">{b.date} at {b.time} · {b.specialization} · ₹{b.fees || b.amount || 0}</p>
             </div>
-            <p className="text-xs text-gray-400 font-mono">{b.date} at {b.time} · {b.specialization} · ₹{b.amount}</p>
+            <div className="flex items-center gap-2 shrink-0">
+              <button onClick={() => onEdit(b)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
+              <button onClick={() => onDelete(b.id, 'appointments')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
+              <button onClick={() => setExpanded(expanded === b.id ? null : b.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors">
+                <Plus size={14} className={`transition-transform duration-300 ${expanded === b.id ? 'rotate-45' : ''}`} />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button onClick={() => onEdit(b)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
-            <button onClick={() => onDelete(b.id, 'appointments')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
-            <button className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors"><Eye size={14} /></button>
-          </div>
+          <AnimatePresence>
+            {expanded === b.id && (
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="border-t border-white/5 bg-black/20 overflow-hidden">
+                <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-[10px] font-mono">
+                  {Object.keys(b).filter(k => k !== 'id' && typeof b[k] !== 'object').map(key => {
+                    const isLongText = ['symptoms', 'aiAssessment', 'diagnosis', 'prescription', 'meetingLink', 'reviewText'].includes(key);
+                    return (
+                      <div key={key} className={isLongText ? 'md:col-span-4' : ''}>
+                        <p className="text-gray-500 uppercase tracking-widest mb-0.5">{key.replace(/([A-Z])/g, ' $1')}</p>
+                        <p className="text-white whitespace-pre-wrap">{b[key] ? String(b[key]) : '—'}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       ))}
     </div>
@@ -611,10 +665,10 @@ function AdminPanel() {
                 <EnquiryTable enquiries={enquiries} onDelete={handleDelete} onStatusChange={handleStatusChange} />
               )}
               {activeTab === 'labs' && (
-                <LabTable labs={labs} labTests={labTests} onDelete={handleDelete} onApprove={handleApprove} onDecline={handleDecline} />
+                <LabTable labs={labs} labTests={labTests} onEdit={(l: any) => setEditItem({ item: l, col: 'lab_doctors' })} onDelete={handleDelete} onApprove={handleApprove} onDecline={handleDecline} />
               )}
               {activeTab === 'lab_bookings' && (
-                <LabBookingTable bookings={labBookings} onDelete={handleDelete} />
+                <LabBookingTable bookings={labBookings} onEdit={(b: any) => setEditItem({ item: b, col: 'lab_bookings' })} onDelete={handleDelete} />
               )}
               {activeTab === 'messages' && (
                 <MessageTable messages={messages} onDelete={handleDelete} />

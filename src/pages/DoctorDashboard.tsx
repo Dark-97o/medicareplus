@@ -8,7 +8,7 @@ import { useAuth, type UserProfile } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { Mail, Calendar, CheckCircle, XCircle, Clock, Stethoscope, Lock, FileText, Activity, Phone, Award, Building, User, ChevronRight, Video, LogOut } from 'lucide-react';
-import { sendPreConsultationInstructions, sendPatientCancellationNotice } from '../lib/emailService';
+import { sendPreConsultationInstructions, sendPatientCancellationNotice, sendDoctorNoShowNotice } from '../lib/emailService';
 
 const SPECIALITIES = ["General Physician", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry", "Urology", "Radiology", "Endocrinology"];
 
@@ -151,6 +151,28 @@ export default function DoctorDashboard() {
     }
     
     loadAppointments();
+  };
+
+  const handleNoShow = async (app: any) => {
+    if (!confirm('Marking this as No-Show cannot be undone and no refund will be issued. Proceed?')) return;
+    try {
+      await updateDoc(doc(db, 'appointments', app.id), { 
+        status: 'patient_no_show',
+        updatedAt: new Date().toISOString()
+      });
+      try {
+        await sendDoctorNoShowNotice({
+          to_email: app.patientEmail || '',
+          to_name: app.patientName || 'Patient',
+          provider_name: userProfile?.name || 'Doctor',
+          date: app.date,
+          time: app.time
+        });
+      } catch(e) { console.error('Email block failed', e) }
+      loadAppointments();
+    } catch(e) {
+      alert("Failed to update status.");
+    }
   };
 
   const sendEmail = async () => {
@@ -575,9 +597,22 @@ export default function DoctorDashboard() {
                                 <Video size={14} /> {t('doctor.appointments.video')}
                               </button>
                             )}
-                            <button onClick={() => alert("Reschedule functionality coming soon!")} className="flex-1 md:flex-none py-2.5 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-xl hover:bg-orange-500 hover:text-black transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
+                            <button onClick={(() => alert("Reschedule functionality coming soon!"))} className="flex-1 md:flex-none py-2.5 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-xl hover:bg-orange-500 hover:text-black transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
                               <Calendar size={13} /> Reschedule
                             </button>
+                            {(() => {
+                               if (!app.date || !app.time) return null;
+                               const scheduled = new Date(`${app.date}T${app.time}`).getTime();
+                               const now = new Date().getTime();
+                               if (now - scheduled > 10 * 60 * 1000) {
+                                 return (
+                                  <button onClick={() => handleNoShow(app)} className="flex-1 md:flex-none py-2.5 bg-red-900/40 text-red-200 border border-red-500/80 rounded-xl hover:bg-red-500 hover:text-white transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
+                                    <XCircle size={13} /> Mark No-Show
+                                  </button>
+                                 );
+                               }
+                               return null;
+                            })()}
                             <button onClick={() => handleCancel(app)} className="flex-1 md:flex-none py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500 hover:text-white transition-all flex justify-center items-center gap-1.5 text-xs uppercase tracking-wider font-bold">
                               <XCircle size={13} /> {t('doctor.appointments.cancel')}
                             </button>

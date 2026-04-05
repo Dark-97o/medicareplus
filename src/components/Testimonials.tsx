@@ -1,11 +1,40 @@
 import { motion } from 'framer-motion';
 import { Quote, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import { collection, query, getDocs, orderBy } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function Testimonials() {
   const { t } = useTranslation();
+  const [dynamicTestimonials, setDynamicTestimonials] = useState<any[]>([]);
 
-  const testimonials = [
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const snapshot = await getDocs(query(collection(db, 'appointments'), orderBy('createdAt', 'desc')));
+        const reviews: any[] = [];
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.reviewText && data.reviewRating) {
+            reviews.push({
+              name: data.patientName || 'Anonymous',
+              role: t('patient.dashboard.title', 'Patient'),
+              content: data.reviewText,
+              rating: data.reviewRating,
+              hospital: data.doctorName ? `Dr. ${data.doctorName}` : 'MedicarePlus'
+            });
+          }
+        });
+        setDynamicTestimonials(reviews.slice(0, 3));
+      } catch (err) {
+        console.error("Failed to fetch custom reviews:", err);
+      }
+    };
+    fetchReviews();
+  }, []);
+
+  const fallbackTestimonials = [
     {
       name: "Rajesh Sharma",
       role: t('home.testimonials.items.rajesh.role'),
@@ -28,6 +57,8 @@ export default function Testimonials() {
       hospital: "SMS Hospital (Premium Wing)"
     }
   ];
+
+  const testimonials = dynamicTestimonials.length > 0 ? dynamicTestimonials : fallbackTestimonials;
 
   return (
     <section className="py-4 relative overflow-hidden">

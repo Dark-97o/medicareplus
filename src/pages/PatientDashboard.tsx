@@ -5,7 +5,7 @@ import Spline from '@splinetool/react-spline';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video, FileText } from 'lucide-react';
+import { Calendar, Clock, XCircle, RefreshCw, Activity, LogOut, Video, FileText, MessageSquare, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { sendProviderCancellationAlert, sendPatientCancellationNotice } from '../lib/emailService';
@@ -20,6 +20,39 @@ export default function PatientDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'doctor' | 'lab'>('doctor');
   const [reportModal, setReportModal] = useState<any>(null);
+  const [feedbackModal, setFeedbackModal] = useState<any>(null);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackRating, setFeedbackRating] = useState(5);
+
+  const handleSystemRefund = async (app: any) => {
+    try {
+      await updateDoc(doc(db, 'appointments', app.id), {
+        refundStatus: 'Initiated (100%)'
+      });
+      alert('100% Refund Initiated successfully.');
+      setAppointments(prev => prev.map(a => a.id === app.id ? { ...a, refundStatus: 'Initiated (100%)' } : a));
+    } catch(e) { console.error(); }
+  };
+
+  const submitFeedback = async () => {
+    if(!feedbackModal || !feedbackText) return;
+    setLoading(true);
+    try {
+      await updateDoc(doc(db, 'appointments', feedbackModal.id), {
+        reviewText: feedbackText,
+        reviewRating: feedbackRating,
+        reviewedAt: new Date().toISOString()
+      });
+      alert('Thank you for your feedback!');
+      setAppointments(prev => prev.map(a => a.id === feedbackModal.id ? {...a, reviewText: feedbackText} : a));
+      setFeedbackModal(null);
+      setFeedbackText('');
+    } catch (e) {
+      alert('Failed to submit feedback.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -247,8 +280,34 @@ export default function PatientDashboard() {
                           {app.refundStatus && <p className="text-xs text-orange-400 font-mono bg-orange-500/10 px-2 py-1 rounded inline-block mt-1">Refund: {app.refundStatus}</p>}
                         </div>
                       </div>
+                          {app.status === 'system_cancelled' && !app.refundStatus && (
+                            <div className="flex flex-col gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl items-end">
+                              <p className="text-[10px] uppercase text-red-300 font-bold tracking-widest text-right mb-1 leading-tight max-w-[200px]">Doctor unavailable. Options:</p>
+                              <div className="flex gap-2">
+                                <button onClick={() => handleSystemRefund(app)} className="bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-colors">100% Refund</button>
+                                <button onClick={() => navigate(`/book-appointment?specialty=${encodeURIComponent(app.specialization || 'General Physician')}&freeRescheduleId=${app.id}`)} className="bg-(--color-accent-blue) text-black hover:bg-white px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-colors shadow-[0_0_10px_rgba(0,229,255,0.3)]">Free Reschedule</button>
+                              </div>
+                            </div>
+                          )}
+
                       {app.status === 'concluded' && (
                         <div className="flex items-center gap-2">
+                          {(() => {
+                            if (!app.date || !app.time) return null;
+                            const scheduled = new Date(`${app.date}T${app.time}`).getTime();
+                            const now = new Date().getTime();
+                            if (now - scheduled > 5 * 60 * 60 * 1000 && !app.reviewText) {
+                              return (
+                                <button 
+                                  onClick={() => setFeedbackModal(app)}
+                                  className="text-yellow-400 hover:text-yellow-300 flex flex-col items-center gap-1 justify-center text-[10px] uppercase tracking-widest font-bold cursor-pointer hover:bg-yellow-500/10 px-4 py-2 rounded-lg transition-colors"
+                                >
+                                  <MessageSquare size={20} /> Submit Feedback
+                                </button>
+                              );
+                            }
+                            return null;
+                          })()}
                           {(app.diagnosis || app.prescription) && (
                             <button 
                               onClick={() => setReportModal(app)}
@@ -359,6 +418,63 @@ export default function PatientDashboard() {
                   </div>
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Feedback Modal */}
+      <AnimatePresence>
+        {feedbackModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setFeedbackModal(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg glass-panel border border-yellow-500/30 rounded-2xl p-6 shadow-2xl z-10">
+              <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-white mb-1 flex items-center gap-2">
+                    <Star className="text-yellow-400 fill-yellow-400" /> Share Feedback
+                  </h3>
+                  <p className="text-xs text-gray-400 font-mono uppercase tracking-widest">
+                    Dr. {feedbackModal.doctorName}
+                  </p>
+                </div>
+                <button onClick={() => setFeedbackModal(null)} className="text-gray-500 hover:text-white">
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button 
+                      key={star} 
+                      onClick={() => setFeedbackRating(star)} 
+                      className={`p-2 rounded-lg transition-colors ${feedbackRating >= star ? 'text-yellow-400' : 'text-gray-600'}`}
+                    >
+                      <Star size={24} className={feedbackRating >= star ? 'fill-yellow-400' : ''} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block">Review</label>
+                <textarea 
+                  value={feedbackText}
+                  onChange={e => setFeedbackText(e.target.value)}
+                  placeholder="How was your consultation experience?"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-yellow-500 focus:outline-none min-h-[120px] resize-none text-white"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button onClick={() => setFeedbackModal(null)} className="px-5 py-3 border border-white/10 text-gray-300 hover:text-white rounded-xl text-xs uppercase tracking-widest font-bold hover:bg-white/5 transition-colors">Cancel</button>
+                <button onClick={submitFeedback} disabled={!feedbackText || loading} className="px-5 py-3 bg-yellow-500 text-black rounded-xl text-xs uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50">
+                   {loading ? 'Submitting...' : 'Submit Feedback'}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

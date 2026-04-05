@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
-import { ArrowLeft, Brain, User, CheckCircle, Zap, Stethoscope, Sparkles, Clock, ArrowRight, ShieldCheck, MapPin, Calendar } from 'lucide-react';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { ArrowLeft, Brain, User, CheckCircle, Zap, Stethoscope, Sparkles, Clock, ArrowRight, ShieldCheck, MapPin, Calendar, RefreshCw } from 'lucide-react';
 import { sendPatientBookingConfirmation, sendProviderBookingAlert } from '../lib/emailService';
 import { useTranslation } from 'react-i18next';
 
@@ -214,6 +214,8 @@ export default function BookAppointment() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isCheckupMode = searchParams.get('mode') === 'checkup';
+  const freeRescheduleId = searchParams.get('freeRescheduleId');
+  const specialtyParam = searchParams.get('specialty');
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -268,8 +270,30 @@ export default function BookAppointment() {
         }
       };
       fetchCheckupDoctors();
+    } else if (freeRescheduleId && specialtyParam) {
+      setSymptoms('Free Reschedule');
+      setSpecialization(specialtyParam);
+      setLoading(true);
+      const fetchSpecialtyDoctors = async () => {
+        try {
+          const docQuery = query(
+            collection(db, 'doctors'),
+            where('speciality', '==', specialtyParam),
+            where('status', '==', 'approved')
+          );
+          const snap = await getDocs(docQuery);
+          const matched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setDoctors(matched);
+          setStep(2);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchSpecialtyDoctors();
     }
-  }, [user, authLoading, navigate, isCheckupMode]);
+  }, [user, authLoading, navigate, isCheckupMode, freeRescheduleId, specialtyParam]);
 
   // Simple spec triage for plain-text AI response
   const localTriage = (text: string): { spec: string; brief: string } => {
@@ -380,6 +404,62 @@ export default function BookAppointment() {
   const confirmBooking = async () => {
     if (!selectedDoctor || !date || !time) return alert('Please specify the date and time slot.');
     
+    if (freeRescheduleId) {
+      setLoading(true);
+      try {
+        const meetingId = Math.random().toString(36).substring(2, 10).toUpperCase();
+        const meetingLink = consultationMode === 'online' ? `https://meet.jit.si/MedicarePlus_Consult_${meetingId}` : '';
+        const appointmentData = {
+          patientId: user?.uid,
+          patientName: userProfile?.name || user?.email,
+          patientEmail: userProfile?.email || user?.email,
+          doctorId: selectedDoctor.id,
+          doctorName: selectedDoctor.name,
+          specialization: selectedDoctor.speciality,
+          date,
+          time,
+          status: 'upcoming',
+          fees: selectedDoctor.fees,
+          paymentRef: 'FREE_RESCHEDULE',
+          symptoms: 'Free Reschedule from Auto-Cancelled Appointment',
+          aiAssessment: '',
+          consultationMode,
+          meetingLink,
+          createdAt: new Date().toISOString(),
+        };
+        await addDoc(collection(db, 'appointments'), appointmentData);
+        await updateDoc(doc(db, 'appointments', freeRescheduleId), {
+           refundStatus: 'Reschedule Claimed (100%)'
+        });
+        await sendPatientBookingConfirmation({
+          to_email: userProfile?.email || user?.email || '',
+          to_name: userProfile?.name || 'Patient',
+          service_type: 'Doctor Appointment (Free Reschedule)',
+          provider_name: selectedDoctor.name,
+          date,
+          time,
+          transaction_id: 'FREE_RESCHEDULE',
+          amount_paid: 'Free Reschedule',
+        });
+        await sendProviderBookingAlert({
+          provider_email: selectedDoctor.email || 'doctor@example.com',
+          provider_name: selectedDoctor.name,
+          patient_name: userProfile?.name || 'Patient',
+          service_type: 'Free Reschedule',
+          date,
+          time,
+        });
+        alert("Free Reschedule successful!");
+        navigate('/patient-dashboard');
+        return;
+      } catch (e: any) { 
+        alert("Failed to reschedule: " + e.message); 
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     // DEV BYPASS: Allow creating record without payment on localhost for testing dashboard flow
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       if (confirm("Detected Dev Environment. Bypass Razorpay for testing?")) {
@@ -677,11 +757,14 @@ export default function BookAppointment() {
 
                 <div className="border-t border-white/5 mt-4 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-widest font-bold">
-                    <ShieldCheck size={18} className="text-green-400" />
-                    {t('booking.payment.secure_checkout')}
+                    {freeRescheduleId ? (
+                      <><RefreshCw size={18} className="text-(--color-accent-blue)" /> Auto-Bypass Payment Triggered</>
+                    ) : (
+                      <><ShieldCheck size={18} className="text-green-400" /> {t('booking.payment.secure_checkout')}</>
+                    )}
                   </div>
                   <button onClick={confirmBooking} disabled={!date || !time || loading} className="w-full md:w-auto py-5 px-10 bg-(--color-accent-blue) text-black rounded-xl font-black tracking-widest uppercase hover:bg-white transition-all disabled:opacity-20 flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(0,229,255,0.2)] cursor-pointer">
-                    {loading ? <span className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <>{t('booking.slots.cta', { fee: selectedDoctor.fees })} <ArrowRight size={20}/></>}
+                    {loading ? <span className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <>{freeRescheduleId ? 'CONFIRM FREE RESCHEDULE' : t('booking.slots.cta', { fee: selectedDoctor.fees })} <ArrowRight size={20}/></>}
                   </button>
                 </div>
               </motion.div>

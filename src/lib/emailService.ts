@@ -100,3 +100,50 @@ export const sendPreConsultationInstructions = async (data: {
     '3UJlMGm-hN6jMZVG5'
   );
 };
+
+// 7. System Auto-Cancellation Notice
+export const sendSystemAutoCancellationNotice = async (data: {
+  to_email: string;
+  to_name: string;
+  provider_name: string;
+  date: string;
+  time: string;
+}) => {
+  return emailjs.send(
+    'service_2m6dz0e', 
+    '<NEW_TEMPLATE_ID_PLACEHOLDER>', 
+    data, 
+    's5aMYZtxqGdrZT9vc'
+  );
+};
+
+// 8. Doctor No-Show Notice
+export const sendDoctorNoShowNotice = async (data: {
+  to_email: string;
+  to_name: string;
+  provider_name: string;
+  date: string;
+  time: string;
+}) => {
+  return emailjs.send(
+    'service_2m6dz0e', 
+    '<NEW_TEMPLATE_ID_PLACEHOLDER>', 
+    data, 
+    's5aMYZtxqGdrZT9vc'
+  );
+};
+
+// 9. Patient Review Request (+12h Feedback)
+export const sendPatientReviewRequest = async (data: {
+  to_email: string;
+  to_name: string;
+  provider_name: string;
+  date: string;
+}) => {
+  return emailjs.send(
+    'service_2m6dz0e', 
+    '<NEW_TEMPLATE_ID_PLACEHOLDER>', 
+    data, 
+    's5aMYZtxqGdrZT9vc'
+  );
+};

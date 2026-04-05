@@ -21,6 +21,7 @@ import { useAuth } from './contexts/AuthContext';
 import AIChatAssistant from './components/AIChatAssistant';
 import { useState } from 'react';
 import { PhoneCall, ChevronDown, UserCog, FlaskConical, Stethoscope } from 'lucide-react';
+import { runMaintenanceSweep } from './lib/sweepEngine';
 
 export default function App() {
   const { t } = useTranslation();
@@ -43,6 +44,10 @@ export default function App() {
     }
 
     requestAnimationFrame(raf);
+    
+    // Background Lazy Sweep Evaluation
+    runMaintenanceSweep();
+
     return () => lenis.destroy();
   }, []);
   return (

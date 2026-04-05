@@ -70,3 +70,9 @@ MedicarePlus is a modern, high-performance healthcare booking application built 
 ### 6. Robust Error Handling & Empty States
 - Custom illustrated or strictly formatted "Empty States" across all dashboards (e.g., if a doctor has zero appointments, a clean graphic UI explains this rather than displaying a broken table).
 - Granular error capturing during Firebase Auth cycles to correctly alert the users (Wrong Password vs Email Already Exists).
+
+### 7. Automated Time-Based Rules Engine (Lazy Sweep)
+- **Background Execution:** Because the app is 100% serverless, a 'Lazy Sweep' engine evaluates timestamp validity silently when any user visits the site, handling triggers without backend cron processes.
+- **Auto-Cancellations & Free Rescheduling:** Automatically cancels upcoming appointments if the doctor does not attend within +30 minutes of the scheduled time. Patients are subsequently offered a 100% refund OR a "Free Reschedule" token that intelligently bypasses Razorpay entirely and filters doctors of the exact same medical specialization.
+- **Doctor No-Show Button:** Unlocks precisely +10 minutes past the scheduled time in the Doctor Portal, allowing the doctor to tag a patient as absent (forfeiting the patient's right to request refunds).
+- **Automated Feedback Loop:** At exactly +5 hours passing a concluded appointment, an internal feedback modal unlocks. At +12 hours, the platform automatically dispatches a dynamic "Please Review" EmailJS alert to the patient.
