@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
-export interface UserProfile {
+export type UserProfile = {
   name: string;
   phone: string;
   email: string;
@@ -12,7 +12,7 @@ export interface UserProfile {
   gender: string;
   bloodGroup: string;
   role: 'patient' | 'doctor' | 'admin' | 'lab';
-}
+};
 
 interface AuthContextType {
   user: { uid: string, email: string } | null;

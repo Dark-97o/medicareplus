@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Spline from '@splinetool/react-spline';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { ShieldAlert, ArrowRight, Lock, Eye, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail, FlaskConical, Activity, Star, MessageSquare } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Lock, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail, FlaskConical, Activity, Star, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
@@ -198,7 +198,7 @@ function DoctorTable({ doctors, onEdit, onDelete, onApprove, onDecline }: any) {
 }
 
 /* ─── LAB TABLE ─── */
-function LabTable({ labs, labTests, onDelete, onApprove, onDecline }: any) {
+function LabTable({ labs, labTests, onDelete, onApprove, onDecline, onEdit }: any) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const pending = labs.filter((l: any) => l.status === 'pending');
   const approved = labs.filter((l: any) => l.status !== 'pending');
@@ -226,7 +226,9 @@ function LabTable({ labs, labTests, onDelete, onApprove, onDecline }: any) {
             </>)}
             <button onClick={() => onEdit(l)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-(--color-accent-blue) rounded-lg transition-colors"><Pencil size={14} /></button>
             <button onClick={() => onDelete(l.id, 'lab_doctors')} className="p-2 hover:bg-red-500/10 text-gray-400 hover:text-red-400 rounded-lg transition-colors"><Trash2 size={14} /></button>
-            <button onClick={() => setExpanded(expanded === l.id ? null : l.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors"><Plus size={14} className={`transition-transform duration-300 ${expanded === l.id ? 'rotate-45' : ''}`} /></button>
+            <button onClick={() => setExpanded(expanded === l.id ? null : l.id)} className="p-2 hover:bg-white/10 text-gray-400 rounded-lg transition-colors">
+               <Plus size={14} className={`transition-transform duration-300 ${expanded === l.id ? 'rotate-45' : ''}`} />
+            </button>
           </div>
         </div>
         <AnimatePresence>
