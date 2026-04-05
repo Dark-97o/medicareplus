@@ -10,6 +10,7 @@ import {
   CheckCircle, ShieldCheck, Activity, Search, Building, CreditCard
 } from 'lucide-react';
 import { sendPatientBookingConfirmation, sendProviderBookingAlert } from '../lib/emailService';
+import SafetyModal from '../components/SafetyModal';
 
 
 
@@ -23,7 +24,10 @@ export default function LabBooking() {
   const [tests, setTests] = useState<any[]>([]);
   const [selectedTest, setSelectedTest] = useState<any>(null);
   const [bookingDate, setBookingDate] = useState('');
+  const [notes, setNotes] = useState('');
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [searchQuery] = useState('');
+
 
   useEffect(() => {
     if (authLoading) return;
@@ -58,6 +62,18 @@ export default function LabBooking() {
     fetchTests();
   }, [user, authLoading, navigate]);
 
+  useEffect(() => {
+    const sensitiveWords = [
+      /suicide/i, /self[ -]harm/i, /kill (myself|me)/i, /ending (my life|it all|it)/i, 
+      /no reason to live/i, /want to die/i, /death/i, /hurt (myself|me)/i, 
+      /cut(ting)? myself/i, /harm(ing)? myself/i, /hang(ing)? myself/i, /poison(ing)? myself/i, 
+      /jump(ing)? from/i, /hopeless/i, /worthless/i, /goodbye world/i, /farewell/i
+    ];
+    if (sensitiveWords.some(regex => regex.test(notes))) {
+      setShowSafetyModal(true);
+    }
+  }, [notes]);
+
   const filteredTests = tests.filter(t => 
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     t.hospitalName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -84,6 +100,7 @@ export default function LabBooking() {
             testName: selectedTest.name,
             hospitalName: selectedTest.hospitalName,
             date: bookingDate,
+            notes: notes,
             charges: selectedTest.charges,
             paymentId: response.razorpay_payment_id,
             status: 'confirmed',
@@ -261,6 +278,16 @@ export default function LabBooking() {
                        </div>
                     </div>
                     
+                    <div>
+                       <label className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-3 block">Clinical Notes (Optional)</label>
+                       <textarea 
+                         value={notes} 
+                         onChange={e => setNotes(e.target.value)}
+                         placeholder="Describe any symptoms or clinical context..."
+                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 text-sm focus:border-(--color-accent-purple) focus:outline-none transition-all min-h-[120px] font-mono"
+                       />
+                    </div>
+                    
                     <div className="p-4 bg-purple-500/5 rounded-2xl border border-purple-500/10">
                        <p className="text-[10px] text-purple-400 font-bold flex items-center gap-2"><ShieldCheck size={14}/> Appointments are subject to lab availability on selected date.</p>
                     </div>
@@ -360,6 +387,7 @@ export default function LabBooking() {
         </AnimatePresence>
 
       </div>
+      <SafetyModal isOpen={showSafetyModal} onClose={() => setShowSafetyModal(false)} />
     </div>
   );
 }

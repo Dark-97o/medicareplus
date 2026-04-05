@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Bot, Sparkles, User } from 'lucide-react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import SafetyModal from './SafetyModal';
+
 
 interface Message {
   id: string;
@@ -23,7 +25,9 @@ export default function AIChatAssistant() {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
   const [systemContext, setSystemContext] = useState('');
+
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,7 +72,15 @@ export default function AIChatAssistant() {
             - Lab Tests: /lab-booking
             - Professional Portals: /admin, /doctor, /lab
 
-          TONE: Professional, welcoming, and helpful. Use "Namaste" occasionally.
+
+          TONE: Professional, welcoming, and very empathetic. Use "Namaste" occasionally.
+
+          CRITICAL SAFETY INSTRUCTION:
+          If a user expresses any thoughts of suicide, self-harm, ending their life, or feeling hopeless, you must:
+          1. Respond with extreme empathy and validation ("I am truly sorry you're feeling this way", "You are not alone").
+          2. Explicitly state that you are an AI and cannot provide professional crisis counseling.
+          3. Encourage them to use the emergency resources and helplines displayed in the support popup.
+          4. Keep the response supportive, calm, and non-judgmental.
         `);
       } catch (err) {
         console.error("Context fetch error:", err);
@@ -85,6 +97,18 @@ export default function AIChatAssistant() {
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
+
+    // Safety Check
+    const sensitiveWords = [
+      /suicide/i, /self[ -]harm/i, /kill (myself|me)/i, /ending (my life|it all|it)/i, 
+      /no reason to live/i, /want to die/i, /death/i, /hurt (myself|me)/i, 
+      /cut(ting)? myself/i, /harm(ing)? myself/i, /hang(ing)? myself/i, /poison(ing)? myself/i, 
+      /jump(ing)? from/i, /hopeless/i, /worthless/i, /goodbye world/i, /farewell/i
+    ];
+
+    if (sensitiveWords.some(regex => regex.test(input))) {
+      setShowSafetyModal(true);
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -270,6 +294,7 @@ export default function AIChatAssistant() {
           </motion.div>
         )}
       </AnimatePresence>
+      <SafetyModal isOpen={showSafetyModal} onClose={() => setShowSafetyModal(false)} />
     </>
   );
 }

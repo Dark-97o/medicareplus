@@ -7,6 +7,7 @@ import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'fireb
 import { ArrowLeft, Brain, User, CheckCircle, Zap, Stethoscope, Sparkles, Clock, ArrowRight, ShieldCheck, MapPin, Calendar, RefreshCw } from 'lucide-react';
 import { sendPatientBookingConfirmation, sendProviderBookingAlert } from '../lib/emailService';
 import { useTranslation } from 'react-i18next';
+import SafetyModal from '../components/SafetyModal';
 
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -89,7 +90,7 @@ const DISEASE_MAP: Array<{
   },
   {
     keywords: /cough|cold|fever|throat|sore|sneeze|congestion|flu|respiratory|pneumonia/i,
-    spec: 'General Physician',
+    spec: 'Primary Care',
     conditions: [
       { name: 'Upper Respiratory Infection', likelihood: 72, brief: 'Cough, sore throat, and fever commonly indicate a viral URI or flu.', tags: ['respiratory', 'infectious'], urgency: 'low' },
       { name: 'Pneumonia', likelihood: 40, brief: 'Productive cough with high fever and chest tightness may indicate pneumonia.', tags: ['respiratory', 'infectious'], urgency: 'high' },
@@ -98,7 +99,7 @@ const DISEASE_MAP: Array<{
   },
   {
     keywords: /stomach|abdomen|nausea|vomit|diarrhea|bloat|gastric|indigestion|acid/i,
-    spec: 'General Physician',
+    spec: 'Primary Care',
     conditions: [
       { name: 'Gastroenteritis', likelihood: 68, brief: 'Nausea, vomiting, and abdominal cramps are typical of a GI infection.', tags: ['gastric', 'infectious'], urgency: 'moderate' },
       { name: 'GERD / Acid Reflux', likelihood: 50, brief: 'Burning sensation in the chest and regurgitation may indicate acid reflux.', tags: ['gastric', 'chronic'], urgency: 'low' },
@@ -111,9 +112,9 @@ function buildLocalAssessment(text: string): { conditions: Condition[]; spec: st
   const matched = DISEASE_MAP.find(entry => entry.keywords.test(text));
   if (matched) return { conditions: matched.conditions, spec: matched.spec };
   return {
-    spec: 'General Physician',
+    spec: 'Primary Care',
     conditions: [
-      { name: 'General Medical Review Needed', likelihood: 65, brief: 'Your described symptoms require a comprehensive evaluation by a General Physician.', tags: ['general', 'review'], urgency: 'low' },
+      { name: 'General Medical Review Needed', likelihood: 65, brief: 'Your described symptoms require a comprehensive evaluation by a Primary Care specialist.', tags: ['general', 'review'], urgency: 'low' },
       { name: 'Fatigue / Systemic Condition', likelihood: 45, brief: 'Systemic fatigue and malaise may indicate an underlying condition requiring tests.', tags: ['general', 'systemic'], urgency: 'low' },
       { name: 'Viral Illness', likelihood: 35, brief: 'Non-specific symptoms could indicate a self-limiting viral infection.', tags: ['infectious', 'general'], urgency: 'low' },
     ],
@@ -226,6 +227,8 @@ export default function BookAppointment() {
   const [specialization, setSpecialization] = useState('');
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [isGroqPowered, setIsGroqPowered] = useState(false);
+  const [showSafetyModal, setShowSafetyModal] = useState(false);
+
 
   // Step 2 & 3
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -256,7 +259,7 @@ export default function BookAppointment() {
         try {
           const docQuery = query(
             collection(db, 'doctors'),
-            where('speciality', '==', 'General Physician'),
+            where('speciality', 'in', ['Primary Care', 'General Physician']),
             where('status', '==', 'approved')
           );
           const snap = await getDocs(docQuery);
@@ -295,6 +298,18 @@ export default function BookAppointment() {
     }
   }, [user, authLoading, navigate, isCheckupMode, freeRescheduleId, specialtyParam]);
 
+  useEffect(() => {
+    const sensitiveWords = [
+      /suicide/i, /self[ -]harm/i, /kill (myself|me)/i, /ending (my life|it all|it)/i, 
+      /no reason to live/i, /want to die/i, /death/i, /hurt (myself|me)/i, 
+      /cut(ting)? myself/i, /harm(ing)? myself/i, /hang(ing)? myself/i, /poison(ing)? myself/i, 
+      /jump(ing)? from/i, /hopeless/i, /worthless/i, /goodbye world/i, /farewell/i
+    ];
+    if (sensitiveWords.some(regex => regex.test(symptoms))) {
+      setShowSafetyModal(true);
+    }
+  }, [symptoms]);
+
   // Simple spec triage for plain-text AI response
   const localTriage = (text: string): { spec: string; brief: string } => {
     const assessment = buildLocalAssessment(text);
@@ -330,7 +345,23 @@ export default function BookAppointment() {
           messages: [
             {
               role: "system",
-              content: `You are a medical triage assistant. Identify specialty and provide brief assessment context. 
+              content: `You are a medical triage assistant. Your goal is to identify the most appropriate clinical specialty from the list below based on user symptoms. 
+              
+              AVAILABLE SPECIALTIES:
+              - Primary Care (Default for cold, cough, fever, stomach issues, and general first-line medicine)
+              - Cardiology (Heart, chest pain, palpitations)
+              - Neurology (Brain, nerves, seizures, migraines)
+              - Orthopedics (Bones, joints, spine, fractures)
+              - Dermatology (Skin, rashes, hair)
+              - Pediatrics (Children's health)
+              - Oncology (Cancer, tumors)
+              - Psychiatry (Mental health, mood, anxiety)
+              - Urology (Urinary issues, kidneys, bladder)
+              - Radiology (Imaging results)
+              - Endocrinology (Hormones, diabetes, thyroid)
+
+              MANDATORY RULE: You MUST return a specialization from this list ONLY. Never introduce new terms like "Pulmonology". Default to "Primary Care" if unsure. 
+              
               Return ONLY JSON: {"specialization": "...", "disease_brief": "..."}`
             },
             { role: "user", content: `Symptoms: ${symptoms}` }
@@ -376,8 +407,13 @@ export default function BookAppointment() {
       console.warn('[Groq] Worker failed, using local assessment. Reason:', err.message);
     }
 
+    // Ensure the specialization is normalized to exact database strings
+    const ALLOWED_SPECS = ["Primary Care", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry", "Urology", "Radiology", "Endocrinology", "Therapist"];
+    const matchedSpec = ALLOWED_SPECS.find(s => s.toLowerCase() === finalSpec.toLowerCase());
+    const querySpec = matchedSpec || 'Primary Care';
+
     setAiAssessment(finalBrief || local.conditions[0]?.brief || '');
-    setSpecialization(finalSpec);
+    setSpecialization(querySpec);
     setConditions(finalConditions);
     setIsGroqPowered(groqPowered);
 
@@ -385,12 +421,12 @@ export default function BookAppointment() {
     try {
       const docQuery = query(
         collection(db, 'doctors'),
-        where('speciality', '==', finalSpec),
+        where('speciality', '==', querySpec),
         where('status', '==', 'approved')
       );
       const snap = await getDocs(docQuery);
       const matched: any[] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      console.log(`[Firestore] Found ${matched.length} approved ${finalSpec} doctor(s)`);
+      console.log(`[Firestore] Found ${matched.length} approved ${querySpec} doctor(s)`);
       setDoctors(matched);
     } catch (err) {
       console.error('[Firestore] Doctor query failed:', err);
@@ -587,28 +623,31 @@ export default function BookAppointment() {
     }
   };
 
+  if (loading) return <div className="min-h-screen bg-(--color-primary-base) text-white flex items-center justify-center font-mono animate-pulse tracking-widest text-sm uppercase">Loading Secure Portal...</div>;
+
   return (
-    <div className="min-h-screen bg-(--color-primary-base) text-white font-sans py-24 px-8 md:px-16 flex justify-center">
-      <div className="w-full max-w-4xl relative z-10">
-        <div className="flex items-center gap-6 mb-12">
+    <div className="min-h-screen bg-(--color-primary-base) text-white font-sans pt-28 pb-16 px-6 md:px-12 flex justify-center items-start">
+      <SafetyModal isOpen={showSafetyModal} onClose={() => setShowSafetyModal(false)} />
+      <div className="w-full max-w-[1440px] relative z-10">
+        <div className="flex items-center gap-6 mb-6">
           <button
             onClick={() => step > 1 ? setStep(step - 1) : navigate('/patient-dashboard')}
-            className="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-white/10 group"
+            className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer border border-white/10 group"
           >
-            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           </button>
           <div>
-            <h1 className="text-3xl font-serif font-black">{t('booking.title')}</h1>
-            <div className="px-4 py-1.5 bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/20 rounded-full text-[10px] font-mono tracking-widest text-(--color-accent-blue) uppercase mt-2 inline-block">
+            <h1 className="text-2xl md:text-3xl font-serif font-black">{t('booking.title')}</h1>
+            <div className="px-3 py-1 bg-(--color-accent-blue)/10 border border-(--color-accent-blue)/20 rounded-full text-[9px] font-mono tracking-widest text-(--color-accent-blue) uppercase mt-1 inline-block">
               {t('booking.step', { current: step })}
             </div>
           </div>
         </div>
 
-        <div className="glass-panel p-8 md:p-12 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden min-h-[500px]">
+        <div className="glass-panel p-6 md:p-8 rounded-2xl border border-white/5 shadow-2xl relative overflow-hidden min-h-[400px]">
           <AnimatePresence mode="wait">
             {step === 1 && (
-              <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+              <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="relative z-10">
                   <h2 className="text-xl font-serif font-bold mb-4 flex items-center gap-2"><Sparkles className="text-(--color-accent-blue)"/> {t('booking.symptoms.title')}</h2>
                   <p className="text-gray-400 text-sm mb-6 leading-relaxed">{t('booking.symptoms.desc')}</p>
@@ -617,7 +656,7 @@ export default function BookAppointment() {
                     value={symptoms}
                     onChange={(e) => setSymptoms(e.target.value)}
                     placeholder={t('booking.symptoms.placeholder')}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl p-6 text-sm focus:border-(--color-accent-blue) focus:outline-none focus:ring-1 focus:ring-(--color-accent-blue)/30 transition-all min-h-[150px] font-mono"
+                    className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-(--color-accent-blue) focus:outline-none focus:ring-1 focus:ring-(--color-accent-blue)/30 transition-all min-h-[100px] font-mono"
                   />
                   
                   <button
@@ -632,139 +671,207 @@ export default function BookAppointment() {
             )}
 
             {step === 2 && (
-              <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-8">
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-panel border border-(--color-accent-blue)/30 bg-(--color-accent-blue)/5 p-8 rounded-2xl">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-(--color-accent-blue)">{t('booking.triage.result')}</h3>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-black/50 border border-white/10 rounded-full">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-[10px] font-mono uppercase text-gray-400">{isGroqPowered ? t('booking.triage.ai') : t('booking.triage.local_engine')}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-(--color-accent-blue)/20 border border-(--color-accent-blue)/30 flex items-center justify-center shrink-0">
-                      <Brain size={24} className="text-(--color-accent-blue)" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">{t('booking.triage.engine_desc')}</p>
-                      <p className="text-xl font-serif font-bold text-white leading-tight">{specialization}</p>
-                    </div>
-                  </div>
+              <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  <div className="lg:col-span-9 space-y-6 lg:border-r lg:border-white/5 lg:pr-8">
+                    {conditions.length > 0 && (
+                      <div className="origin-top-left pt-2">
+                        <h2 className="text-sm font-serif font-bold text-white mb-4 flex items-center gap-2">
+                          <Brain size={18} className="text-(--color-accent-purple)" />
+                          {t('booking.assessment.predicted_conditions')}
+                        </h2>
+                        <DiseaseAssessmentPanel conditions={conditions} isAI={isGroqPowered} />
+                      </div>
+                    )}
 
-                  <p className="text-xs text-gray-500 italic leading-relaxed mb-6 border-l-2 border-white/10 pl-4">{t('booking.triage.disclaimer')}</p>
-                </motion.div>
-
-                {conditions.length > 0 && (
-                  <div>
-                    <h2 className="text-base font-serif font-bold text-white mb-4 flex items-center gap-2">
-                      <Brain size={18} className="text-(--color-accent-purple)" />
-                      {t('booking.assessment.predicted_conditions')}
-                    </h2>
-                    <DiseaseAssessmentPanel conditions={conditions} isAI={isGroqPowered} />
-                  </div>
-                )}
-
-                <div>
-                  <h2 className="text-xl font-serif font-bold mb-6 flex items-center gap-2"><Stethoscope className="text-(--color-accent-blue)"/> {t('booking.doctors.title')} - <span className="text-(--color-accent-blue)">{specialization}</span></h2>
-                  
-                  {doctors.length === 0 ? (
-                    <div className="p-12 border border-white/5 rounded-2xl text-center bg-white/5 glass-panel">
-                      <p className="text-gray-400 mb-2">{t('booking.doctors.none')}</p>
-                      <p className="text-xs text-gray-500 uppercase tracking-widest">{t('booking.doctors.register_desc')} {specialization}</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {doctors.map(doc => (
-                        <div key={doc.id} onClick={() => setSelectedDoctor(doc)}
-                          className={`p-6 rounded-xl border cursor-pointer transition-all duration-300 flex gap-4 items-start ${selectedDoctor?.id === doc.id ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) shadow-[0_0_20px_rgba(0,229,255,0.15)] scale-[1.02]' : 'bg-black/30 border-white/5 hover:border-white/20'}`}>
-                          <div className="w-16 h-16 rounded-xl bg-white/5 border border-white/10 overflow-hidden shrink-0">
-                            {doc.imageUrl ? (
-                              <img src={doc.imageUrl} alt={doc.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-600">
-                                <User size={24} />
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-serif text-lg font-bold">{doc.name}</h3>
-                            <p className="text-xs text-gray-400 font-mono tracking-widest uppercase mb-4">{doc.hospital}</p>
-                            <div className="flex justify-between items-end border-t border-white/5 pt-4">
-                              <div>
-                                <p className="text-xs text-gray-500">{t('doctor.auth.experience')}: <span className="text-gray-300">{doc.experience}</span></p>
-                                <p className="text-xs text-gray-500 mt-1">{t('doctor.auth.consultation_fee')}: <span className="text-(--color-accent-blue) font-bold">₹{doc.fees}</span></p>
-                              </div>
-                              {selectedDoctor?.id === doc.id && <CheckCircle size={20} className="text-(--color-accent-blue)" />}
-                            </div>
+                    <div className={`mt-8 pt-8 border-t border-white/5 transition-all duration-500 ${selectedDoctor ? 'opacity-100 translate-y-0' : 'opacity-20 pointer-events-none'}`}>
+                      <h2 className="text-sm font-serif font-bold text-white mb-6 flex items-center gap-2">
+                        <Calendar size={18} className="text-(--color-accent-blue)" />
+                        {t('booking.slots.title')} {selectedDoctor && <span className="text-[10px] text-gray-500 font-mono uppercase ml-2 tracking-widest">— {selectedDoctor.name}</span>}
+                      </h2>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="md:col-span-2">
+                          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3">{t('booking.slots.type')}</h3>
+                          <div className="flex gap-3">
+                            <button onClick={() => setConsultationMode('offline')} className={`flex-1 py-3 px-4 rounded-xl border flex items-center justify-center gap-3 transition-all ${consultationMode === 'offline' ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) text-(--color-accent-blue)' : 'bg-white/5 border-white/10 text-gray-600 hover:border-white/20'}`}>
+                              <MapPin size={14}/> <span className="text-[10px] font-bold uppercase tracking-wider">{t('booking.slots.in_person')}</span>
+                            </button>
+                            <button onClick={() => setConsultationMode('online')} className={`flex-1 py-3 px-4 rounded-xl border flex items-center justify-center gap-3 transition-all ${consultationMode === 'online' ? 'bg-(--color-accent-purple)/10 border-(--color-accent-purple) text-(--color-accent-purple)' : 'bg-white/5 border-white/10 text-gray-600 hover:border-white/20'}`}>
+                              <Brain size={14}/> <span className="text-[10px] font-bold uppercase tracking-wider">{t('booking.slots.virtual')}</span>
+                            </button>
                           </div>
                         </div>
-                      ))}
+
+                        <div>
+                          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2"><Calendar size={12}/> {t('booking.slots.date')}</h3>
+                          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all font-mono" />
+                        </div>
+
+                        <div>
+                          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2"><Clock size={12}/> {t('booking.slots.time')}</h3>
+                          <select value={time} onChange={(e) => setTime(e.target.value)} disabled={!selectedDoctor} className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all appearance-none font-mono">
+                            <option value="">{t('booking.slots.choose_slot')}</option>
+                            {selectedDoctor?.availability?.[new Date(date).toLocaleDateString('en-US', { weekday: 'long' })]?.map((slot: string) => (
+                              <option key={slot} value={slot}>{slot}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  <div className="lg:col-span-3">
+                    <div className="mb-4">
+                      <p className="text-xl text-(--color-accent-blue) font-mono font-black uppercase tracking-[0.1em] mb-1">{specialization || 'General Physician'}</p>
+                      <h2 className="text-lg font-serif font-bold flex items-center gap-2 opacity-60">
+                        <Stethoscope size={18} className="text-(--color-accent-blue)"/> 
+                        {t('booking.doctors.title')}
+                      </h2>
+                    </div>
+                    
+                    <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                      {doctors.length === 0 ? (
+                        <div className="p-8 border border-white/5 rounded-2xl text-center bg-white/5 glass-panel">
+                          <p className="text-gray-400 mb-2">{t('booking.doctors.none')}</p>
+                          <p className="text-xs text-gray-500 uppercase tracking-widest leading-tight">{t('booking.doctors.register_desc')} {specialization}</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2.5 pb-4">
+                          {doctors.map(doc => (
+                            <div key={doc.id} onClick={() => setSelectedDoctor(doc)}
+                              className={`p-3 rounded-xl border cursor-pointer transition-all duration-300 flex flex-col gap-2 ${selectedDoctor?.id === doc.id ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) shadow-[0_0_15px_rgba(0,229,255,0.15)] scale-[1.02]' : 'bg-black/30 border-white/5 hover:border-white/20'}`}>
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 overflow-hidden shrink-0">
+                                  {doc.imageUrl ? (
+                                    <img src={doc.imageUrl} alt={doc.name} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-600">
+                                      <User size={18} />
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <h3 className="font-serif text-[13px] font-bold truncate leading-tight">{doc.name}</h3>
+                                  <p className="text-[10px] text-(--color-accent-blue) font-bold mt-0.5">₹{doc.fees}</p>
+                                </div>
+                              </div>
+                              <div className="flex justify-between items-center border-t border-white/5 pt-1.5 mt-0.5">
+                                <p className="text-[9px] text-gray-500 font-mono tracking-widest uppercase truncate">{doc.hospital}</p>
+                                {selectedDoctor?.id === doc.id && <CheckCircle size={14} className="text-(--color-accent-blue)" />}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <button onClick={() => setStep(3)} disabled={!selectedDoctor} className="w-full mt-4 py-4 bg-(--color-accent-blue) text-black rounded-xl font-bold tracking-widest uppercase hover:bg-white transition-all disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.3)]">
-                  {t('booking.doctors.cta')} <ArrowRight size={14} className="ml-2 inline-block"/>
-                </button>
+                <div className="border-t border-white/5 pt-6">
+                  <button 
+                    onClick={() => setStep(3)} 
+                    disabled={!selectedDoctor || !date || !time} 
+                    className="w-full py-4 bg-(--color-accent-blue) text-black rounded-xl font-bold tracking-widest uppercase hover:bg-white transition-all disabled:opacity-50 cursor-pointer shadow-[0_0_20px_rgba(0,229,255,0.3)] flex items-center justify-center gap-2"
+                  >
+                    {t('booking.doctors.cta')} <ArrowRight size={16}/>
+                  </button>
+                </div>
               </motion.div>
             )}
 
             {step === 3 && selectedDoctor && (
-              <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-8">
-                <div className="flex justify-between items-center p-6 bg-black/40 rounded-xl border border-white/5">
-                  <div>
-                    <h3 className="font-serif text-xl font-bold">{selectedDoctor.name}</h3>
-                    <p className="text-xs text-(--color-accent-blue) font-mono tracking-widest uppercase">{selectedDoctor.speciality} • ₹{selectedDoctor.fees}</p>
-                  </div>
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-gray-500 overflow-hidden shrink-0">
-                    {selectedDoctor.imageUrl ? (
-                      <img src={selectedDoctor.imageUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <User size={32} />
-                    )}
-                  </div>
+              <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex flex-col gap-5">
+                <div className="flex items-center gap-3">
+                   <div className="p-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <ShieldCheck className="text-green-400" size={20} />
+                   </div>
+                   <div>
+                      <h2 className="text-xl font-serif font-bold text-white lowercase leading-tight">Finalizing your appointment</h2>
+                      <p className="text-[11px] text-gray-500 uppercase tracking-widest">Review details & proceed to secure payment</p>
+                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="md:col-span-2">
-                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">{t('booking.slots.type')}</h3>
-                    <div className="flex gap-4">
-                      <button onClick={() => setConsultationMode('offline')} className={`flex-1 p-4 rounded-xl border flex items-center justify-center gap-3 transition-all ${consultationMode === 'offline' ? 'bg-(--color-accent-blue)/10 border-(--color-accent-blue) text-(--color-accent-blue)' : 'bg-white/5 border-white/10 text-gray-500 hover:border-white/20'}`}>
-                        <MapPin size={16}/> <span className="text-xs font-bold uppercase tracking-wider">{t('booking.slots.in_person')}</span>
-                      </button>
-                      <button onClick={() => setConsultationMode('online')} className={`flex-1 p-4 rounded-xl border flex items-center justify-center gap-3 transition-all ${consultationMode === 'online' ? 'bg-(--color-accent-purple)/10 border-(--color-accent-purple) text-(--color-accent-purple)' : 'bg-white/5 border-white/10 text-gray-500 hover:border-white/20'}`}>
-                        <Brain size={16}/> <span className="text-xs font-bold uppercase tracking-wider">{t('booking.slots.virtual')}</span>
-                      </button>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+                  <div className="md:col-span-12 lg:col-span-5 p-5 bg-white/5 border border-white/10 rounded-2xl flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">Doctor Details</h3>
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 overflow-hidden shrink-0">
+                          {selectedDoctor.imageUrl ? <img src={selectedDoctor.imageUrl} alt="" className="w-full h-full object-cover" /> : <User className="w-full h-full p-2.5 text-gray-600" />}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-base font-serif font-bold text-white truncate">{selectedDoctor.name}</h4>
+                          <p className="text-[10px] text-(--color-accent-blue) uppercase tracking-wider font-bold mb-1">{selectedDoctor.speciality}</p>
+                          <p className="text-[9px] text-gray-500 font-mono truncate">{selectedDoctor.hospital}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="pt-4 mt-4 border-t border-white/5 space-y-1.5">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-gray-500 uppercase tracking-wider">Consultation Fee</span>
+                        <span className="text-white font-bold">₹{selectedDoctor.fees}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-gray-500 uppercase tracking-wider">Platform Charge</span>
+                        <span className="text-green-400 font-bold">FREE</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><Calendar size={14}/> {t('booking.slots.date')}</h3>
-                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all" />
-                  </div>
-
-                  <div>
-                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2"><Clock size={14}/> {t('booking.slots.time')}</h3>
-                    <select value={time} onChange={(e) => setTime(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm focus:border-(--color-accent-blue) focus:outline-none transition-all appearance-none">
-                      <option value="">{t('booking.slots.choose_slot')}</option>
-                      {selectedDoctor.availability?.[new Date(date).toLocaleDateString('en-US', { weekday: 'long' })]?.map((slot: string) => (
-                        <option key={slot} value={slot}>{slot}</option>
-                      ))}
-                    </select>
+                  <div className="md:col-span-12 lg:col-span-7 p-5 bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden">
+                    <h3 className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-4">Schedule Summary</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-(--color-accent-blue) shrink-0">
+                          <Calendar size={14} />
+                        </div>
+                        <div>
+                          <p className="text-[8px] text-gray-500 uppercase tracking-wider mb-0.5">Date</p>
+                          <p className="text-xs text-white font-bold font-mono">{date}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-(--color-accent-purple) shrink-0">
+                          <Clock size={14} />
+                        </div>
+                        <div>
+                          <p className="text-[8px] text-gray-500 uppercase tracking-wider mb-0.5">Time Slot</p>
+                          <p className="text-xs text-white font-bold font-mono">{time}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-orange-400 shrink-0">
+                          {consultationMode === 'online' ? <Brain size={14} /> : <MapPin size={14} />}
+                        </div>
+                        <div>
+                          <p className="text-[8px] text-gray-500 uppercase tracking-wider mb-0.5">Mode</p>
+                          <p className="text-xs text-white font-bold uppercase tracking-tighter">{consultationMode}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-400 shrink-0">
+                          <ShieldCheck size={14} />
+                        </div>
+                        <div>
+                          <p className="text-[8px] text-gray-500 uppercase tracking-wider mb-0.5">Status</p>
+                          <p className="text-xs text-white font-bold uppercase tracking-tighter">Verified</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="border-t border-white/5 mt-4 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-                  <div className="flex items-center gap-3 text-xs text-gray-500 uppercase tracking-widest font-bold">
+                <div className="border-t border-white/5 pt-5 flex flex-col md:flex-row justify-between items-center gap-4">
+                  <div className="flex items-center gap-2 text-[9px] text-gray-500 uppercase tracking-[0.2em] font-bold">
                     {freeRescheduleId ? (
-                      <><RefreshCw size={18} className="text-(--color-accent-blue)" /> Auto-Bypass Payment Triggered</>
+                      <><RefreshCw size={14} className="text-(--color-accent-blue)" /> Auto-Bypass Payment Enabled</>
                     ) : (
-                      <><ShieldCheck size={18} className="text-green-400" /> {t('booking.payment.secure_checkout')}</>
+                      <><ShieldCheck size={14} className="text-green-500" /> Secure SSL 256-bit Encryption</>
                     )}
                   </div>
-                  <button onClick={confirmBooking} disabled={!date || !time || loading} className="w-full md:w-auto py-5 px-10 bg-(--color-accent-blue) text-black rounded-xl font-black tracking-widest uppercase hover:bg-white transition-all disabled:opacity-20 flex items-center justify-center gap-4 shadow-[0_0_30px_rgba(0,229,255,0.2)] cursor-pointer">
-                    {loading ? <span className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <>{freeRescheduleId ? 'CONFIRM FREE RESCHEDULE' : t('booking.slots.cta', { fee: selectedDoctor.fees })} <ArrowRight size={20}/></>}
+                  <button onClick={confirmBooking} disabled={loading} className="w-full md:w-auto py-3.5 px-10 bg-(--color-accent-blue) text-black rounded-xl font-black tracking-[0.2em] uppercase hover:bg-white transition-all disabled:opacity-20 flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(0,229,255,0.2)] cursor-pointer text-xs">
+                    {loading ? <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" /> : <><Zap size={14}/> {freeRescheduleId ? 'CONFIRM RESCHEDULE' : `Pay ₹${selectedDoctor.fees}`} <ArrowRight size={16}/></>}
                   </button>
                 </div>
               </motion.div>
@@ -772,6 +879,7 @@ export default function BookAppointment() {
           </AnimatePresence>
         </div>
       </div>
+      <SafetyModal isOpen={showSafetyModal} onClose={() => setShowSafetyModal(false)} />
     </div>
   );
 }

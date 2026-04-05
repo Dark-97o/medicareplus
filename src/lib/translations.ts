@@ -149,7 +149,7 @@ export const translations = {
       }
     },
     specialities: {
-      general_physician: "General Physician",
+      primary_care: "Primary Care",
       cardiology: "Cardiology",
       neurology: "Neurology",
       orthopedics: "Orthopedics",
@@ -483,7 +483,7 @@ export const translations = {
       }
     },
     specialities: {
-      general_physician: "सामान्य चिकित्सक",
+      primary_care: "प्राथमिक चिकित्सा",
       cardiology: "हृदय रोग विशेषज्ञ",
       neurology: "न्यूरोलॉजिस्ट",
       orthopedics: "हड्डी रोग विशेषज्ञ",

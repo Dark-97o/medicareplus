@@ -10,7 +10,7 @@ import { collection, query, where, getDocs, doc, updateDoc, addDoc } from 'fireb
 import { Mail, Calendar, CheckCircle, XCircle, Clock, Stethoscope, Lock, FileText, Activity, Phone, Award, Building, User, ChevronRight, Video, LogOut } from 'lucide-react';
 import { sendPreConsultationInstructions, sendPatientCancellationNotice, sendDoctorNoShowNotice } from '../lib/emailService';
 
-const SPECIALITIES = ["General Physician", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry", "Urology", "Radiology", "Endocrinology"];
+const SPECIALITIES = ["Primary Care", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry", "Urology", "Radiology", "Endocrinology"];
 
 export default function DoctorDashboard() {
 

@@ -2,7 +2,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Spline from '@splinetool/react-spline';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { ShieldAlert, ArrowRight, Lock, Eye, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail, FlaskConical, Activity } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Lock, Eye, Trash2, Pencil, X, CheckCircle, XCircle, Stethoscope, User, Calendar, Plus, Phone, Mail, FlaskConical, Activity, Star, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query } from 'firebase/firestore';
 
 /* ─── TYPES ─── */
-type TabId = 'doctors' | 'patients' | 'bookings' | 'labs' | 'lab_bookings' | 'enquiries' | 'messages';
+type TabId = 'doctors' | 'patients' | 'bookings' | 'labs' | 'lab_bookings' | 'enquiries' | 'messages' | 'reviews';
 
 /* ─── ADMIN LOGIN ─── */
 function AdminLogin() {
@@ -502,6 +502,36 @@ function MessageTable({ messages, onDelete }: any) {
   );
 }
 
+/* ─── REVIEW TABLE ─── */
+function ReviewTable({ reviews }: { reviews: any[] }) {
+  return (
+    <div className="space-y-4">
+      {reviews.length === 0 && <div className="text-center py-12 text-gray-500 font-mono text-sm">No reviews found.</div>}
+      {reviews.map(r => (
+        <div key={r.id} className="glass-panel border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors group">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h4 className="font-bold text-white flex items-center gap-2">{r.patientName} <span className="text-gray-500 text-xs font-mono font-normal">→ Dr. {r.doctorName}</span></h4>
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono mt-1">{r.hospitalName || r.specialization || 'MedicarePlus Network'}</p>
+            </div>
+            <div className="flex items-center gap-1 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-xl">
+               {[...Array(5)].map((_, i) => (
+                 <Star key={i} size={14} className={i < (r.reviewRating || 5) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'} />
+               ))}
+            </div>
+          </div>
+          <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-300 leading-relaxed italic">
+            "{r.reviewText}"
+          </div>
+          <div className="mt-4 text-[10px] font-mono text-gray-600 uppercase tracking-widest">
+            Appointment Date: {r.date} {r.time && `· ${r.time}`}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ─── ADMIN PANEL ─── */
 function AdminPanel() {
   const { t } = useTranslation();
@@ -583,6 +613,7 @@ function AdminPanel() {
     { id: 'lab_bookings', label: 'Lab Orders', icon: Activity, count: labBookings.length },
     { id: 'enquiries', label: 'Enquiries', icon: Phone, count: enquiries.length, badge: enquiries.filter(e => e.status === 'pending').length },
     { id: 'messages', label: 'Messages', icon: Mail, count: messages.length },
+    { id: 'reviews', label: 'Reviews', icon: MessageSquare, count: bookings.filter((b:any) => b.reviewText).length },
   ];
 
   return (
@@ -621,17 +652,17 @@ function AdminPanel() {
 
       <div className="max-w-7xl mx-auto px-6 md:px-10 py-8">
         {/* Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
           {tabs.map(t => (
-            <div key={t.id} className={`glass-panel p-5 rounded-2xl border flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 relative ${activeTab === t.id ? 'border-(--color-accent-blue)/40 shadow-[0_0_20px_rgba(0,229,255,0.1)]' : 'border-white/5 hover:border-white/10'}`} onClick={() => setActiveTab(t.id)}>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${activeTab === t.id ? 'bg-(--color-accent-blue)/20 border border-(--color-accent-blue)/30' : 'bg-white/5 border border-white/10'}`}>
-                <t.icon size={20} className={activeTab === t.id ? 'text-(--color-accent-blue)' : 'text-gray-400'} />
+            <div key={t.id} className={`glass-panel p-3.5 rounded-2xl border flex flex-col items-center gap-3 cursor-pointer transition-all duration-300 relative ${activeTab === t.id ? 'border-(--color-accent-blue)/40 shadow-[0_0_20px_rgba(0,229,255,0.1)]' : 'border-white/5 hover:border-white/10'}`} onClick={() => setActiveTab(t.id)}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeTab === t.id ? 'bg-(--color-accent-blue)/20 border border-(--color-accent-blue)/30' : 'bg-white/5 border border-white/10'}`}>
+                <t.icon size={18} className={activeTab === t.id ? 'text-(--color-accent-blue)' : 'text-gray-400'} />
               </div>
               <div className="text-center">
-                <div className="text-3xl font-serif font-black text-white">{t.count}</div>
-                <div className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">{t.label}</div>
+                <div className="text-2xl font-serif font-black text-white">{t.count}</div>
+                <div className="text-[9px] text-gray-500 uppercase tracking-widest font-mono line-clamp-1">{t.label}</div>
               </div>
-              {t.badge && t.badge > 0 ? <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-black/20">{t.badge}</span> : null}
+              {t.badge && t.badge > 0 ? <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-[9px] font-black px-2 py-0.5 rounded-full shadow-lg border border-black/20">{t.badge}</span> : null}
             </div>
           ))}
         </div>
@@ -672,6 +703,9 @@ function AdminPanel() {
               )}
               {activeTab === 'messages' && (
                 <MessageTable messages={messages} onDelete={handleDelete} />
+              )}
+              {activeTab === 'reviews' && (
+                <ReviewTable reviews={bookings.filter((b:any) => b.reviewText)} />
               )}
             </motion.div>
           </AnimatePresence>

@@ -15,7 +15,7 @@ export default function DoctorRegistration() {
 
   const [formData, setFormData] = useState({
     name: '', email: '', password: '', age: '', degree: '', institution: '', 
-    experience: '', hospital: '', speciality: 'General Physician',
+    experience: '', hospital: '', speciality: 'Primary Care',
     imageUrl: '', proofUrl: '', fees: 500
   });
 
@@ -58,7 +58,7 @@ export default function DoctorRegistration() {
   const handleChange = (e: any) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const specialities = [
-    "General Physician", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry"
+    "Primary Care", "Cardiology", "Neurology", "Orthopedics", "Dermatology", "Pediatrics", "Oncology", "Psychiatry"
   ];
 
   if (success) {
