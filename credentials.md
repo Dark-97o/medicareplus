@@ -8,7 +8,7 @@ This file contains the registered login combinations for the MedicarePlus platfo
 
 ## Doctor Portal Logins
 
-| ID | Name             | Email                  | Password   | Specialization     | Role |
+| ID | Name | Email | Password | Specialization | Role |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 1 | Dr. Vikram Singh | `uemsystem1@gmail.com` | `medicare` | **Primary Care** | Doctor |
 | 2 | Dr. Sunil Chhetri | `rishi55443322@gmail.com` | `medicare` | **Primary Care** | Doctor |
@@ -33,11 +33,10 @@ This file contains the registered login combinations for the MedicarePlus platfo
 | 21 | Dr. Pankaj Advani | `doctor25@medicareplus.com` | `medicare` | **Psychiatry** | Doctor |
 | 22 | Dr. Rajesh Khanna | `doctor13@medicareplus.com` | `medicare` | **Urology** | Doctor |
 | 23 | Dr. Sanjay Dutt | `doctor9@medicareplus.com` | `medicare` | **Radiology** | Doctor |
-| 24 | Dr. Ishani Gupta | `doctor6@medicareplus.com` | `medicare` | **Endocrinology** | Doctor |
+| 24 | Dr. Ishani Gupta | `doctor6@medicareplus.com" | `medicare` | **Endocrinology** | Doctor |
 | 25 | Dr. Neha Kakkar | `doctor18@medicareplus.com` | `medicare` | **Primary Care** | Doctor |
 | 26 | Dr. Virat Kohli | `doctor21@medicareplus.com` | `medicare` | **Primary Care** | Doctor |
-| 27 | Dr. Sameer Wankhede | `therapist1@medicareplus.com` | `medicare` | **Therapist** | Doctor |
-| 28 | Dr. Rashi Khanna | `therapist2@medicareplus.com` | `medicare` | **Therapist** | Doctor |
+| 27 | Dr. Rashi Khanna | `therapist2@medicareplus.com` | `medicare` | **Therapist** | Doctor |
 
 ---
 
@@ -47,3 +46,24 @@ This file contains the registered login combinations for the MedicarePlus platfo
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | Dr. Sunita Gupta | `abhi086038@outlook.com` | `medicare` | Lab Specialist |
 | 2 | Dr. Alok Verma | `rohan809raj@outlook.com` | `medicare` | Lab Specialist |
+
+---
+
+## Doctor Specialization Statistics
+
+| Specialization | Count |
+| :--- | :--- |
+| Primary Care | 6 |
+| Cardiology | 2 |
+| Neurology | 2 |
+| Orthopedics | 2 |
+| Dermatology | 2 |
+| Pediatrics | 2 |
+| Oncology | 2 |
+| Psychiatry | 2 |
+| Urology | 2 |
+| Radiology | 2 |
+| Endocrinology | 2 |
+| Therapist | 1 |
+
+**Total Live Doctors:** 27
