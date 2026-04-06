@@ -81,20 +81,16 @@ export default function LabBooking() {
 
   const handlePayment = async () => {
     if (!selectedTest || !bookingDate) return;
-    setLoading(true);
 
-    try {
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY || 'rzp_test_5M89DkM13M89Dk', // Default for test
-        amount: selectedTest.charges * 100,
-        currency: "INR",
-        name: "MedicarePlus Labs",
-        description: `Booking for ${selectedTest.name}`,
-        handler: async (response: any) => {
+    // DEV BYPASS: Allow creating record without payment on localhost for testing dashboard flow
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (confirm("Detected Dev Environment. Bypass Razorpay for testing?")) {
+        setLoading(true);
+        try {
           await addDoc(collection(db, 'lab_bookings'), {
             patientId: user?.uid,
-            patientName: userProfile?.name,
-            patientEmail: userProfile?.email,
+            patientName: userProfile?.name || user?.email,
+            patientEmail: userProfile?.email || user?.email,
             labId: selectedTest.labId,
             testId: selectedTest.id,
             testName: selectedTest.name,
@@ -102,49 +98,96 @@ export default function LabBooking() {
             date: bookingDate,
             notes: notes,
             charges: selectedTest.charges,
-            paymentId: response.razorpay_payment_id,
+            paymentId: 'DEV_TEST_BYPASS',
+            status: 'confirmed',
+            createdAt: new Date().toISOString()
+          });
+          setStep(4);
+          return;
+        } catch (e: any) { 
+          alert("Dev Bypass Failed: " + e.message); 
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+
+    setLoading(true);
+
+    const options = {
+      key: 'rzp_live_SRCE9sabTGkSGi',
+      amount: selectedTest.charges * 100,
+      currency: "INR",
+      name: "MedicarePlus Labs",
+      description: `Booking for ${selectedTest.name}`,
+      handler: async (response: any) => {
+        try {
+          console.log('[Booking] Payment authorized:', response.razorpay_payment_id);
+          const razorpayPaymentId = response.razorpay_payment_id;
+
+          await addDoc(collection(db, 'lab_bookings'), {
+            patientId: user?.uid,
+            patientName: userProfile?.name || user?.email,
+            patientEmail: userProfile?.email || user?.email,
+            labId: selectedTest.labId,
+            testId: selectedTest.id,
+            testName: selectedTest.name,
+            hospitalName: selectedTest.hospitalName,
+            date: bookingDate,
+            notes: notes,
+            charges: selectedTest.charges,
+            paymentId: razorpayPaymentId,
             status: 'confirmed',
             createdAt: new Date().toISOString()
           });
 
-          try {
-            await sendPatientBookingConfirmation({
-              to_email: userProfile?.email || user?.email || '',
-              to_name: userProfile?.name || 'Patient',
-              service_type: 'Lab Test',
-              provider_name: selectedTest.hospitalName,
-              date: bookingDate,
-              time: 'As per lab schedule',
-              transaction_id: response.razorpay_payment_id,
-              amount_paid: `₹${selectedTest.charges}`,
-            });
+          await sendPatientBookingConfirmation({
+            to_email: userProfile?.email || user?.email || '',
+            to_name: userProfile?.name || 'Patient',
+            service_type: 'Lab Test',
+            provider_name: selectedTest.hospitalName,
+            date: bookingDate,
+            time: 'As per lab schedule',
+            transaction_id: razorpayPaymentId,
+            amount_paid: `₹${selectedTest.charges}`,
+          });
 
-            await sendProviderBookingAlert({
-              provider_email: selectedTest.email || 'lab@example.com',
-              provider_name: selectedTest.hospitalName,
-              patient_name: userProfile?.name || 'Patient',
-              service_type: `Lab Test (${selectedTest.name})`,
-              date: bookingDate,
-              time: 'As per lab schedule',
-            });
-          } catch (e) {
-            console.error('Email failed to send', e);
-          }
-
+          await sendProviderBookingAlert({
+            provider_email: selectedTest.email || 'lab@example.com',
+            provider_name: selectedTest.hospitalName,
+            patient_name: userProfile?.name || 'Patient',
+            service_type: `Lab Test (${selectedTest.name})`,
+            date: bookingDate,
+            time: 'As per lab schedule',
+          });
+          
+          setLoading(false);
           setStep(4);
-        },
-        prefill: {
-          name: userProfile?.name,
-          email: userProfile?.email
-        },
-        theme: { color: "#A855F7" }
-      };
+        } catch (err: any) {
+          console.error('[Booking] Fatal Error:', err);
+          alert(`Error confirming booking: ${err.message || 'Unknown error'}`);
+          setLoading(false);
+        }
+      },
+      prefill: {
+        name: userProfile?.name || '',
+        email: userProfile?.email || user?.email,
+        contact: userProfile?.phone || '',
+      },
+      theme: { color: "#A855F7" }
+    };
 
+    try {
       const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any) {
+        console.error('Razorpay payment failed:', response.error);
+        alert('Payment Failed: ' + response.error.description);
+        setLoading(false);
+      });
       rzp.open();
-    } catch (err) {
-      alert("Payment failed");
-    } finally {
+    } catch (e) {
+      console.error('Razorpay init error:', e);
+      alert('Could not open payment gateway. Please ensure you are connected to the internet.');
       setLoading(false);
     }
   };
