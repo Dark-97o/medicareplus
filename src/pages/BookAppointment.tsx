@@ -523,6 +523,31 @@ export default function BookAppointment() {
           };
           console.log('[Booking] Dev Bypass - Saving:', appointmentData);
           await addDoc(collection(db, 'appointments'), appointmentData);
+
+          try {
+            await sendPatientBookingConfirmation({
+              to_email: userProfile?.email || user?.email || '',
+              to_name: userProfile?.name || 'Patient',
+              service_type: 'Doctor Appointment (Dev Bypass)',
+              provider_name: selectedDoctor.name,
+              date,
+              time,
+              transaction_id: 'DEV_TEST_BYPASS',
+              amount_paid: `₹${selectedDoctor.fees}`,
+            });
+
+            await sendProviderBookingAlert({
+              provider_email: selectedDoctor.email || 'doctor@example.com',
+              provider_name: selectedDoctor.name,
+              patient_name: userProfile?.name || 'Patient',
+              service_type: 'Doctor Appointment',
+              date,
+              time,
+            });
+          } catch (emailErr) {
+            console.error('Email sending failed in dev bypass:', emailErr);
+          }
+
           alert("Dev Bypass: Appointment created successfully.");
           navigate('/patient-dashboard');
           return;

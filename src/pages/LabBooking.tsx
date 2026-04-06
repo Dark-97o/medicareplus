@@ -102,6 +102,32 @@ export default function LabBooking() {
             status: 'confirmed',
             createdAt: new Date().toISOString()
           });
+
+          // Send emails even in dev bypass mode
+          try {
+            await sendPatientBookingConfirmation({
+              to_email: userProfile?.email || user?.email || '',
+              to_name: userProfile?.name || 'Patient',
+              service_type: 'Lab Test',
+              provider_name: selectedTest.hospitalName,
+              date: bookingDate,
+              time: 'As per lab schedule',
+              transaction_id: 'DEV_TEST_BYPASS',
+              amount_paid: `₹${selectedTest.charges}`,
+            });
+
+            await sendProviderBookingAlert({
+              provider_email: selectedTest.email || 'lab@example.com',
+              provider_name: selectedTest.hospitalName,
+              patient_name: userProfile?.name || 'Patient',
+              service_type: `Lab Test (${selectedTest.name})`,
+              date: bookingDate,
+              time: 'As per lab schedule',
+            });
+          } catch (emailErr) {
+            console.error('Email sending failed in dev bypass:', emailErr);
+          }
+
           setStep(4);
           return;
         } catch (e: any) { 
@@ -127,12 +153,12 @@ export default function LabBooking() {
 
           await addDoc(collection(db, 'lab_bookings'), {
             patientId: user?.uid,
-            patientName: userProfile?.name || user?.email,
-            patientEmail: userProfile?.email || user?.email,
+            patientName: userProfile?.name || user?.email || 'Patient',
+            patientEmail: userProfile?.email || user?.email || 'N/A',
             labId: selectedTest.labId,
             testId: selectedTest.id,
             testName: selectedTest.name,
-            hospitalName: selectedTest.hospitalName,
+            hospitalName: selectedTest.hospitalName || selectedTest.labName || 'Diagnostic Lab',
             date: bookingDate,
             notes: notes,
             charges: selectedTest.charges,
@@ -141,20 +167,23 @@ export default function LabBooking() {
             createdAt: new Date().toISOString()
           });
 
-          await sendPatientBookingConfirmation({
-            to_email: userProfile?.email || user?.email || '',
-            to_name: userProfile?.name || 'Patient',
-            service_type: 'Lab Test',
-            provider_name: selectedTest.hospitalName,
-            date: bookingDate,
-            time: 'As per lab schedule',
-            transaction_id: razorpayPaymentId,
-            amount_paid: `₹${selectedTest.charges}`,
-          });
+          const finalEmail = userProfile?.email || user?.email || '';
+          if (finalEmail) {
+            await sendPatientBookingConfirmation({
+              to_email: finalEmail,
+              to_name: userProfile?.name || 'Patient',
+              service_type: 'Lab Test',
+              provider_name: selectedTest.hospitalName || selectedTest.labName || 'Diagnostic Lab',
+              date: bookingDate,
+              time: 'As per lab schedule',
+              transaction_id: razorpayPaymentId,
+              amount_paid: `₹${selectedTest.charges}`,
+            });
+          }
 
           await sendProviderBookingAlert({
             provider_email: selectedTest.email || 'lab@example.com',
-            provider_name: selectedTest.hospitalName,
+            provider_name: selectedTest.hospitalName || selectedTest.labName || 'Diagnostic Lab',
             patient_name: userProfile?.name || 'Patient',
             service_type: `Lab Test (${selectedTest.name})`,
             date: bookingDate,
@@ -165,7 +194,8 @@ export default function LabBooking() {
           setStep(4);
         } catch (err: any) {
           console.error('[Booking] Fatal Error:', err);
-          alert(`Error confirming booking: ${err.message || 'Unknown error'}`);
+          const errMsg = err.message || err.text || JSON.stringify(err);
+          alert(`Error confirming booking: ${errMsg}`);
           setLoading(false);
         }
       },
